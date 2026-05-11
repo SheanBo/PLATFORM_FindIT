@@ -1,230 +1,146 @@
-# FindIT — Lost & Found Management System
-**Ateneo de Naga University — Office of Student Affairs**
+# FindIT - Lost & Found Management System
 
----
+A modern Lost & Found management application for Ateneo de Naga University's Office of Student Affairs, built with React, Node.js, Express, and SQLite.
+
+## Features
+
+- Report lost items with photos and descriptions
+- Register and track found items
+- Smart auto-matching algorithm (40-100 score scale)
+- Claim management and verification workflow
+- Storage management with capacity tracking
+- Real-time dashboard and analytics
+- Role-based access control (Student, Staff, Admin)
 
 ## Tech Stack
-- **Backend:** Node.js · Express · SQLite (better-sqlite3) · JWT · Multer
-- **Frontend:** React 18 · Vite · Tailwind CSS · React Router v6 · React Hook Form
 
----
+**Frontend:** React 18 · Vite · Tailwind CSS · React Router v6 · Lucide Icons
 
-## Quick Start
+**Backend:** Node.js · Express · SQLite · JWT Authentication · Multer (file uploads)
+
+## Getting Started
 
 ### Prerequisites
-- Node.js v18+
-- npm v9+
 
-> **Note:** `better-sqlite3` requires native compilation.
-> On Windows, install: `npm install --global windows-build-tools`
-> On Linux/Mac: ensure `build-essential` (Linux) or Xcode CLI tools (Mac) are installed.
+- Node.js v18+ and npm v9+
 
----
+### Installation
 
-### 1. Backend Setup
+**Backend Setup**
 
 ```bash
 cd backend
-
-# Copy env file
-cp .env.example .env
-# Edit .env if needed (default settings work for local dev)
-
-# Install dependencies
 npm install
-
-# Initialize database + seed demo data
-node src/database/init.js
 node src/database/seed.js
-
-# Start backend (port 5000)
 npm run dev
 ```
 
-### 2. Frontend Setup
+Backend runs on `http://localhost:5000`
+
+**Frontend Setup**
 
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
-
-# Start frontend (port 5173)
 npm run dev
 ```
 
-### 3. Open Browser
-Navigate to: **http://localhost:5173**
+Frontend runs on `http://localhost:5173`
 
----
+### Demo Credentials
 
-## Demo Credentials
 All accounts use password: `Password123!`
 
-| Role    | Username         |
-|---------|-----------------|
-| Admin   | `admin`         |
-| Staff   | `staff1`        |
-| Student | `juan.delacruz` |
-| Student | `maria.santos`  |
-| Student | `carlo.reyes`   |
-
----
+| Role | Username |
+|------|----------|
+| Admin | admin |
+| Staff | staff1 |
+| Student | juan.delacruz |
 
 ## Project Structure
 
 ```
 findit/
 ├── backend/
-│   ├── .env.example
-│   ├── package.json
-│   └── src/
-│       ├── server.js              ← Express entry point
-│       ├── database/
-│       │   ├── init.js            ← Schema + views + triggers
-│       │   ├── seed.js            ← Demo data
-│       │   └── findit.db          ← SQLite database (auto-created)
-│       ├── middleware/
-│       │   └── auth.middleware.js
-│       ├── utils/
-│       │   ├── audit.js
-│       │   └── upload.js
-│       └── modules/
-│           ├── auth/              → POST /api/auth/login|register, GET /api/auth/me
-│           ├── lost-reports/      → /api/findit-lost-reports
-│           ├── found-items/       → /api/findit-found-items
-│           ├── matching/          → /api/findit-matching
-│           ├── claims/            → /api/findit-claims
-│           ├── storage/           → /api/findit-storage
-│           └── dashboard/         → /api/findit-dashboard/*
+│   ├── src/
+│   │   ├── server.js
+│   │   ├── database/
+│   │   │   ├── init.js (schema)
+│   │   │   └── seed.js (demo data)
+│   │   ├── middleware/
+│   │   ├── modules/
+│   │   │   ├── auth/
+│   │   │   ├── lost-reports/
+│   │   │   ├── found-items/
+│   │   │   ├── matching/
+│   │   │   ├── claims/
+│   │   │   ├── storage/
+│   │   │   └── dashboard/
+│   │   └── utils/
+│   └── package.json
 └── frontend/
-    └── src/
-        ├── App.jsx
-        ├── lib/
-        │   ├── api.js             ← Axios instance
-        │   └── AuthContext.jsx
-        ├── components/
-        │   ├── Layout.jsx
-        │   └── ui/
-        │       ├── StatusBadge.jsx
-        │       ├── Pagination.jsx
-        │       ├── Modal.jsx
-        │       └── ConfirmDialog.jsx
-        └── modules/
-            ├── auth/
-            ├── dashboard/
-            ├── lost-reports/
-            ├── found-items/
-            ├── matching/
-            ├── claims/
-            └── storage/
+    ├── src/
+    │   ├── components/
+    │   │   └── ui/ (12 modern components)
+    │   ├── modules/
+    │   ├── lib/
+    │   └── App.jsx
+    └── package.json
 ```
 
----
+## Key Endpoints
 
-## API Endpoints
+### Authentication
+- `POST /api/auth/login` - Login
+- `POST /api/auth/register` - Register
+- `GET /api/auth/me` - Current user
 
-### Auth
-| Method | Endpoint | Access |
-|--------|----------|--------|
-| POST | `/api/auth/login` | Public |
-| POST | `/api/auth/register` | Public |
-| GET | `/api/auth/me` | Authenticated |
+### Lost Reports & Found Items
+- `GET/POST /api/findit-lost-reports` - Lost report management
+- `GET/POST /api/findit-found-items` - Found item management
+- `GET /api/findit-matching` - View matches
+- `GET/POST /api/findit-claims` - Claim management
 
-### Lost Reports
-| Method | Endpoint | Access |
-|--------|----------|--------|
-| GET | `/api/findit-lost-reports` | All users |
-| GET | `/api/findit-lost-reports/:id` | All users |
-| POST | `/api/findit-lost-reports` | All users |
-| PUT | `/api/findit-lost-reports/:id` | Owner / Staff / Admin |
-| DELETE | `/api/findit-lost-reports/:id` | Owner / Staff / Admin |
+### Dashboard (Staff/Admin only)
+- `GET /api/findit-dashboard/stats` - Statistics
+- `GET /api/findit-dashboard/analytics` - Analytics
 
-### Found Items
-| Method | Endpoint | Access |
-|--------|----------|--------|
-| GET | `/api/findit-found-items` | All users |
-| GET | `/api/findit-found-items/:id` | All users |
-| POST | `/api/findit-found-items` | Staff / Admin |
-| PUT | `/api/findit-found-items/:id` | Staff / Admin |
-| DELETE | `/api/findit-found-items/:id` | Admin |
-| GET | `/api/findit-found-items/expired/list` | Staff / Admin |
+## Matching Algorithm
 
-### Matching
-| Method | Endpoint | Access |
-|--------|----------|--------|
-| GET | `/api/findit-matching` | All users |
-| GET | `/api/findit-matching/:id` | All users |
-| POST | `/api/findit-matching/run` | Staff / Admin |
-| POST | `/api/findit-matching/manual` | Staff / Admin |
-| PUT | `/api/findit-matching/:id/status` | Staff / Admin |
+Matches lost items with found items using weighted scoring:
 
-### Claims
-| Method | Endpoint | Access |
-|--------|----------|--------|
-| GET | `/api/findit-claims` | All users |
-| GET | `/api/findit-claims/:id` | All users |
-| POST | `/api/findit-claims` | All users |
-| PUT | `/api/findit-claims/:id/verify` | Staff / Admin |
-| PUT | `/api/findit-claims/:id/acknowledge` | Student (owner) |
-
-### Storage
-| Method | Endpoint | Access |
-|--------|----------|--------|
-| GET | `/api/findit-storage` | Staff / Admin |
-| GET | `/api/findit-storage/:id` | Staff / Admin |
-| POST | `/api/findit-storage` | Admin |
-| PUT | `/api/findit-storage/:id` | Admin |
-| GET | `/api/findit-storage/expired/items` | Staff / Admin |
-| PUT | `/api/findit-storage/items/:id/move` | Staff / Admin |
-
-### Dashboard
-| Method | Endpoint | Access |
-|--------|----------|--------|
-| GET | `/api/findit-dashboard/stats` | Staff / Admin |
-| GET | `/api/findit-dashboard/recent-activity` | Staff / Admin |
-| GET | `/api/findit-dashboard/analytics` | Admin |
-| GET | `/api/findit-dashboard/my-stats` | All users |
-| GET | `/api/findit-dashboard/locations` | All users |
-| GET | `/api/findit-dashboard/categories` | All users |
-| GET | `/api/findit-dashboard/users` | Admin |
-| PUT | `/api/findit-dashboard/users/:id/toggle` | Admin |
-| PUT | `/api/findit-dashboard/users/:id/role` | Admin |
-
----
-
-## Matching Score Formula
 | Attribute | Weight |
 |-----------|--------|
-| Category  | 40%    |
-| Color     | 20%    |
-| Brand     | 20%    |
-| Size      | 10%    |
-| Location  | 10%    |
+| Category | 40% |
+| Color | 20% |
+| Brand | 20% |
+| Size | 10% |
+| Location | 10% |
 
-Minimum score to surface a match: **60/100**
+Minimum match score: **60/100**
 
----
+## User Roles
 
-## User Roles & Permissions
 | Feature | Student | Staff | Admin |
 |---------|---------|-------|-------|
-| File lost report | ✅ | ✅ | ✅ |
-| View found items | ✅ | ✅ | ✅ |
-| View matches (own) | ✅ | ✅ | ✅ |
-| File claim | ✅ | ✅ | ✅ |
-| Register found item | ❌ | ✅ | ✅ |
-| Run auto-match | ❌ | ✅ | ✅ |
-| Verify claims | ❌ | ✅ | ✅ |
-| Manage storage | ❌ | ✅ | ✅ |
-| Dashboard/Analytics | ❌ | ✅ | ✅ |
-| Manage users | ❌ | ❌ | ✅ |
-| Create storage sections | ❌ | ❌ | ✅ |
-| Dispose items | ❌ | ❌ | ✅ |
+| File lost report | Yes | Yes | Yes |
+| Register found item | No | Yes | Yes |
+| Verify claims | No | Yes | Yes |
+| Run auto-match | No | Yes | Yes |
+| Manage storage | No | Yes | Yes |
+| View analytics | No | Yes | Yes |
+| Manage users | No | No | Yes |
 
----
+## Documentation
 
-## Environment Variables (backend/.env)
+- **UI_UX_IMPROVEMENTS.md** - Implementation guide for UI components
+- **COMPONENT_REFERENCE.md** - Component API documentation
+- **QUICK_START.md** - Quick start guide for implementing UI changes
+
+## Environment Setup
+
+Backend `.env` file:
+
 ```
 PORT=5000
 JWT_SECRET=your-secret-key-here
@@ -234,3 +150,13 @@ UPLOAD_DIR=./uploads
 NODE_ENV=development
 FRONTEND_URL=http://localhost:5173
 ```
+
+## Architecture Highlights
+
+- Modern React component library with 12 reusable components
+- Professional design system with consistent tokens
+- Async/await backend with proper error handling
+- SQLite database with views, triggers, and audit logging
+- JWT-based authentication
+- Role-based access control middleware
+- File upload support with Multer

@@ -1,0 +1,280 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base Typography */
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased font-sans;
+  }
+  h1 { @apply text-h1 font-bold; }
+  h2 { @apply text-h2 font-bold; }
+  h3 { @apply text-h3 font-semibold; }
+  h4 { @apply text-h4 font-semibold; }
+  h5 { @apply text-h5 font-semibold; }
+  h6 { @apply text-h5 font-semibold; }
+}
+
+/* Modern Components */
+@layer components {
+  /* Buttons - Enhanced with proper states */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
+           bg-primary text-white font-medium text-sm
+           hover:bg-blue-700 active:bg-blue-800
+           disabled:opacity-50 disabled:cursor-not-allowed
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+           transition-all duration-base cursor-pointer
+           whitespace-nowrap;
+  }
+
+  .btn-primary:disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
+           bg-white text-slate-700 font-medium text-sm
+           border border-slate-300
+           hover:bg-slate-50 active:bg-slate-100
+           disabled:opacity-50 disabled:cursor-not-allowed
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+           transition-all duration-base cursor-pointer
+           whitespace-nowrap;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
+           text-slate-700 font-medium text-sm
+           hover:bg-slate-100 active:bg-slate-200
+           disabled:opacity-50 disabled:cursor-not-allowed
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+           transition-all duration-base cursor-pointer
+           whitespace-nowrap;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
+           bg-error text-white font-medium text-sm
+           hover:bg-red-700 active:bg-red-800
+           disabled:opacity-50 disabled:cursor-not-allowed
+           focus:outline-none focus:ring-2 focus:ring-error focus:ring-offset-2
+           transition-all duration-base cursor-pointer
+           whitespace-nowrap;
+  }
+
+  .btn-success {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
+           bg-success text-white font-medium text-sm
+           hover:bg-green-700 active:bg-green-800
+           disabled:opacity-50 disabled:cursor-not-allowed
+           focus:outline-none focus:ring-2 focus:ring-success focus:ring-offset-2
+           transition-all duration-base cursor-pointer
+           whitespace-nowrap;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-base;
+  }
+
+  /* Form Inputs - Modern with proper states */
+  .input {
+    @apply w-full px-3 py-2 rounded-lg text-sm
+           border border-slate-300 bg-white
+           text-slate-900
+           placeholder:text-slate-400
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:border-transparent
+           hover:border-slate-400
+           disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed
+           transition-all duration-base;
+  }
+
+  .input-error {
+    @apply border-error focus:ring-error;
+  }
+
+  .input-success {
+    @apply border-success focus:ring-success;
+  }
+
+  .textarea {
+    @apply w-full px-3 py-2 rounded-lg text-sm
+           border border-slate-300 bg-white
+           text-slate-900
+           placeholder:text-slate-400
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:border-transparent
+           hover:border-slate-400
+           disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed
+           transition-all duration-base
+           font-sans;
+  }
+
+  .select {
+    @apply w-full px-3 py-2 rounded-lg text-sm
+           border border-slate-300 bg-white
+           text-slate-900
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:border-transparent
+           hover:border-slate-400
+           disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed
+           transition-all duration-base
+           cursor-pointer;
+  }
+
+  /* Labels - Better accessibility */
+  .label {
+    @apply block text-label font-medium text-slate-700 mb-md;
+  }
+
+  .label-required::after {
+    @apply text-error ml-xs;
+    content: '*';
+  }
+
+  /* Cards - Modern with proper hierarchy */
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-slate-200 p-lg
+           transition-all duration-base hover:shadow-md;
+  }
+
+  .card-compact {
+    @apply p-md;
+  }
+
+  .card-elevated {
+    @apply shadow-md hover:shadow-lg;
+  }
+
+  .card-interactive {
+    @apply cursor-pointer hover:shadow-md hover:border-slate-300;
+  }
+
+  /* Badges - Status indicators */
+  .badge {
+    @apply inline-flex items-center gap-xs px-md py-xs rounded-full text-caption font-medium;
+  }
+
+  /* Status colors with proper contrast */
+  .badge-success {
+    @apply badge bg-green-100 text-green-800;
+  }
+
+  .badge-pending {
+    @apply badge bg-orange-100 text-orange-800;
+  }
+
+  .badge-warning {
+    @apply badge bg-amber-100 text-amber-800;
+  }
+
+  .badge-error {
+    @apply badge bg-red-100 text-red-800;
+  }
+
+  .badge-info {
+    @apply badge bg-blue-100 text-blue-800;
+  }
+
+  .badge-neutral {
+    @apply badge bg-slate-100 text-slate-800;
+  }
+
+  /* Map old badge names for compatibility */
+  .badge-green { @apply badge-success; }
+  .badge-yellow { @apply badge-pending; }
+  .badge-red { @apply badge-error; }
+  .badge-blue { @apply badge-info; }
+  .badge-gray { @apply badge-neutral; }
+  .badge-purple { @apply badge bg-purple-100 text-purple-800; }
+
+  /* Tables - Better spacing and hierarchy */
+  .table {
+    @apply w-full text-sm border-collapse;
+  }
+
+  .table thead {
+    @apply bg-slate-50 border-b border-slate-200;
+  }
+
+  .table thead th {
+    @apply text-left px-lg py-md font-semibold text-slate-700 text-label;
+  }
+
+  .table tbody tr {
+    @apply border-b border-slate-100 hover:bg-slate-50 transition-colors duration-fast;
+  }
+
+  .table tbody td {
+    @apply px-lg py-md text-slate-900;
+  }
+
+  /* Loading Skeleton */
+  .skeleton {
+    @apply animate-pulse bg-slate-200 rounded-lg;
+  }
+
+  /* Divider */
+  .divider {
+    @apply h-px bg-slate-200;
+  }
+
+  .divider-vertical {
+    @apply w-px h-full bg-slate-200;
+  }
+
+  /* Help text */
+  .help-text {
+    @apply text-caption text-slate-500 mt-xs;
+  }
+
+  .help-text-error {
+    @apply text-caption text-error mt-xs;
+  }
+
+  .help-text-success {
+    @apply text-caption text-success mt-xs;
+  }
+
+  /* Alert boxes */
+  .alert {
+    @apply p-lg rounded-lg border flex items-start gap-lg;
+  }
+
+  .alert-success {
+    @apply bg-green-50 border-green-200 text-green-900;
+  }
+
+  .alert-error {
+    @apply bg-red-50 border-red-200 text-red-900;
+  }
+
+  .alert-warning {
+    @apply bg-amber-50 border-amber-200 text-amber-900;
+  }
+
+  .alert-info {
+    @apply bg-blue-50 border-blue-200 text-blue-900;
+  }
+
+  .alert-title {
+    @apply font-semibold;
+  }
+
+  /* Accessibility utilities */
+  .sr-only {
+    @apply absolute w-px h-px p-0 -m-px overflow-hidden clip-path-0 whitespace-nowrap border-0;
+  }
+
+  /* Focus visible for keyboard navigation */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2;
+  }
+
+  /* Smooth transitions globally */
+  * {
+    @apply transition-colors duration-base;
+  }
+}

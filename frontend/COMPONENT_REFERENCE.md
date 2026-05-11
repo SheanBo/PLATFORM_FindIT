@@ -279,7 +279,7 @@ import { Package, Plus } from 'lucide-react';
   icon={Package}
   label="Total Items"
   value={42}
-  change="↑ 12%"
+  change="12%"
   trend="up"
   onClick={handleClick}
 />
@@ -415,11 +415,6 @@ import { SearchBar, FilterBar, FilterChips } from '@/components/ui/SearchBar';
         { value: 'closed', label: 'Closed' },
       ],
     },
-    {
-      key: 'date',
-      label: 'Date',
-      type: 'date',
-    },
   ]}
   values={filters}
   onChange={(key, val) => setFilter(key, val)}
@@ -430,7 +425,6 @@ import { SearchBar, FilterBar, FilterChips } from '@/components/ui/SearchBar';
 <FilterChips
   filters={[
     { id: 'status-active', label: 'Status: Active' },
-    { id: 'date-2024', label: 'Date: 2024' },
   ]}
   onRemove={(id) => removeFilter(id)}
 />
@@ -459,152 +453,13 @@ import { FileText, Plus } from 'lucide-react';
 
 ---
 
-## Complete Page Example
+## Best Practices
 
-```jsx
-import { useState, useEffect } from 'react';
-import { PageHeader } from '@/components/ui/PageHeader';
-import { SearchBar } from '@/components/ui/SearchBar';
-import { DataTable } from '@/components/ui/DataTable';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { Alert } from '@/components/ui/Alert';
-import { Plus, Eye } from 'lucide-react';
-
-export default function ItemsPage() {
-  const [items, setItems] = useState([]);
-  const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    // Fetch items
-    setLoading(false);
-  }, []);
-
-  const handleCreate = () => {
-    // Create item
-  };
-
-  return (
-    <div className="p-lg max-w-7xl mx-auto">
-      {/* Errors */}
-      {error && (
-        <Alert
-          type="error"
-          message={error}
-          className="mb-lg"
-        />
-      )}
-
-      {/* Header */}
-      <PageHeader
-        title="Items"
-        subtitle="Browse and manage items"
-        action={
-          <Button
-            icon={Plus}
-            onClick={handleCreate}
-          >
-            New Item
-          </Button>
-        }
-      />
-
-      {/* Search */}
-      <div className="card mb-lg">
-        <SearchBar
-          value={search}
-          onChange={setSearch}
-          placeholder="Search items..."
-        />
-      </div>
-
-      {/* Table */}
-      <div className="card p-0">
-        <DataTable
-          columns={[
-            { key: 'id', label: '#' },
-            { key: 'name', label: 'Name' },
-            { key: 'category', label: 'Category' },
-            { key: 'status', label: 'Status' },
-          ]}
-          data={items}
-          loading={loading}
-          rowKey="id"
-          renderRow={(item) => (
-            <>
-              <td className="px-lg py-md">{item.id}</td>
-              <td className="px-lg py-md font-medium">{item.name}</td>
-              <td className="px-lg py-md">{item.category}</td>
-              <td className="px-lg py-md">
-                <Badge status={item.status} />
-              </td>
-              <td className="px-lg py-md text-right">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  icon={Eye}
-                  onClick={() => navigate(`/items/${item.id}`)}
-                >
-                  View
-                </Button>
-              </td>
-            </>
-          )}
-        />
-      </div>
-    </div>
-  );
-}
-```
-
----
-
-## Design Token Usage
-
-```jsx
-import { Colors, Typography, Spacing, Shadows } from '@/lib/DesignTokens';
-
-// Using tokens in custom components
-<div style={{
-  backgroundColor: Colors.bg.secondary,
-  color: Colors.text.primary,
-  padding: Spacing.lg,
-  borderRadius: '8px',
-  boxShadow: Shadows.md,
-  fontFamily: Typography.fontFamily.body,
-}}>
-  Content
-</div>
-
-// Or with Tailwind
-<div className="bg-slate-50 text-slate-900 p-lg rounded-lg shadow-md">
-  Content
-</div>
-```
-
----
-
-## Accessibility Features
-
-All components include:
-- ✅ Proper ARIA labels
-- ✅ Keyboard navigation support
-- ✅ Focus visible states
-- ✅ Color contrast compliance (WCAG AA)
-- ✅ Screen reader support
-- ✅ Touch-friendly targets (44x44px minimum)
-
----
-
-## Tips & Best Practices
-
-1. **Always use semantic HTML** - Use `<button>` for buttons, not `<div>`
-2. **Provide labels** - Use labels for form inputs
-3. **Show loading states** - Use `loading` prop or `LoadingSpinner`
-4. **Handle errors gracefully** - Use `Alert` component
-5. **Show empty states** - Use `EmptyState` component
-6. **Use proper spacing** - Stick to spacing scale
-7. **Test accessibility** - Use keyboard navigation
-8. **Mobile-first** - Design for mobile, enhance for desktop
+1. Always use semantic HTML - Use button for buttons, not div
+2. Provide labels - Use labels for form inputs
+3. Show loading states - Use loading prop or LoadingSpinner
+4. Handle errors gracefully - Use Alert component
+5. Show empty states - Use EmptyState component
+6. Use proper spacing - Stick to spacing scale
+7. Test accessibility - Use keyboard navigation
+8. Mobile-first - Design for mobile, enhance for desktop

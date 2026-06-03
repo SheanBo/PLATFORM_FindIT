@@ -146,7 +146,7 @@ export default function LoginPage() {
       <div
         className="hidden md:block md:w-3/5 lg:w-2/3 relative overflow-hidden"
         style={{
-          backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.2), rgba(0,0,0,0.1)), url(https://images.unsplash.com/photo-1543269865-cbf427effbad?w=1200&h=1600&fit=crop)',
+          backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.05)), url(/ateneo.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}

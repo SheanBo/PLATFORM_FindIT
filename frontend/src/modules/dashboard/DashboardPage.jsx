@@ -107,13 +107,13 @@ export default function DashboardPage() {
     <div className="min-h-screen" style={{ backgroundColor: 'var(--cream-100)' }}>
       {/* Header */}
       <div className="bg-white border-b sticky top-0 z-40" style={{ borderColor: 'var(--gold-300)' }}>
-        <div className="p-6 max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold mb-1" style={{ color: 'var(--brown-900)' }}>Dashboard</h1>
+        <div className="p-3 max-w-7xl mx-auto">
+          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--brown-900)' }}>Dashboard</h1>
           <p style={{ color: 'var(--rust-600)' }}>FindIT — Office of Student Affairs Operations Overview</p>
         </div>
       </div>
 
-      <div className="p-6 max-w-7xl mx-auto space-y-8">
+      <div className="p-3 max-w-7xl mx-auto space-y-4">
         {/* Recovery Rate Banner */}
         {stats?.Recovery_Rate_Percent !== null && (
           <div className="rounded-xl p-8 text-white shadow-lg" style={{ backgroundColor: 'var(--navy-900)' }}>
@@ -131,7 +131,7 @@ export default function DashboardPage() {
         )}
 
         {/* KPI Cards Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           <StatCard icon={Package} label="Unclaimed Items" value={stats?.Unclaimed_Items} color="gold" to="/found-items?status=Unclaimed" />
           <StatCard icon={Zap} label="Pending Matches" value={stats?.Pending_Matches} color="green" to="/matching?status=Pending" />
           <StatCard icon={ClipboardCheck} label="Pending Claims" value={stats?.Pending_Claims} color="blue" to="/claims?status=Pending" />
@@ -143,10 +143,10 @@ export default function DashboardPage() {
         </div>
 
         {/* Charts Section */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-3">
           {/* Items Status Chart */}
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-bold mb-6" style={{ color: 'var(--brown-900)' }}>Items Status Distribution</h3>
+          <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+            <h3 className="text-sm font-bold mb-3" style={{ color: 'var(--brown-900)' }}>Items Status Distribution</h3>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -169,8 +169,8 @@ export default function DashboardPage() {
           </div>
 
           {/* Reports Status Chart */}
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-bold mb-6" style={{ color: 'var(--brown-900)' }}>Reports Status Distribution</h3>
+          <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+            <h3 className="text-sm font-bold mb-3" style={{ color: 'var(--brown-900)' }}>Reports Status Distribution</h3>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -194,8 +194,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Monthly History Chart */}
-        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-          <h3 className="text-lg font-bold mb-6" style={{ color: 'var(--brown-900)' }}>Monthly Activity History</h3>
+        <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+          <h3 className="text-sm font-bold mb-3" style={{ color: 'var(--brown-900)' }}>Monthly Activity History</h3>
           <ResponsiveContainer width="100%" height={400}>
             <BarChart
               data={monthlyData}
@@ -217,11 +217,11 @@ export default function DashboardPage() {
         </div>
 
         {/* Activity Feeds */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-3">
           {/* Recent Found Items */}
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-bold" style={{ color: 'var(--brown-900)' }}>Recent Found Items</h3>
+          <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-2.5">
+              <h3 className="text-sm font-bold" style={{ color: 'var(--brown-900)' }}>Recent Found Items</h3>
               <Link to="/found-items" className="text-sm font-semibold hover:opacity-80 transition-all" style={{ color: 'var(--rust-600)' }}>View all →</Link>
             </div>
             <div className="space-y-3">
@@ -242,9 +242,9 @@ export default function DashboardPage() {
           </div>
 
           {/* Recent Lost Reports */}
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-bold" style={{ color: 'var(--brown-900)' }}>Recent Lost Reports</h3>
+          <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-2.5">
+              <h3 className="text-sm font-bold" style={{ color: 'var(--brown-900)' }}>Recent Lost Reports</h3>
               <Link to="/lost-reports" className="text-sm font-semibold hover:opacity-80 transition-all" style={{ color: 'var(--rust-600)' }}>View all →</Link>
             </div>
             <div className="space-y-3">
@@ -265,9 +265,9 @@ export default function DashboardPage() {
           </div>
 
           {/* Recent Claims */}
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-bold" style={{ color: 'var(--brown-900)' }}>Recent Claims</h3>
+          <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-2.5">
+              <h3 className="text-sm font-bold" style={{ color: 'var(--brown-900)' }}>Recent Claims</h3>
               <Link to="/claims" className="text-sm font-semibold hover:opacity-80 transition-all" style={{ color: 'var(--rust-600)' }}>View all →</Link>
             </div>
             <div className="space-y-3">

@@ -37,7 +37,7 @@ export default function LostReportsPage() {
     <div className="min-h-screen" style={{ backgroundColor: 'var(--cream-100)' }}>
       {/* Header */}
       <div className="bg-white border-b sticky top-0 z-40" style={{ borderColor: 'var(--gold-300)' }}>
-        <div className="p-6 max-w-7xl mx-auto">
+        <div className="p-3 max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--brown-900)' }}>Lost Reports</h1>
@@ -50,9 +50,9 @@ export default function LostReportsPage() {
         </div>
       </div>
 
-      <div className="p-6 max-w-7xl mx-auto">
+      <div className="p-3 max-w-7xl mx-auto">
         {/* Filters */}
-        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 mb-6">
+        <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100 mb-3">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--rust-600)' }} />
@@ -89,19 +89,19 @@ export default function LostReportsPage() {
                   </div>
 
                   {/* Report Info */}
-                  <div className="p-4">
+                  <div className="p-2.5">
                     {/* Name */}
-                    <h3 className="font-bold text-sm mb-1" style={{ color: 'var(--navy-900)' }}>
+                    <h3 className="font-bold text-xs mb-1" style={{ color: 'var(--navy-900)' }}>
                       {report.Item_Name}
                     </h3>
 
                     {/* Details */}
-                    <p className="text-xs mb-3" style={{ color: 'var(--rust-600)' }}>
+                    <p className="text-xs mb-1.5" style={{ color: 'var(--rust-600)' }}>
                       {report.Item_Color}{report.Item_Brand ? ` · ${report.Item_Brand}` : ''}
                     </p>
 
                     {/* Location */}
-                    <div className="flex items-center gap-1 mb-3" style={{ color: 'var(--rust-600)' }}>
+                    <div className="flex items-center gap-1 mb-1.5" style={{ color: 'var(--rust-600)' }}>
                       <MapPin className="w-3 h-3" />
                       <span className="text-xs">{report.Place_Name}</span>
                     </div>
@@ -126,7 +126,7 @@ export default function LostReportsPage() {
 
             {/* Pagination */}
             {pagination && pagination.total > pagination.limit && (
-              <div className="mt-8 flex justify-center">
+              <div className="mt-4 flex justify-center">
                 <Pagination
                   currentPage={page}
                   totalPages={pagination.pages}

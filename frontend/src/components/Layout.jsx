@@ -65,7 +65,7 @@ export function Layout() {
   const SidebarContent = () => (
     <>
       {/* Sidebar Header */}
-      <div className="p-6 border-b" style={{ borderColor: 'rgba(212, 162, 78, 0.2)' }}>
+      <div className="p-3 border-b" style={{ borderColor: 'rgba(212, 162, 78, 0.2)' }}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'var(--gold-500)' }}>
             <Search className="w-5 h-5" style={{ color: 'var(--navy-900)' }} />
@@ -78,7 +78,7 @@ export function Layout() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
         {allowed.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
@@ -86,8 +86,8 @@ export function Layout() {
             onClick={() => setSidebarOpen(false)}
             className={({ isActive }) =>
               isActive
-                ? 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all group'
-                : 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all group text-white'
+                ? 'flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all group'
+                : 'flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all group text-white'
             }
             style={({ isActive }) => ({
               backgroundColor: isActive ? 'var(--gold-500)' : 'transparent',
@@ -102,8 +102,8 @@ export function Layout() {
       </nav>
 
       {/* User Profile & Logout */}
-      <div className="p-4 border-t" style={{ borderColor: 'rgba(212, 162, 78, 0.2)' }}>
-        <div className="flex items-center gap-3 px-4 py-3 mb-3 rounded-lg" style={{ backgroundColor: 'rgba(212, 162, 78, 0.1)' }}>
+      <div className="p-2 border-t" style={{ borderColor: 'rgba(212, 162, 78, 0.2)' }}>
+        <div className="flex items-center gap-2 px-3 py-2 mb-2 rounded-lg" style={{ backgroundColor: 'rgba(212, 162, 78, 0.1)' }}>
           <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold text-white" style={{ backgroundColor: 'var(--gold-500)' }}>
             {user.first_name?.[0]}
             {user.last_name?.[0]}
@@ -117,7 +117,7 @@ export function Layout() {
         </div>
         <button
           onClick={logout}
-          className="flex items-center gap-3 text-white text-sm px-4 py-2.5 w-full rounded-lg transition-colors font-semibold hover:opacity-80"
+          className="flex items-center gap-2 text-white text-xs px-3 py-1.5 w-full rounded-lg transition-colors font-semibold hover:opacity-80"
         >
           <LogOut className="w-4 h-4" />
           Sign Out

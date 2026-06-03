@@ -5,7 +5,8 @@ import { useAuth } from '../../lib/AuthContext';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Pagination } from '../../components/ui/Pagination';
 import { Modal } from '../../components/ui/Modal';
-import { Plus, Search, Eye } from 'lucide-react';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { Plus, Search, Eye, FileText, MapPin } from 'lucide-react';
 import LostReportForm from './LostReportForm';
 import LostReportDetail from './LostReportDetail';
 
@@ -23,7 +24,7 @@ export default function LostReportsPage() {
 
   const load = () => {
     setLoading(true);
-    api.get('/findit-lost-reports', { params: { search, status, page, limit: 10 } })
+    api.get('/findit-lost-reports', { params: { search, status, page, limit: 12 } })
       .then(r => { setReports(r.data.data); setPagination(r.data.pagination); })
       .finally(() => setLoading(false));
   };
@@ -33,69 +34,108 @@ export default function LostReportsPage() {
   const handleCreated = () => { setShowForm(false); load(); };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto min-h-screen bg-amber-50">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-amber-950">Lost Reports</h1>
-          <p className="text-amber-700 text-sm">Report and track lost items</p>
-        </div>
-        <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2 w-fit">
-          <Plus className="w-4 h-4" /> File Report
-        </button>
-      </div>
-
-      <div className="card mb-4">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-400" />
-            <input className="input pl-9" placeholder="Search by item name..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} />
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--cream-100)' }}>
+      {/* Header */}
+      <div className="bg-white border-b sticky top-0 z-40" style={{ borderColor: 'var(--gold-300)' }}>
+        <div className="p-6 max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--brown-900)' }}>Lost Reports</h1>
+              <p style={{ color: 'var(--rust-600)' }}>Report and track lost items</p>
+            </div>
+            <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2 w-fit">
+              <Plus className="w-4 h-4" /> File Report
+            </button>
           </div>
-          <select className="select sm:w-40" value={status} onChange={e => { setStatus(e.target.value); setPage(1); }}>
-            <option value="">All Status</option>
-            {['Active','Matched','Closed','Expired','Cancelled'].map(s => <option key={s}>{s}</option>)}
-          </select>
         </div>
       </div>
 
-      <div className="card overflow-hidden p-0">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-amber-50 border-b border-amber-200">
-              <tr>
-                <th className="text-left px-4 py-3 font-medium text-amber-900">#</th>
-                <th className="text-left px-4 py-3 font-medium text-amber-900">Item</th>
-                <th className="text-left px-4 py-3 font-medium text-amber-900 hidden md:table-cell">Category</th>
-                <th className="text-left px-4 py-3 font-medium text-amber-900 hidden lg:table-cell">Date Lost</th>
-                {user.role !== 'Student' && <th className="text-left px-4 py-3 font-medium text-amber-900 hidden lg:table-cell">Reporter</th>}
-                <th className="text-left px-4 py-3 font-medium text-amber-900">Status</th>
-                <th className="px-4 py-3"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-amber-100">
-              {loading ? (
-                <tr><td colSpan={7} className="text-center py-8 text-amber-400">Loading...</td></tr>
-              ) : reports.length === 0 ? (
-                <tr><td colSpan={7} className="text-center py-8 text-amber-400">No reports found</td></tr>
-              ) : reports.map(r => (
-                <tr key={r.Report_ID} className="hover:bg-amber-100 transition-colors">
-                  <td className="px-4 py-3 text-amber-600">#{r.Report_ID}</td>
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-amber-950">{r.Item_Name}</p>
-                    <p className="text-amber-700 text-xs">{r.Item_Color}{r.Item_Brand ? ` · ${r.Item_Brand}` : ''}</p>
-                  </td>
-                  <td className="px-4 py-3 text-amber-700 hidden md:table-cell">{r.Category_Name}</td>
-                  <td className="px-4 py-3 text-amber-700 hidden lg:table-cell">{r.Date_Lost}</td>
-                  {user.role !== 'Student' && <td className="px-4 py-3 text-amber-700 hidden lg:table-cell">{r.Reporter_Name}</td>}
-                  <td className="px-4 py-3"><StatusBadge status={r.Report_Status} /></td>
-                  <td className="px-4 py-3">
-                    <button onClick={() => setSelectedId(r.Report_ID)} className="text-amber-600 hover:text-amber-800 p-1 transition-colors"><Eye className="w-4 h-4" /></button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div className="p-6 max-w-7xl mx-auto">
+        {/* Filters */}
+        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 mb-6">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--rust-600)' }} />
+              <input className="input pl-9" placeholder="Search by item name..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} style={{ borderColor: 'var(--gold-300)' }} />
+            </div>
+            <select className="select sm:w-40" value={status} onChange={e => { setStatus(e.target.value); setPage(1); }} style={{ borderColor: 'var(--gold-300)' }}>
+              <option value="">All Status</option>
+              {['Active','Matched','Closed','Expired','Cancelled'].map(s => <option key={s}>{s}</option>)}
+            </select>
+          </div>
         </div>
-        <div className="px-4 pb-4"><Pagination pagination={pagination} onPageChange={setPage} /></div>
+
+        {/* Grid Layout */}
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="bg-white rounded-lg h-72 skeleton" />
+            ))}
+          </div>
+        ) : reports.length === 0 ? (
+          <EmptyState icon={FileText} title="No reports found" description="File your first lost report to get started" actionLabel="File Report" onAction={() => setShowForm(true)} />
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {reports.map(report => (
+                <div
+                  key={report.Report_ID}
+                  onClick={() => setSelectedId(report.Report_ID)}
+                  className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer transform hover:scale-105"
+                >
+                  {/* Item Image */}
+                  <div className="w-full h-48 bg-gray-100 flex items-center justify-center" style={{ backgroundColor: 'rgba(212, 162, 78, 0.1)' }}>
+                    <FileText className="w-12 h-12" style={{ color: 'var(--gold-500)' }} />
+                  </div>
+
+                  {/* Report Info */}
+                  <div className="p-4">
+                    {/* Name */}
+                    <h3 className="font-bold text-sm mb-1" style={{ color: 'var(--navy-900)' }}>
+                      {report.Item_Name}
+                    </h3>
+
+                    {/* Details */}
+                    <p className="text-xs mb-3" style={{ color: 'var(--rust-600)' }}>
+                      {report.Item_Color}{report.Item_Brand ? ` · ${report.Item_Brand}` : ''}
+                    </p>
+
+                    {/* Location */}
+                    <div className="flex items-center gap-1 mb-3" style={{ color: 'var(--rust-600)' }}>
+                      <MapPin className="w-3 h-3" />
+                      <span className="text-xs">{report.Place_Name}</span>
+                    </div>
+
+                    {/* Status Badge */}
+                    <div className="flex justify-between items-center">
+                      <StatusBadge status={report.Report_Status} />
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setSelectedId(report.Report_ID); }}
+                        className="p-2 rounded hover:opacity-80 transition-opacity"
+                        style={{ color: 'var(--navy-900)' }}
+                        title="View report details"
+                        aria-label={`View details for ${report.Item_Name}`}
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {pagination && pagination.total > pagination.limit && (
+              <div className="mt-8 flex justify-center">
+                <Pagination
+                  currentPage={page}
+                  totalPages={pagination.pages}
+                  onPageChange={setPage}
+                />
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       <Modal isOpen={showForm} onClose={() => setShowForm(false)} title="File a Lost Report" size="md">

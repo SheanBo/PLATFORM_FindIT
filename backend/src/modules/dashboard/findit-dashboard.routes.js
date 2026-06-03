@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getDb, getAsync, runAsync, allAsync } = require('../../database/init');
 const { authenticate, authorize } = require('../../middleware/auth.middleware');
+const { getMetrics } = require('../../utils/performance');
 
 // GET /api/findit-dashboard/stats
 router.get('/stats', authenticate, authorize('Staff','Admin'), async (req, res) => {
@@ -138,6 +139,14 @@ router.put('/users/:id/role', authenticate, authorize('Admin'), async (req, res)
     if (!['Student','Staff','Admin'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
     await runAsync('UPDATE ONLINE_USER SET Role_Type=? WHERE User_ID=?', [role, req.params.id]);
     res.json({ message: 'Role updated' });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /api/findit-dashboard/performance (Admin)
+router.get('/performance', authenticate, authorize('Admin'), async (req, res) => {
+  try {
+    const metrics = getMetrics();
+    res.json(metrics);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

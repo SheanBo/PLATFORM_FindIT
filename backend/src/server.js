@@ -3,8 +3,10 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const compression = require('compression');
 const path = require('path');
 const { initializeDatabase } = require('./database/init');
+const { performanceTracker } = require('./utils/performance');
 
 // Initialize database
 initializeDatabase();
@@ -48,11 +50,35 @@ const authLimiter = rateLimit({
 });
 
 app.use(globalLimiter);
+
+// Performance Optimization
+app.use(compression()); // Gzip compression
+app.use(performanceTracker()); // Track request performance
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Static files for uploads
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// Cache control headers for static assets
+app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
+  maxAge: '1d',
+  etag: false
+}));
+
+// In-memory cache for dashboard stats (1 minute TTL)
+const cache = new Map();
+const cacheMiddleware = (key, ttl = 60000) => (req, res, next) => {
+  const cached = cache.get(key);
+  if (cached && cached.expires > Date.now()) {
+    return res.json(cached.data);
+  }
+  const originalJson = res.json.bind(res);
+  res.json = (data) => {
+    cache.set(key, { data, expires: Date.now() + ttl });
+    return originalJson(data);
+  };
+  next();
+};
+
+app.cacheMiddleware = cacheMiddleware;
 
 // Routes
 app.use('/api/auth', authLimiter, require('./modules/auth/findit-auth.routes'));

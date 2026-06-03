@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../../lib/api';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Modal } from '../../components/ui/Modal';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Archive, AlertTriangle, Eye } from 'lucide-react';
 
 function UsageBar({ load, capacity }) {
@@ -9,10 +10,10 @@ function UsageBar({ load, capacity }) {
   const color = pct >= 90 ? 'bg-red-500' : pct >= 70 ? 'bg-yellow-500' : 'bg-green-500';
   return (
     <div>
-      <div className="flex justify-between text-xs text-gray-500 mb-1">
+      <div className="flex justify-between text-xs text-amber-700 mb-1">
         <span>{load}/{capacity} items</span><span>{pct}%</span>
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-2">
+      <div className="w-full bg-amber-200 rounded-full h-2">
         <div className={`${color} h-2 rounded-full transition-all`} style={{ width: `${pct}%` }} />
       </div>
     </div>
@@ -44,14 +45,14 @@ export default function StoragePage() {
   const safes = sections.filter(s => s.Storage_Type === 'Office_Safe');
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-6 max-w-7xl mx-auto min-h-screen bg-amber-50">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Storage</h1>
-          <p className="text-gray-500 text-sm">OSA storage sections and item tracking</p>
+          <h1 className="text-2xl font-bold text-amber-950">Storage</h1>
+          <p className="text-amber-700 text-sm">OSA storage sections and item tracking</p>
         </div>
         {expired.length > 0 && (
-          <button onClick={() => setShowExpired(true)} className="flex items-center gap-2 bg-red-100 text-red-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-200 w-fit">
+          <button onClick={() => setShowExpired(true)} className="flex items-center gap-2 bg-red-100 text-red-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-200 w-fit" aria-label="View expired items">
             <AlertTriangle className="w-4 h-4" /> {expired.length} Expired Items
           </button>
         )}
@@ -59,32 +60,37 @@ export default function StoragePage() {
 
       <div className="flex gap-2 mb-6">
         {['sections','lockers','safes'].map(t => (
-          <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${tab === t ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'}`}>
+          <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${tab === t ? 'bg-slate-900 text-white' : 'bg-white text-amber-700 border border-amber-200 hover:bg-amber-100'}`}>
             {t}
           </button>
         ))}
       </div>
 
-      {loading ? <div className="text-center py-8 text-gray-400">Loading...</div> : (
+      {loading ? <LoadingSpinner /> : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {(tab === 'lockers' ? lockers : tab === 'safes' ? safes : sections).map(s => (
-            <div key={s.Section_ID} className="card hover:shadow-md transition-shadow">
+            <div key={s.Section_ID} className="card hover:shadow-md transition-shadow cursor-pointer">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${s.Storage_Type === 'Office_Safe' ? 'bg-purple-100' : 'bg-blue-100'}`}>
-                    <Archive className={`w-4 h-4 ${s.Storage_Type === 'Office_Safe' ? 'text-purple-600' : 'text-blue-600'}`} />
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${s.Storage_Type === 'Office_Safe' ? 'bg-purple-100' : 'bg-amber-100'}`}>
+                    <Archive className={`w-4 h-4 ${s.Storage_Type === 'Office_Safe' ? 'text-purple-600' : 'text-amber-600'}`} />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">{s.Section_Name}</p>
+                    <p className="font-semibold text-amber-950">{s.Section_Name}</p>
                     <StatusBadge status={s.Storage_Type} />
                   </div>
                 </div>
-                <button onClick={() => loadSection(s.Section_ID)} className="text-blue-600 hover:text-blue-800 p-1">
+                <button
+                  onClick={() => loadSection(s.Section_ID)}
+                  className="text-amber-600 hover:text-amber-700 p-1 rounded hover:bg-amber-50 transition-colors"
+                  title="View section details"
+                  aria-label={`View details for ${s.Section_Name}`}
+                >
                   <Eye className="w-4 h-4" />
                 </button>
               </div>
               <UsageBar load={s.Actual_Load ?? s.Current_Load} capacity={s.Capacity} />
-              <p className="text-xs text-gray-500 mt-2">{s.Usage_Percent}% capacity used</p>
+              <p className="text-xs text-amber-700 mt-2">{s.Usage_Percent}% capacity used</p>
             </div>
           ))}
         </div>
@@ -97,16 +103,16 @@ export default function StoragePage() {
             <div className="flex gap-4 text-sm">
               <div className="card flex-1 text-center p-3">
                 <p className="text-2xl font-bold">{sectionDetail.item_count}</p>
-                <p className="text-gray-500">Items stored</p>
+                <p className="text-amber-700">Items stored</p>
               </div>
               <div className="card flex-1 text-center p-3">
                 <p className="text-2xl font-bold">{sectionDetail.Capacity}</p>
-                <p className="text-gray-500">Capacity</p>
+                <p className="text-amber-700">Capacity</p>
               </div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-gray-50 border-b">
+                <thead className="bg-amber-50 border-b">
                   <tr>
                     <th className="text-left px-3 py-2 font-medium text-gray-600">Item</th>
                     <th className="text-left px-3 py-2 font-medium text-gray-600">Category</th>
@@ -121,8 +127,8 @@ export default function StoragePage() {
                   {sectionDetail.items?.map(item => (
                     <tr key={item.Item_ID} className={item.Days_Stored > 30 ? 'bg-red-50' : ''}>
                       <td className="px-3 py-2">
-                        <p className="font-medium text-gray-900">{item.Item_Name}</p>
-                        <p className="text-gray-500 text-xs">{item.Item_Color}{item.Item_Brand ? ` · ${item.Item_Brand}` : ''}</p>
+                        <p className="font-medium text-amber-950">{item.Item_Name}</p>
+                        <p className="text-amber-700 text-xs">{item.Item_Color}{item.Item_Brand ? ` · ${item.Item_Brand}` : ''}</p>
                       </td>
                       <td className="px-3 py-2 text-gray-600">{item.Category_Name?.replace(/_/g,' ')}</td>
                       <td className="px-3 py-2">
@@ -148,7 +154,7 @@ export default function StoragePage() {
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-amber-50 border-b">
                 <tr>
                   <th className="text-left px-3 py-2 font-medium text-gray-600">#</th>
                   <th className="text-left px-3 py-2 font-medium text-gray-600">Item</th>
@@ -161,7 +167,7 @@ export default function StoragePage() {
                 {expired.map(e => (
                   <tr key={e.Item_ID}>
                     <td className="px-3 py-2 text-gray-400">#{e.Item_ID}</td>
-                    <td className="px-3 py-2"><p className="font-medium">{e.Item_Name}</p><p className="text-xs text-gray-500">{e.Item_Color}</p></td>
+                    <td className="px-3 py-2"><p className="font-medium">{e.Item_Name}</p><p className="text-xs text-amber-700">{e.Item_Color}</p></td>
                     <td className="px-3 py-2 text-gray-600">{e.Category_Name?.replace(/_/g,' ')}</td>
                     <td className="px-3 py-2 text-red-600 font-semibold">{e.Days_Unclaimed}d</td>
                     <td className="px-3 py-2 text-gray-600">{e.Storage_Location || '—'}</td>

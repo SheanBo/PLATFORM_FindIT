@@ -9,8 +9,8 @@ export function LoadingSpinner({ size = 'md', message = 'Loading...' }) {
 
   return (
     <div className="flex flex-col items-center justify-center p-lg gap-md">
-      <Loader2 className={`${sizeClass} animate-spin text-primary`} />
-      {message && <p className="text-body-sm text-slate-500">{message}</p>}
+      <Loader2 className={`${sizeClass} animate-spin text-amber-600`} />
+      {message && <p className="text-body-sm text-amber-700">{message}</p>}
     </div>
   );
 }
@@ -33,10 +33,10 @@ export function TableSkeleton({ rows = 5, columns = 4 }) {
   return (
     <div className="space-y-md">
       {/* Header */}
-      <div className="skeleton h-8 w-full" />
+      <div className="skeleton h-8 w-full bg-amber-200" />
       {/* Rows */}
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="skeleton h-10 w-full" />
+        <div key={i} className="skeleton h-10 w-full bg-amber-100" />
       ))}
     </div>
   );

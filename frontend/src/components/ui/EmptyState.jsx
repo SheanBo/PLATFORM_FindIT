@@ -11,14 +11,14 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center p-3xl gap-lg">
-      <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center">
-        <Icon className="w-8 h-8 text-slate-400" />
+      <div className="w-16 h-16 rounded-2xl bg-amber-200 flex items-center justify-center">
+        <Icon className="w-8 h-8 text-amber-900" />
       </div>
       <div className="text-center">
-        <h3 className="text-h3 font-semibold text-slate-900 mb-md">
+        <h3 className="text-h3 font-semibold text-amber-950 mb-md">
           {title}
         </h3>
-        <p className="text-body text-slate-500">
+        <p className="text-body text-amber-700">
           {description}
         </p>
       </div>
@@ -27,6 +27,7 @@ export function EmptyState({
           variant="primary"
           icon={actionIcon}
           onClick={onAction}
+          aria-label={actionLabel}
         >
           {actionLabel}
         </Button>

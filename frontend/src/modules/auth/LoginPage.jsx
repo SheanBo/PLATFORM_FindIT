@@ -26,22 +26,73 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mx-auto mb-4">
-            <div className="w-12 h-12 bg-amber-500 rounded-lg flex items-center justify-center">
-              <span className="text-2xl font-bold text-slate-900">F</span>
+    <div className="min-h-screen flex" style={{ backgroundColor: 'var(--cream-100)' }}>
+      {/* Left Side - Features */}
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-center px-12">
+        <div>
+          <h2 className="text-sm font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--rust-600)' }}>
+            Module 01 · Authentication
+          </h2>
+          <h1 className="text-5xl font-bold mb-12" style={{ color: 'var(--brown-900)' }}>
+            Login & Registration
+          </h1>
+
+          <div className="space-y-8">
+            {/* Feature 1 */}
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-1 rounded-full" style={{ backgroundColor: 'var(--gold-500)' }}></div>
+              <div>
+                <h3 className="font-bold text-lg mb-1" style={{ color: 'var(--brown-900)' }}>
+                  Username or email sign-in
+                </h3>
+                <p className="text-sm" style={{ color: 'var(--rust-600)' }}>
+                  Hashed passwords, JWT tokens, 7-day sessions.
+                </p>
+              </div>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-1 rounded-full" style={{ backgroundColor: 'var(--gold-500)' }}></div>
+              <div>
+                <h3 className="font-bold text-lg mb-1" style={{ color: 'var(--brown-900)' }}>
+                  Public student registration
+                </h3>
+                <p className="text-sm" style={{ color: 'var(--rust-600)' }}>
+                  Email validation, 8-character password rule.
+                </p>
+              </div>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-1 rounded-full" style={{ backgroundColor: 'var(--gold-500)' }}></div>
+              <div>
+                <h3 className="font-bold text-lg mb-1" style={{ color: 'var(--brown-900)' }}>
+                  Role-based redirect
+                </h3>
+                <p className="text-sm" style={{ color: 'var(--rust-600)' }}>
+                  Lands each user on their correct dashboard.
+                </p>
+              </div>
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-white mb-1">FindIT</h1>
-          <p className="text-amber-200 text-sm">Ateneo de Naga University • Office of Student Affairs</p>
         </div>
+      </div>
 
-        {/* Login Card */}
-        <div className="card shadow-2xl">
-          <h2 className="text-xl font-semibold text-slate-900 mb-6 text-center">Sign in to your account</h2>
+      {/* Right Side - Login Card */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 lg:p-0">
+        <div className="w-full max-w-sm rounded-2xl p-8 shadow-xl" style={{ backgroundColor: 'var(--navy-900)' }}>
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-2 mx-auto mb-4">
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--gold-500)' }}>
+                <span className="text-2xl font-bold" style={{ color: 'var(--navy-900)' }}>F</span>
+              </div>
+            </div>
+            <h1 className="text-2xl font-bold text-white mb-1">FindIT</h1>
+            <p className="text-sm" style={{ color: 'var(--gold-300)' }}>Sign in to your account</p>
+          </div>
 
           {/* Error Alert */}
           {error && (
@@ -58,7 +109,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Username Field */}
             <div>
-              <label className="label">Username or Email</label>
+              <label className="label text-white mb-2">Username or Email</label>
               <input
                 type="text"
                 className="input"
@@ -68,12 +119,13 @@ export default function LoginPage() {
                 disabled={loading}
                 autoFocus
                 required
+                style={{ backgroundColor: 'rgba(255,255,255,0.1)', borderColor: 'rgba(212,162,78,0.3)', color: 'white' }}
               />
             </div>
 
             {/* Password Field */}
             <div>
-              <label className="label">Password</label>
+              <label className="label text-white mb-2">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -83,11 +135,13 @@ export default function LoginPage() {
                   onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
                   disabled={loading}
                   required
+                  style={{ backgroundColor: 'rgba(255,255,255,0.1)', borderColor: 'rgba(212,162,78,0.3)', color: 'white' }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-amber-600 hover:text-amber-700 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                  style={{ color: 'var(--gold-500)' }}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
@@ -103,7 +157,8 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full py-3 text-base"
+              className="w-full py-3 text-base font-semibold rounded-lg transition-all text-white"
+              style={{ backgroundColor: 'var(--gold-500)' }}
             >
               {loading ? (
                 <>
@@ -117,53 +172,19 @@ export default function LoginPage() {
           </form>
 
           {/* Register Link */}
-          <div className="text-center mt-6 pt-6 border-t border-amber-200">
-            <p className="text-sm text-amber-900">
+          <div className="text-center mt-6 pt-6" style={{ borderTop: '1px solid rgba(212,162,78,0.2)' }}>
+            <p className="text-sm" style={{ color: 'var(--gold-300)' }}>
               New student?{' '}
               <Link
                 to="/register"
-                className="text-amber-600 font-semibold hover:text-amber-700 transition-all"
+                className="font-semibold hover:opacity-80 transition-all"
+                style={{ color: 'var(--gold-500)' }}
               >
                 Create an account
               </Link>
             </p>
           </div>
         </div>
-
-        {/* Demo Credentials Card */}
-        <div className="card mt-6 bg-amber-50 border-amber-300">
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 pt-0.5">
-              <div className="flex items-center justify-center h-6 w-6 rounded-full bg-amber-200">
-                <span className="text-amber-900 text-xs font-bold">?</span>
-              </div>
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-amber-950 mb-3">
-                Demo Credentials
-              </p>
-              <div className="space-y-2 text-xs text-amber-800">
-                <div>
-                  <p className="font-medium">Admin</p>
-                  <code className="text-amber-700">admin / Password123!</code>
-                </div>
-                <div>
-                  <p className="font-medium">Staff</p>
-                  <code className="text-amber-700">staff1 / Password123!</code>
-                </div>
-                <div>
-                  <p className="font-medium">Student</p>
-                  <code className="text-amber-700">juan.delacruz / Password123!</code>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <p className="text-center text-xs text-amber-200 mt-8">
-          © 2026 FindIT. All rights reserved.
-        </p>
       </div>
     </div>
   );

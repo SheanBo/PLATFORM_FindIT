@@ -1,69 +1,70 @@
-// Design Tokens - Single source of truth for design system
+// Design Tokens - FindIT Lost & Found Management System
 export const Colors = {
-  // Core Colors
-  primary: '#2563EB',        // Blue-600 - Main actions, links
-  secondary: '#64748B',      // Slate-500 - Secondary actions
-  accent: '#DC2626',         // Red-600 - Important, destructive
+  // Core Brand Colors - Professional Navy + Gold
+  primary: '#1a2942',        // Deep Navy - Primary actions, backgrounds
+  secondary: '#c9a961',      // Warm Gold - Accents, highlights
+  accent: '#d4b294',         // Light Gold - Secondary accents
 
   // Semantic Colors
-  success: '#16A34A',        // Green-600 - Success states
-  warning: '#EA580C',        // Orange-600 - Caution, warnings
-  error: '#DC2626',          // Red-600 - Errors
-  info: '#0EA5E9',           // Sky-500 - Information
+  success: '#5c8e6e',        // Sage Green - Success states
+  warning: '#d4a574',        // Warm Amber - Caution, warnings
+  error: '#c74545',          // Warm Red - Errors
+  info: '#4a7ba7',           // Blue-Gray - Information
 
-  // Neutral Scale (Slate)
+  // Neutral Scale (Warm Grays)
   slate: {
-    50: '#F8FAFC',
-    100: '#F1F5F9',
-    200: '#E2E8F0',
-    300: '#CBD5E1',
-    400: '#94A3B8',
-    500: '#64748B',
-    600: '#475569',
-    700: '#334155',
-    800: '#1E293B',
-    900: '#0F172A',
+    50: '#faf9f7',           // Near-white cream
+    100: '#f5f0eb',          // Cream background
+    200: '#e8e3db',          // Light cream
+    300: '#d9d1c7',          // Warm gray light
+    400: '#c4b8ad',          // Warm gray mid
+    500: '#9d938a',          // Warm gray
+    600: '#6b6259',          // Warm gray dark
+    700: '#4a4239',          // Dark brown-gray
+    800: '#2f2b27',          // Very dark
+    900: '#1a1815',          // Almost black
   },
 
   // Status Colors
   status: {
-    pending: '#EA580C',      // Orange
-    active: '#2563EB',       // Blue
-    success: '#16A34A',      // Green
-    error: '#DC2626',        // Red
-    warning: '#EA580C',      // Orange
-    neutral: '#94A3B8',      // Slate
+    pending: '#d4a574',      // Warm Amber
+    active: '#1a2942',       // Navy
+    success: '#5c8e6e',      // Sage Green
+    error: '#c74545',        // Warm Red
+    warning: '#d4a574',      // Warm Amber
+    neutral: '#9d938a',      // Warm Gray
   },
 
   // Gradients
   gradients: {
-    primary: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
-    success: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
-    warning: 'linear-gradient(135deg, #EA580C 0%, #D97706 100%)',
+    primary: 'linear-gradient(135deg, #1a2942 0%, #0f1927 100%)',
+    secondary: 'linear-gradient(135deg, #c9a961 0%, #b8935a 100%)',
+    success: 'linear-gradient(135deg, #5c8e6e 0%, #4a7159 100%)',
   },
 
   // Text Colors
   text: {
-    primary: '#0F172A',      // Slate-900
-    secondary: '#64748B',    // Slate-500
-    tertiary: '#94A3B8',     // Slate-400
-    muted: '#CBD5E1',        // Slate-300
+    primary: '#1a1815',      // Dark brown
+    secondary: '#6b6259',    // Medium brown
+    tertiary: '#9d938a',     // Light brown
+    muted: '#c4b8ad',        // Muted brown
     inverse: '#FFFFFF',
   },
 
   // Background Colors
   bg: {
     primary: '#FFFFFF',
-    secondary: '#F8FAFC',    // Slate-50
-    tertiary: '#F1F5F9',     // Slate-100
-    hover: '#E2E8F0',        // Slate-200
+    secondary: '#faf9f7',    // Cream-50
+    tertiary: '#f5f0eb',     // Cream-100
+    hover: '#e8e3db',        // Cream-200
+    dark: '#1a2942',         // Navy
   },
 
   // Border Colors
   border: {
-    light: '#E2E8F0',        // Slate-200
-    default: '#CBD5E1',      // Slate-300
-    dark: '#94A3B8',         // Slate-400
+    light: '#e8e3db',        // Cream-200
+    default: '#d9d1c7',      // Cream-300
+    dark: '#c4b8ad',         // Cream-400
   },
 };
 

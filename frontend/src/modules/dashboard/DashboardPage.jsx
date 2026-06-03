@@ -32,8 +32,8 @@ function KPICard({ icon: Icon, label, value, trend, color, to }) {
           </div>
         )}
       </div>
-      <p className="text-3xl font-bold text-slate-900 mb-1">{value ?? '—'}</p>
-      <p className="text-sm text-slate-600">{label}</p>
+      <p className="text-3xl font-bold text-amber-950 mb-1">{value ?? '—'}</p>
+      <p className="text-sm text-amber-700">{label}</p>
     </div>
   );
   return to ? <Link to={to}>{content}</Link> : content;
@@ -58,10 +58,10 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-amber-50 flex items-center justify-center">
         <div className="text-center">
           <div className="loading-spinner mx-auto mb-4"></div>
-          <p className="text-slate-600">Loading dashboard...</p>
+          <p className="text-amber-700">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -71,12 +71,12 @@ export default function DashboardPage() {
   const recoveryRate = stats?.Recovery_Rate_Percent ?? 0;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-amber-50">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-40">
+      <div className="bg-white border-b border-amber-200 sticky top-0 z-40">
         <div className="p-6 max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold text-slate-900 mb-1">Dashboard</h1>
-          <p className="text-slate-600">
+          <h1 className="text-3xl font-bold text-amber-950 mb-1">Dashboard</h1>
+          <p className="text-amber-700">
             FindIT — Office of Student Affairs Operations Overview
           </p>
         </div>
@@ -85,14 +85,14 @@ export default function DashboardPage() {
       <div className="p-6 max-w-7xl mx-auto">
         {/* Recovery Rate Banner */}
         {stats?.Recovery_Rate_Percent !== null && (
-          <div className="gradient-primary rounded-xl p-8 mb-8 text-white shadow-lg">
+          <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl p-8 mb-8 text-white shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-200 text-sm font-semibold mb-1">
+                <p className="text-amber-300 text-sm font-semibold mb-1">
                   RECOVERY RATE
                 </p>
                 <p className="text-6xl font-bold mb-2">{recoveryRate}%</p>
-                <p className="text-slate-200 text-sm">
+                <p className="text-amber-100 text-sm">
                   {stats?.Closed_Reports} of {totalReports} reports closed
                 </p>
               </div>
@@ -169,12 +169,12 @@ export default function DashboardPage() {
           {/* Recent Found Items */}
           <div className="card">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-lg font-bold text-amber-950">
                 Recent Found Items
               </h2>
               <Link
                 to="/found-items"
-                className="text-secondary text-sm font-semibold hover:text-opacity-80"
+                className="text-amber-600 text-sm font-semibold hover:text-amber-700"
               >
                 View all →
               </Link>
@@ -185,14 +185,14 @@ export default function DashboardPage() {
                   <Link
                     key={item.Item_ID}
                     to={`/found-items/${item.Item_ID}`}
-                    className="block p-3 rounded-lg hover:bg-slate-50 transition-colors"
+                    className="block p-3 rounded-lg hover:bg-amber-100 transition-colors"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <p className="font-semibold text-slate-900">
+                        <p className="font-semibold text-amber-950">
                           {item.Item_Name}
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-amber-700">
                           {item.Category_Name}
                         </p>
                       </div>
@@ -202,8 +202,8 @@ export default function DashboardPage() {
                 ))
               ) : (
                 <div className="text-center py-8">
-                  <Package className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                  <p className="text-slate-500 text-sm">No items yet</p>
+                  <Package className="w-10 h-10 text-amber-300 mx-auto mb-2" />
+                  <p className="text-amber-700 text-sm">No items yet</p>
                 </div>
               )}
             </div>
@@ -212,12 +212,12 @@ export default function DashboardPage() {
           {/* Recent Lost Reports */}
           <div className="card">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-lg font-bold text-amber-950">
                 Recent Lost Reports
               </h2>
               <Link
                 to="/lost-reports"
-                className="text-secondary text-sm font-semibold hover:text-opacity-80"
+                className="text-amber-600 text-sm font-semibold hover:text-amber-700"
               >
                 View all →
               </Link>
@@ -228,14 +228,14 @@ export default function DashboardPage() {
                   <Link
                     key={report.Report_ID}
                     to={`/lost-reports/${report.Report_ID}`}
-                    className="block p-3 rounded-lg hover:bg-slate-50 transition-colors"
+                    className="block p-3 rounded-lg hover:bg-amber-100 transition-colors"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <p className="font-semibold text-slate-900">
+                        <p className="font-semibold text-amber-950">
                           {report.Item_Name}
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-amber-700">
                           {report.Category_Name}
                         </p>
                       </div>
@@ -245,8 +245,8 @@ export default function DashboardPage() {
                 ))
               ) : (
                 <div className="text-center py-8">
-                  <FileText className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                  <p className="text-slate-500 text-sm">No reports yet</p>
+                  <FileText className="w-10 h-10 text-amber-300 mx-auto mb-2" />
+                  <p className="text-amber-700 text-sm">No reports yet</p>
                 </div>
               )}
             </div>
@@ -255,10 +255,10 @@ export default function DashboardPage() {
           {/* Recent Claims */}
           <div className="card">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-bold text-slate-900">Recent Claims</h2>
+              <h2 className="text-lg font-bold text-amber-950">Recent Claims</h2>
               <Link
                 to="/claims"
-                className="text-secondary text-sm font-semibold hover:text-opacity-80"
+                className="text-amber-600 text-sm font-semibold hover:text-amber-700"
               >
                 View all →
               </Link>
@@ -269,14 +269,14 @@ export default function DashboardPage() {
                   <Link
                     key={claim.Claim_ID}
                     to={`/claims/${claim.Claim_ID}`}
-                    className="block p-3 rounded-lg hover:bg-slate-50 transition-colors"
+                    className="block p-3 rounded-lg hover:bg-amber-100 transition-colors"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <p className="font-semibold text-slate-900">
+                        <p className="font-semibold text-amber-950">
                           {claim.Item_Name}
                         </p>
-                        <p className="text-xs text-slate-500 flex items-center gap-1">
+                        <p className="text-xs text-amber-700 flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           {new Date(claim.Claim_Date).toLocaleDateString()}
                         </p>
@@ -287,8 +287,8 @@ export default function DashboardPage() {
                 ))
               ) : (
                 <div className="text-center py-8">
-                  <ClipboardCheck className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                  <p className="text-slate-500 text-sm">No claims yet</p>
+                  <ClipboardCheck className="w-10 h-10 text-amber-300 mx-auto mb-2" />
+                  <p className="text-amber-700 text-sm">No claims yet</p>
                 </div>
               )}
             </div>

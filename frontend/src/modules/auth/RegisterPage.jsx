@@ -40,19 +40,23 @@ export default function RegisterPage() {
     setForm((f) => ({ ...f, [field]: e.target.value }));
 
   return (
-    <div className="min-h-screen gradient-primary flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-secondary bg-opacity-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Search className="w-8 h-8 text-secondary" />
+          <div className="flex items-center justify-center gap-2 mx-auto mb-4">
+            <div className="w-12 h-12 bg-amber-500 rounded-lg flex items-center justify-center">
+              <span className="text-2xl font-bold text-slate-900">F</span>
+            </div>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Create Account</h1>
-          <p className="text-slate-200 text-sm">Join FindIT — Lost & Found System</p>
+          <h1 className="text-4xl font-bold text-white mb-1">FindIT</h1>
+          <p className="text-amber-200 text-sm">Create your account to report and recover items</p>
         </div>
 
         {/* Registration Card */}
         <div className="card shadow-2xl">
+          <h2 className="text-xl font-semibold text-slate-900 mb-6 text-center">Create your account</h2>
+
           {/* Error Alert */}
           {error && (
             <div className="alert alert-error mb-6">
@@ -96,11 +100,11 @@ export default function RegisterPage() {
 
             {/* Student ID Field */}
             <div>
-              <label className="label">Student ID</label>
+              <label className="label">Student ID Number</label>
               <input
                 type="text"
                 className="input"
-                placeholder="e.g. 2024-00001"
+                placeholder="202401129"
                 value={form.student_id}
                 onChange={set('student_id')}
                 disabled={loading}
@@ -108,27 +112,13 @@ export default function RegisterPage() {
               <p className="help-text">Optional — helps us identify you</p>
             </div>
 
-            {/* Username Field */}
+            {/* Contact Field (GBox Account) */}
             <div>
-              <label className="label">Username</label>
-              <input
-                type="text"
-                className="input"
-                placeholder="Choose a username"
-                value={form.username}
-                onChange={set('username')}
-                disabled={loading}
-                required
-              />
-            </div>
-
-            {/* Email Field */}
-            <div>
-              <label className="label">Email</label>
+              <label className="label">GBox Account</label>
               <input
                 type="email"
                 className="input"
-                placeholder="you@gbox.adnu.edu.ph"
+                placeholder="ahlastname@gbox.adnu.edu.ph"
                 value={form.email}
                 onChange={set('email')}
                 disabled={loading}
@@ -136,19 +126,45 @@ export default function RegisterPage() {
               />
             </div>
 
+            {/* Username Field */}
+            <div>
+              <label className="label">Contact Number</label>
+              <input
+                type="tel"
+                className="input"
+                placeholder="09xxxxxxxxx"
+                value={form.username}
+                onChange={set('username')}
+                disabled={loading}
+                required
+              />
+            </div>
+
             {/* Password Field */}
             <div>
-              <label className="label">Password</label>
+              <label className="label">Create Password</label>
               <input
                 type="password"
                 className="input"
-                placeholder="At least 8 characters"
+                placeholder="••••••••"
                 value={form.password}
                 onChange={set('password')}
                 disabled={loading}
                 required
               />
-              <p className="help-text">Use a strong password with mixed case</p>
+              <p className="help-text">At least 8 characters</p>
+            </div>
+
+            {/* Confirm Password (if needed) */}
+            <div>
+              <label className="label">Confirm Password</label>
+              <input
+                type="password"
+                className="input"
+                placeholder="••••••••"
+                disabled={loading}
+                required
+              />
             </div>
 
             {/* Register Button */}
@@ -163,27 +179,27 @@ export default function RegisterPage() {
                   Creating account...
                 </>
               ) : (
-                'Create Account'
+                'Sign Up'
               )}
             </button>
           </form>
 
           {/* Sign In Link */}
-          <div className="text-center mt-6 pt-6 border-t border-slate-200">
-            <p className="text-sm text-slate-600">
+          <div className="text-center mt-6 pt-6 border-t border-amber-200">
+            <p className="text-sm text-amber-900">
               Already have an account?{' '}
               <Link
                 to="/login"
-                className="text-secondary font-semibold hover:text-opacity-80 transition-all"
+                className="text-amber-600 font-semibold hover:text-amber-700 transition-all"
               >
-                Sign in here
+                Sign in
               </Link>
             </p>
           </div>
         </div>
 
         {/* Footer */}
-        <p className="text-center text-xs text-slate-300 mt-8">
+        <p className="text-center text-xs text-amber-200 mt-8">
           © 2026 FindIT. All rights reserved.
         </p>
       </div>

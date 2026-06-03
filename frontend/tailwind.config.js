@@ -5,16 +5,16 @@ export default {
     extend: {
       colors: {
         // FindIT Brand Colors (from mockup)
-        primary: '#1A2B4A',      // Deep navy blue
-        secondary: '#C9A961',    // Warm gold
-        accent: '#D4AF37',       // Bright gold
-        cream: '#F5F0EB',        // Off-white/cream
+        primary: '#1a2942',      // Deep navy blue
+        secondary: '#c9a961',    // Warm gold
+        accent: '#d4b294',       // Light gold
+        cream: '#f5f0eb',        // Off-white/cream
 
         // Semantic colors
-        success: '#10B981',
-        warning: '#F59E0B',
-        error: '#EF4444',
-        info: '#3B82F6',
+        success: '#5c8e6e',      // Sage green
+        warning: '#d4a574',      // Warm amber
+        error: '#c74545',        // Warm red
+        info: '#4a7ba7',         // Blue-gray
 
         // Extended neutral palette
         slate: {

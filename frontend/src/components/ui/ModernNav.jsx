@@ -11,14 +11,14 @@ export function ModernNavigation({ navItems = [], user, onLogout, onSettings }) 
   const SidebarContent = () => (
     <>
       {/* Logo Section */}
-      <div className="px-lg py-xl border-b border-slate-200">
+      <div className="px-lg py-xl border-b border-amber-700">
         <div className="flex items-center gap-md">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-blue-700 flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-bold text-sm">🔍</span>
+          <div className="w-10 h-10 rounded-lg bg-amber-500 flex items-center justify-center flex-shrink-0">
+            <span className="text-slate-900 font-bold text-sm">F</span>
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-h4 font-bold text-slate-900 leading-none">FindIT</h1>
-            <p className="text-caption text-slate-500">Lost & Found</p>
+            <h1 className="text-h4 font-bold text-white leading-none">FindIT</h1>
+            <p className="text-caption text-amber-200">Lost & Found</p>
           </div>
         </div>
       </div>
@@ -33,8 +33,8 @@ export function ModernNavigation({ navItems = [], user, onLogout, onSettings }) 
             className={({ isActive: active }) =>
               `flex items-center gap-md px-md py-2.5 rounded-lg text-sm font-medium transition-all duration-fast ${
                 active
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'text-slate-700 hover:bg-slate-100 active:bg-slate-200'
+                  ? 'bg-amber-500 text-slate-900 shadow-sm'
+                  : 'text-amber-100 hover:bg-slate-800 active:bg-slate-700'
               }`
             }
           >
@@ -45,16 +45,16 @@ export function ModernNavigation({ navItems = [], user, onLogout, onSettings }) 
       </nav>
 
       {/* User Profile Section */}
-      <div className="p-md space-y-md border-t border-slate-200">
+      <div className="p-md space-y-md border-t border-amber-700">
         <div className="flex items-center gap-md px-md py-2">
-          <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center flex-shrink-0 font-semibold text-sm text-slate-700">
+          <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center flex-shrink-0 font-semibold text-sm text-slate-900">
             {user?.first_name?.[0]}{user?.last_name?.[0]}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-slate-900 truncate">
+            <p className="text-sm font-medium text-white truncate">
               {user?.first_name} {user?.last_name}
             </p>
-            <p className="text-xs text-slate-500">{user?.role}</p>
+            <p className="text-xs text-amber-200">{user?.role}</p>
           </div>
         </div>
 
@@ -65,7 +65,7 @@ export function ModernNavigation({ navItems = [], user, onLogout, onSettings }) 
                 onSettings?.();
                 setSidebarOpen(false);
               }}
-              className="flex-1 btn-ghost py-1.5 text-xs flex items-center justify-center gap-sm"
+              className="flex-1 text-amber-100 hover:bg-slate-800 active:bg-slate-700 py-1.5 text-xs flex items-center justify-center gap-sm rounded-lg transition-colors"
               title="Settings"
             >
               <Settings className="w-4 h-4" />
@@ -77,7 +77,7 @@ export function ModernNavigation({ navItems = [], user, onLogout, onSettings }) 
               onLogout?.();
               setSidebarOpen(false);
             }}
-            className="flex-1 btn-ghost py-1.5 text-xs flex items-center justify-center gap-sm"
+            className="flex-1 text-amber-100 hover:bg-slate-800 active:bg-slate-700 py-1.5 text-xs flex items-center justify-center gap-sm rounded-lg transition-colors"
             title="Sign Out"
           >
             <LogOut className="w-4 h-4" />
@@ -91,20 +91,20 @@ export function ModernNavigation({ navItems = [], user, onLogout, onSettings }) 
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 bg-white border-r border-slate-200 flex-shrink-0 h-screen sticky top-0">
+      <aside className="hidden md:flex flex-col w-64 bg-slate-900 border-r border-amber-700 flex-shrink-0 h-screen sticky top-0">
         <SidebarContent />
       </aside>
 
       {/* Mobile Header */}
-      <header className="md:hidden sticky top-0 bg-white border-b border-slate-200 px-lg py-md flex items-center gap-md z-40">
+      <header className="md:hidden sticky top-0 bg-slate-900 border-b border-amber-700 px-lg py-md flex items-center gap-md z-40">
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="btn-ghost p-1.5"
+          className="text-amber-500 hover:text-amber-400 p-1.5 rounded transition-colors"
           aria-label="Toggle menu"
         >
           {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
-        <h1 className="text-h4 font-bold text-slate-900">FindIT</h1>
+        <h1 className="text-h4 font-bold text-white">FindIT</h1>
       </header>
 
       {/* Mobile Sidebar Overlay */}
@@ -119,7 +119,7 @@ export function ModernNavigation({ navItems = [], user, onLogout, onSettings }) 
 
       {/* Mobile Sidebar */}
       {sidebarOpen && (
-        <aside className="md:hidden fixed left-0 top-0 z-50 w-64 h-screen bg-white overflow-y-auto">
+        <aside className="md:hidden fixed left-0 top-0 z-50 w-64 h-screen bg-slate-900 overflow-y-auto">
           <SidebarContent />
         </aside>
       )}

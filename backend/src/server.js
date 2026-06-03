@@ -5,7 +5,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 const path = require('path');
-const { initializeDatabase } = require('./database/init');
+const { initializeDatabase } = require('./database/supabase');
 const { performanceTracker } = require('./utils/performance');
 
 // Initialize database

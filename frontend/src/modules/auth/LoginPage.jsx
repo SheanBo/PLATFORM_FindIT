@@ -145,15 +145,19 @@ export default function LoginPage() {
       <div
         className="hidden md:block md:w-2/3 lg:w-3/4 relative overflow-hidden"
         style={{
-          backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.05)), url(/ateneo.jpg)',
+          backgroundImage: 'url(/ateneo.jpg)',
           backgroundSize: 'cover',
-          backgroundPosition: 'center 35%'
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed'
         }}
       >
+        {/* Subtle overlay for readability */}
+        <div className="absolute inset-0 bg-black/20"></div>
+
         {/* Bottom branding overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/50 to-transparent">
-          <h3 className="text-white text-2xl font-bold">Ateneo de Naga</h3>
-          <p className="text-white/80 text-sm">Office of Student Affairs</p>
+        <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/70 via-black/40 to-transparent">
+          <h3 className="text-white text-3xl font-bold">Ateneo de Naga</h3>
+          <p className="text-white/90 text-sm">Office of Student Affairs</p>
         </div>
       </div>
     </div>

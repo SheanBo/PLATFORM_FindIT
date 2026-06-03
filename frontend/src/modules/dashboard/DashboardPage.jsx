@@ -16,6 +16,8 @@ import {
   PieChart,
   Pie,
   Cell,
+  BarChart,
+  Bar,
   LineChart,
   Line,
   XAxis,
@@ -87,6 +89,16 @@ export default function DashboardPage() {
   const reportStatusData = [
     { name: 'Active', value: stats?.Active_Reports || 0 },
     { name: 'Closed', value: stats?.Closed_Reports || 0 },
+  ];
+
+  // Monthly history data (sample - in production would come from API)
+  const monthlyData = [
+    { month: 'Jan', items: 12, reports: 8, closed: 5 },
+    { month: 'Feb', items: 19, reports: 10, closed: 7 },
+    { month: 'Mar', items: 25, reports: 14, closed: 9 },
+    { month: 'Apr', items: 22, reports: 12, closed: 8 },
+    { month: 'May', items: 28, reports: 16, closed: 11 },
+    { month: 'Jun', items: 35, reports: 20, closed: 14 },
   ];
 
   const CHART_COLORS = ['#D4A24E', '#2F9E58', '#C2741F', '#3B5FD9'];
@@ -179,6 +191,29 @@ export default function DashboardPage() {
               </PieChart>
             </ResponsiveContainer>
           </div>
+        </div>
+
+        {/* Monthly History Chart */}
+        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+          <h3 className="text-lg font-bold mb-6" style={{ color: 'var(--brown-900)' }}>Monthly Activity History</h3>
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart
+              data={monthlyData}
+              margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--gold-300)" />
+              <XAxis dataKey="month" stroke="var(--brown-900)" />
+              <YAxis stroke="var(--brown-900)" />
+              <Tooltip
+                contentStyle={{ backgroundColor: 'var(--cream-100)', border: '1px solid var(--gold-300)' }}
+                cursor={{ fill: 'rgba(212, 162, 78, 0.1)' }}
+              />
+              <Legend />
+              <Bar dataKey="items" fill="var(--gold-500)" name="Items Found" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="reports" fill="var(--status-blue)" name="Reports Filed" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="closed" fill="var(--status-green)" name="Reports Closed" radius={[8, 8, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
 
         {/* Activity Feeds */}

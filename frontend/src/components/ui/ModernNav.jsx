@@ -13,9 +13,11 @@ export function ModernNavigation({ navItems = [], user, onLogout, onSettings }) 
       {/* Logo Section */}
       <div className="px-lg py-xl border-b border-amber-700">
         <div className="flex items-center gap-md">
-          <div className="w-10 h-10 rounded-lg bg-amber-500 flex items-center justify-center flex-shrink-0">
-            <span className="text-slate-900 font-bold text-sm">F</span>
-          </div>
+          <img
+            src="/FindIT Logo.jpg"
+            alt="FindIT Logo"
+            className="w-10 h-10 rounded-lg object-contain flex-shrink-0"
+          />
           <div className="flex-1 min-w-0">
             <h1 className="text-h4 font-bold text-white leading-none">FindIT</h1>
             <p className="text-caption text-amber-200">Lost & Found</p>

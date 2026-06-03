@@ -26,19 +26,19 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: 'var(--cream-100)' }}>
-      {/* Login Card */}
-      <div>
-        <div className="w-full max-w-sm rounded-2xl p-8 shadow-xl" style={{ backgroundColor: 'var(--navy-900)' }}>
+    <div className="min-h-screen flex" style={{ backgroundColor: 'var(--cream-100)' }}>
+      {/* Left Side - Login Form */}
+      <div className="w-full md:w-1/2 flex flex-col items-center justify-center px-8 py-12">
+        <div className="w-full max-w-sm">
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-2 mx-auto mb-4">
-              <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--gold-500)' }}>
-                <span className="text-2xl font-bold" style={{ color: 'var(--navy-900)' }}>F</span>
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--gold-500)' }}>
+                <span className="text-xl font-bold" style={{ color: 'var(--navy-900)' }}>F</span>
               </div>
+              <h1 className="text-2xl font-bold" style={{ color: 'var(--navy-900)' }}>FindIT</h1>
             </div>
-            <h1 className="text-2xl font-bold text-white mb-1">FindIT</h1>
-            <p className="text-sm" style={{ color: 'var(--gold-300)' }}>Sign in to your account</p>
+            <h2 className="text-sm font-semibold text-gray-600 mt-4">Ateneo de Naga University</h2>
           </div>
 
           {/* Error Alert */}
@@ -53,7 +53,7 @@ export default function LoginPage() {
           )}
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Username Field */}
             <div>
               <input
@@ -65,7 +65,7 @@ export default function LoginPage() {
                 disabled={loading}
                 autoFocus
                 required
-                style={{ backgroundColor: 'rgba(255,255,255,0.1)', borderColor: 'rgba(212,162,78,0.3)', color: 'white' }}
+                style={{ backgroundColor: '#F5F5F5' }}
               />
             </div>
 
@@ -80,13 +80,13 @@ export default function LoginPage() {
                   onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
                   disabled={loading}
                   required
-                  style={{ backgroundColor: 'rgba(255,255,255,0.1)', borderColor: 'rgba(212,162,78,0.3)', color: 'white' }}
+                  style={{ backgroundColor: '#F5F5F5' }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                  style={{ color: 'var(--gold-500)' }}
+                  style={{ color: 'var(--rust-600)' }}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
@@ -102,8 +102,8 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 text-base font-semibold rounded-lg transition-all text-white"
-              style={{ backgroundColor: 'var(--gold-500)' }}
+              className="w-full py-3 text-base font-semibold rounded-lg transition-all text-white mt-6"
+              style={{ backgroundColor: 'var(--navy-900)' }}
             >
               {loading ? (
                 <>
@@ -116,18 +116,65 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Register Link */}
-          <div className="text-center mt-6 pt-6" style={{ borderTop: '1px solid rgba(212,162,78,0.2)' }}>
-            <p className="text-sm" style={{ color: 'var(--gold-300)' }}>
-              New student?{' '}
-              <Link
-                to="/register"
-                className="font-semibold hover:opacity-80 transition-all"
-                style={{ color: 'var(--gold-500)' }}
-              >
-                Create an account
-              </Link>
+          {/* Links */}
+          <div className="mt-8 space-y-3">
+            <div className="text-center">
+              <p className="text-xs" style={{ color: 'var(--rust-600)' }}>
+                New student?{' '}
+                <Link
+                  to="/register"
+                  className="font-semibold hover:opacity-80 transition-all"
+                  style={{ color: 'var(--navy-900)' }}
+                >
+                  Create an account
+                </Link>
+              </p>
+            </div>
+            <div className="text-center">
+              <p className="text-xs" style={{ color: 'var(--rust-600)' }}>
+                Can't sign in?{' '}
+                <a
+                  href="#"
+                  className="font-semibold hover:opacity-80 transition-all"
+                  style={{ color: 'var(--navy-900)' }}
+                >
+                  Reset password
+                </a>
+              </p>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="mt-12 pt-8 border-t" style={{ borderColor: 'var(--gold-300)' }}>
+            <p className="text-xs text-center" style={{ color: 'var(--rust-600)' }}>
+              © 2026 FindIT. All rights reserved.
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Ateneo Image */}
+      <div className="hidden md:block md:w-1/2 relative overflow-hidden">
+        <div
+          className="w-full h-full"
+          style={{
+            backgroundImage: 'url(https://images.unsplash.com/photo-1553531088-551f956cbf8d?w=800&h=900&fit=crop)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
+          {/* Gradient Overlay */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(135deg, rgba(22, 33, 61, 0.4) 0%, rgba(74, 37, 17, 0.2) 100%)',
+            }}
+          ></div>
+
+          {/* Ateneo Branding */}
+          <div className="absolute bottom-8 left-8 right-8">
+            <h2 className="text-white text-3xl font-bold mb-2">Ateneo de Naga</h2>
+            <p className="text-white text-sm opacity-90">Office of Student Affairs</p>
           </div>
         </div>
       </div>

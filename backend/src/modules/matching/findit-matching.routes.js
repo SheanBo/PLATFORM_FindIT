@@ -90,13 +90,13 @@ router.post('/run', authenticate, authorize('Staff','Admin'), async (req, res) =
     for (const item of items) {
       for (const report of reports) {
         let score = 0; const breakdown = {};
-        if (item.Category_ID === report.Category_ID) { score += 40; breakdown.category = 40; } else breakdown.category = 0;
+        if (item.Category_ID === report.Category_ID) { score += 30; breakdown.category = 30; } else breakdown.category = 0;
         if (item.Item_Color && report.Item_Color && item.Item_Color.toLowerCase() === report.Item_Color.toLowerCase()) { score += 20; breakdown.color = 20; } else breakdown.color = 0;
         if (item.Item_Brand && report.Item_Brand && item.Item_Brand.toLowerCase() === report.Item_Brand.toLowerCase()) { score += 20; breakdown.brand = 20; } else breakdown.brand = 0;
-        if (item.Item_Size && report.Item_Size && item.Item_Size.toLowerCase() === report.Item_Size.toLowerCase()) { score += 10; breakdown.size = 10; } else breakdown.size = 0;
-        if (item.Location_ID === report.Location_ID) { score += 10; breakdown.location = 10; } else breakdown.location = 0;
+        if (item.Item_Size && report.Item_Size && item.Item_Size.toLowerCase() === report.Item_Size.toLowerCase()) { score += 15; breakdown.size = 15; } else breakdown.size = 0;
+        if (item.Location_ID === report.Location_ID) { score += 15; breakdown.location = 15; } else breakdown.location = 0;
 
-        if (score >= 60) {
+        if (score >= 75) {
           const existing = await getAsync('SELECT Match_ID FROM ITEM_MATCH WHERE Item_ID=? AND Report_ID=?', [item.Item_ID, report.Report_ID]);
           if (!existing) {
             await runAsync('INSERT INTO ITEM_MATCH (Item_ID,Report_ID,Match_Score,Score_Breakdown,Match_Type) VALUES (?,?,?,?,"Auto")', [item.Item_ID, report.Report_ID, score, JSON.stringify(breakdown)]);
@@ -128,11 +128,11 @@ router.post('/manual', authenticate, authorize('Staff','Admin'), [
     if (!item || !report) return res.status(404).json({ error: 'Item or report not found' });
 
     let score = 0; const breakdown = {};
-    if (item.Category_ID === report.Category_ID) { score += 40; breakdown.category = 40; } else breakdown.category = 0;
+    if (item.Category_ID === report.Category_ID) { score += 30; breakdown.category = 30; } else breakdown.category = 0;
     if (item.Item_Color && report.Item_Color && item.Item_Color.toLowerCase() === report.Item_Color.toLowerCase()) { score += 20; breakdown.color = 20; } else breakdown.color = 0;
     if (item.Item_Brand && report.Item_Brand && item.Item_Brand.toLowerCase() === report.Item_Brand.toLowerCase()) { score += 20; breakdown.brand = 20; } else breakdown.brand = 0;
-    if (item.Item_Size && report.Item_Size && item.Item_Size.toLowerCase() === report.Item_Size.toLowerCase()) { score += 10; breakdown.size = 10; } else breakdown.size = 0;
-    if (item.Location_ID === report.Location_ID) { score += 10; breakdown.location = 10; } else breakdown.location = 0;
+    if (item.Item_Size && report.Item_Size && item.Item_Size.toLowerCase() === report.Item_Size.toLowerCase()) { score += 15; breakdown.size = 15; } else breakdown.size = 0;
+    if (item.Location_ID === report.Location_ID) { score += 15; breakdown.location = 15; } else breakdown.location = 0;
 
     const r = await runAsync('INSERT OR IGNORE INTO ITEM_MATCH (Item_ID,Report_ID,Match_Score,Score_Breakdown,Match_Type) VALUES (?,?,?,?,"Manual")', [item_id, report_id, score, JSON.stringify(breakdown)]);
 

@@ -4,30 +4,31 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Primary brand colors
-        primary: '#2563EB',
-        secondary: '#64748B',
-        accent: '#DC2626',
+        // FindIT Brand Colors (from mockup)
+        primary: '#1A2B4A',      // Deep navy blue
+        secondary: '#C9A961',    // Warm gold
+        accent: '#D4AF37',       // Bright gold
+        cream: '#F5F0EB',        // Off-white/cream
 
         // Semantic colors
-        success: '#16A34A',
-        warning: '#EA580C',
-        error: '#DC2626',
-        info: '#0EA5E9',
+        success: '#10B981',
+        warning: '#F59E0B',
+        error: '#EF4444',
+        info: '#3B82F6',
 
-        // Extended slate palette
+        // Extended neutral palette
         slate: {
-          50: '#F8FAFC',
-          100: '#F1F5F9',
+          50: '#F9FAFB',
+          100: '#F3F4F6',
           150: '#F5F7FA',
-          200: '#E2E8F0',
-          300: '#CBD5E1',
-          400: '#94A3B8',
-          500: '#64748B',
-          600: '#475569',
-          700: '#334155',
-          800: '#1E293B',
-          900: '#0F172A',
+          200: '#E5E7EB',
+          300: '#D1D5DB',
+          400: '#9CA3AF',
+          500: '#6B7280',
+          600: '#4B5563',
+          700: '#374151',
+          800: '#1F2937',
+          900: '#111827',
           950: '#030712',
         },
       },

@@ -1,19 +1,39 @@
 import { useState, useEffect } from 'react';
 import api from '../../lib/api';
-import { Package, FileText, GitMerge, ClipboardCheck, AlertTriangle, TrendingUp } from 'lucide-react';
+import {
+  Package,
+  FileText,
+  Zap,
+  ClipboardCheck,
+  AlertTriangle,
+  TrendingUp,
+  Calendar,
+  ArrowUpRight,
+  ArrowRight,
+} from 'lucide-react';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Link } from 'react-router-dom';
 
-function StatCard({ icon: Icon, label, value, color, to }) {
+function KPICard({ icon: Icon, label, value, trend, color, to }) {
   const content = (
-    <div className={`card flex items-center gap-4 hover:shadow-md transition-shadow ${to ? 'cursor-pointer' : ''}`}>
-      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
-        <Icon className="w-6 h-6 text-white" />
+    <div
+      className={`card card-interactive transition-all ${to ? 'cursor-pointer' : ''}`}
+    >
+      <div className="flex items-start justify-between mb-4">
+        <div
+          className={`inline-flex items-center justify-center w-12 h-12 rounded-lg ${color} bg-opacity-20`}
+        >
+          <Icon className={`w-6 h-6 ${color.replace('bg-', 'text-')}`} />
+        </div>
+        {trend && (
+          <div className="flex items-center gap-1 text-success text-sm font-semibold">
+            <ArrowUpRight className="w-4 h-4" />
+            {trend}%
+          </div>
+        )}
       </div>
-      <div>
-        <p className="text-2xl font-bold text-gray-900">{value ?? '—'}</p>
-        <p className="text-sm text-gray-500">{label}</p>
-      </div>
+      <p className="text-3xl font-bold text-slate-900 mb-1">{value ?? '—'}</p>
+      <p className="text-sm text-slate-600">{label}</p>
     </div>
   );
   return to ? <Link to={to}>{content}</Link> : content;
@@ -28,88 +48,250 @@ export default function DashboardPage() {
     Promise.all([
       api.get('/findit-dashboard/stats'),
       api.get('/findit-dashboard/recent-activity'),
-    ]).then(([s, a]) => { setStats(s.data); setActivity(a.data); }).finally(() => setLoading(false));
+    ])
+      .then(([s, a]) => {
+        setStats(s.data);
+        setActivity(a.data);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="p-8 text-center text-gray-500">Loading dashboard...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="loading-spinner mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const totalReports = (stats?.Active_Reports || 0) + (stats?.Closed_Reports || 0);
+  const recoveryRate = stats?.Recovery_Rate_Percent ?? 0;
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-500 text-sm mt-1">FindIT — Office of Student Affairs Overview</p>
+    <div className="min-h-screen bg-slate-50">
+      {/* Header */}
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-40">
+        <div className="p-6 max-w-7xl mx-auto">
+          <h1 className="text-3xl font-bold text-slate-900 mb-1">Dashboard</h1>
+          <p className="text-slate-600">
+            FindIT — Office of Student Affairs Operations Overview
+          </p>
+        </div>
       </div>
 
-      {stats?.Recovery_Rate_Percent !== null && (
-        <div className="card bg-gradient-to-r from-blue-600 to-blue-800 mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-blue-200 text-sm">Recovery Rate</p>
-              <p className="text-4xl font-bold text-white">{stats?.Recovery_Rate_Percent ?? 0}%</p>
-              <p className="text-blue-200 text-sm mt-1">{stats?.Closed_Reports} of {(stats?.Active_Reports || 0) + (stats?.Closed_Reports || 0)} reports closed</p>
+      <div className="p-6 max-w-7xl mx-auto">
+        {/* Recovery Rate Banner */}
+        {stats?.Recovery_Rate_Percent !== null && (
+          <div className="gradient-primary rounded-xl p-8 mb-8 text-white shadow-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-slate-200 text-sm font-semibold mb-1">
+                  RECOVERY RATE
+                </p>
+                <p className="text-6xl font-bold mb-2">{recoveryRate}%</p>
+                <p className="text-slate-200 text-sm">
+                  {stats?.Closed_Reports} of {totalReports} reports closed
+                </p>
+              </div>
+              <div className="hidden sm:block opacity-20">
+                <TrendingUp className="w-24 h-24" />
+              </div>
             </div>
-            <TrendingUp className="w-16 h-16 text-blue-300 opacity-50" />
           </div>
+        )}
+
+        {/* KPI Cards Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <KPICard
+            icon={Package}
+            label="Unclaimed Items"
+            value={stats?.Unclaimed_Items}
+            color="bg-slate-500"
+            to="/found-items?status=Unclaimed"
+          />
+          <KPICard
+            icon={Zap}
+            label="Pending Matches"
+            value={stats?.Pending_Matches}
+            color="bg-secondary"
+            to="/matching?status=Pending"
+            trend={stats?.Pending_Matches > 5 ? 5 : undefined}
+          />
+          <KPICard
+            icon={ClipboardCheck}
+            label="Pending Claims"
+            value={stats?.Pending_Claims}
+            color="bg-warning"
+            to="/claims?status=Pending"
+          />
+          <KPICard
+            icon={AlertTriangle}
+            label="Expired Items"
+            value={stats?.Expired_Items}
+            color="bg-error"
+            to="/storage"
+          />
+          <KPICard
+            icon={Package}
+            label="Matched Items"
+            value={stats?.Matched_Items}
+            color="bg-info"
+            to="/found-items?status=Matched"
+          />
+          <KPICard
+            icon={Package}
+            label="Claimed Items"
+            value={stats?.Claimed_Items}
+            color="bg-success"
+            to="/found-items?status=Claimed"
+          />
+          <KPICard
+            icon={FileText}
+            label="Active Reports"
+            value={stats?.Active_Reports}
+            color="bg-purple-500"
+            to="/lost-reports?status=Active"
+          />
+          <KPICard
+            icon={FileText}
+            label="Closed Reports"
+            value={stats?.Closed_Reports}
+            color="bg-cyan-500"
+            to="/lost-reports?status=Closed"
+          />
         </div>
-      )}
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <StatCard icon={Package} label="Unclaimed Items" value={stats?.Unclaimed_Items} color="bg-gray-500" to="/found-items?status=Unclaimed" />
-        <StatCard icon={GitMerge} label="Pending Matches" value={stats?.Pending_Matches} color="bg-yellow-500" to="/matching?status=Pending" />
-        <StatCard icon={ClipboardCheck} label="Pending Claims" value={stats?.Pending_Claims} color="bg-orange-500" to="/claims?status=Pending" />
-        <StatCard icon={AlertTriangle} label="Expired Items" value={stats?.Expired_Items} color="bg-red-500" to="/storage" />
-        <StatCard icon={Package} label="Matched Items" value={stats?.Matched_Items} color="bg-blue-500" to="/found-items?status=Matched" />
-        <StatCard icon={Package} label="Claimed Items" value={stats?.Claimed_Items} color="bg-green-500" to="/found-items?status=Claimed" />
-        <StatCard icon={FileText} label="Active Reports" value={stats?.Active_Reports} color="bg-purple-500" to="/lost-reports?status=Active" />
-        <StatCard icon={FileText} label="Closed Reports" value={stats?.Closed_Reports} color="bg-teal-500" to="/lost-reports?status=Closed" />
-      </div>
-
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="card">
-          <h2 className="font-semibold text-gray-900 mb-4">Recent Found Items</h2>
-          <div className="space-y-3">
-            {activity?.recent_items?.map(item => (
-              <div key={item.Item_ID} className="flex items-center justify-between text-sm">
-                <div>
-                  <p className="font-medium text-gray-900">{item.Item_Name}</p>
-                  <p className="text-gray-500 text-xs">{item.Category_Name}</p>
+        {/* Activity Feeds */}
+        <div className="grid md:grid-cols-3 gap-6">
+          {/* Recent Found Items */}
+          <div className="card">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-lg font-bold text-slate-900">
+                Recent Found Items
+              </h2>
+              <Link
+                to="/found-items"
+                className="text-secondary text-sm font-semibold hover:text-opacity-80"
+              >
+                View all →
+              </Link>
+            </div>
+            <div className="space-y-3">
+              {activity?.recent_items && activity.recent_items.length > 0 ? (
+                activity.recent_items.slice(0, 5).map((item) => (
+                  <Link
+                    key={item.Item_ID}
+                    to={`/found-items/${item.Item_ID}`}
+                    className="block p-3 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="font-semibold text-slate-900">
+                          {item.Item_Name}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {item.Category_Name}
+                        </p>
+                      </div>
+                      <StatusBadge status={item.Item_Status} />
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <Package className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                  <p className="text-slate-500 text-sm">No items yet</p>
                 </div>
-                <StatusBadge status={item.Item_Status} />
-              </div>
-            ))}
-            {!activity?.recent_items?.length && <p className="text-gray-400 text-sm">No items yet</p>}
+              )}
+            </div>
           </div>
-        </div>
 
-        <div className="card">
-          <h2 className="font-semibold text-gray-900 mb-4">Recent Lost Reports</h2>
-          <div className="space-y-3">
-            {activity?.recent_reports?.map(r => (
-              <div key={r.Report_ID} className="flex items-center justify-between text-sm">
-                <div>
-                  <p className="font-medium text-gray-900">{r.Item_Name}</p>
-                  <p className="text-gray-500 text-xs">{r.Category_Name}</p>
+          {/* Recent Lost Reports */}
+          <div className="card">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-lg font-bold text-slate-900">
+                Recent Lost Reports
+              </h2>
+              <Link
+                to="/lost-reports"
+                className="text-secondary text-sm font-semibold hover:text-opacity-80"
+              >
+                View all →
+              </Link>
+            </div>
+            <div className="space-y-3">
+              {activity?.recent_reports && activity.recent_reports.length > 0 ? (
+                activity.recent_reports.slice(0, 5).map((report) => (
+                  <Link
+                    key={report.Report_ID}
+                    to={`/lost-reports/${report.Report_ID}`}
+                    className="block p-3 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="font-semibold text-slate-900">
+                          {report.Item_Name}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {report.Category_Name}
+                        </p>
+                      </div>
+                      <StatusBadge status={report.Report_Status} />
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <FileText className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                  <p className="text-slate-500 text-sm">No reports yet</p>
                 </div>
-                <StatusBadge status={r.Report_Status} />
-              </div>
-            ))}
-            {!activity?.recent_reports?.length && <p className="text-gray-400 text-sm">No reports yet</p>}
+              )}
+            </div>
           </div>
-        </div>
 
-        <div className="card">
-          <h2 className="font-semibold text-gray-900 mb-4">Recent Claims</h2>
-          <div className="space-y-3">
-            {activity?.recent_claims?.map(c => (
-              <div key={c.Claim_ID} className="flex items-center justify-between text-sm">
-                <div>
-                  <p className="font-medium text-gray-900">{c.Item_Name}</p>
-                  <p className="text-gray-500 text-xs">{c.Claim_Date}</p>
+          {/* Recent Claims */}
+          <div className="card">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-lg font-bold text-slate-900">Recent Claims</h2>
+              <Link
+                to="/claims"
+                className="text-secondary text-sm font-semibold hover:text-opacity-80"
+              >
+                View all →
+              </Link>
+            </div>
+            <div className="space-y-3">
+              {activity?.recent_claims && activity.recent_claims.length > 0 ? (
+                activity.recent_claims.slice(0, 5).map((claim) => (
+                  <Link
+                    key={claim.Claim_ID}
+                    to={`/claims/${claim.Claim_ID}`}
+                    className="block p-3 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="font-semibold text-slate-900">
+                          {claim.Item_Name}
+                        </p>
+                        <p className="text-xs text-slate-500 flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {new Date(claim.Claim_Date).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <StatusBadge status={claim.Claim_Status} />
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <ClipboardCheck className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                  <p className="text-slate-500 text-sm">No claims yet</p>
                 </div>
-                <StatusBadge status={c.Claim_Status} />
-              </div>
-            ))}
-            {!activity?.recent_claims?.length && <p className="text-gray-400 text-sm">No claims yet</p>}
+              )}
+            </div>
           </div>
         </div>
       </div>

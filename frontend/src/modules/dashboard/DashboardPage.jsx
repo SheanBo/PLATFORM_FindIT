@@ -108,8 +108,8 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-semibold mb-1" style={{ color: 'var(--gold-300)' }}>RECOVERY RATE</p>
-                <p className="text-6xl font-bold mb-2">{recoveryRate}%</p>
-                <p className="text-sm opacity-90">{stats?.Closed_Reports} of {totalReports} reports closed</p>
+                <p className="text-6xl font-bold mb-2 text-white">{recoveryRate}%</p>
+                <p className="text-sm opacity-90 text-white">{stats?.Closed_Reports} of {totalReports} reports closed</p>
               </div>
               <div className="hidden sm:block opacity-20">
                 <TrendingUp className="w-24 h-24" />

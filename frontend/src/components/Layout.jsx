@@ -85,9 +85,7 @@ export function Layout() {
             to={to}
             onClick={() => setSidebarOpen(false)}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all group ${
-                isActive ? 'text-white shadow-md' : 'text-white text-opacity-70 hover:text-opacity-100'
-              }`
+              `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all group`
             }
             style={({ isActive }) => ({
               backgroundColor: isActive ? 'var(--gold-500)' : 'transparent',

@@ -16,10 +16,6 @@
 }
 
 @layer base {
-  * {
-    @apply transition-colors duration-200;
-  }
-
   html, body {
     background-color: var(--cream-100);
     color: var(--brown-900);
@@ -369,9 +365,5 @@
   /* Link & Interactive States */
   a {
     @apply hover:opacity-80 transition-opacity;
-  }
-
-  button:not(.btn-primary):not(.btn-secondary):not(.btn-ghost):not(.btn-danger):not(.btn-success) {
-    @apply transition-all duration-200;
   }
 }

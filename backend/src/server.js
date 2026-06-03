@@ -12,12 +12,42 @@ initializeDatabase();
 const app = express();
 
 // Security
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"]
+    }
+  }
+}));
+
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 200, message: { error: 'Too many requests' } }));
+
+// Global rate limiter
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200,
+  message: { error: 'Too many requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// Strict rate limiter for auth endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5, // 5 requests per 15 minutes
+  message: { error: 'Too many login attempts, please try again later' },
+  skipSuccessfulRequests: true
+});
+
+app.use(globalLimiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -25,7 +55,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Routes
-app.use('/api/auth',                require('./modules/auth/findit-auth.routes'));
+app.use('/api/auth', authLimiter, require('./modules/auth/findit-auth.routes'));
 app.use('/api/findit-lost-reports', require('./modules/lost-reports/findit-lost-reports.routes'));
 app.use('/api/findit-found-items',  require('./modules/found-items/findit-found-items.routes'));
 app.use('/api/findit-matching',     require('./modules/matching/findit-matching.routes'));
@@ -45,17 +75,22 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message });
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`\n🚀 FindIT Backend running on http://localhost:${PORT}`);
-  console.log(`📁 DB: ${process.env.DB_PATH || './src/database/findit.db'}`);
-  console.log(`\nEndpoints:`);
-  console.log(`  POST   /api/auth/login`);
-  console.log(`  POST   /api/auth/register`);
-  console.log(`  GET    /api/findit-lost-reports`);
-  console.log(`  GET    /api/findit-found-items`);
-  console.log(`  GET    /api/findit-matching`);
-  console.log(`  GET    /api/findit-claims`);
-  console.log(`  GET    /api/findit-storage`);
-  console.log(`  GET    /api/findit-dashboard/stats`);
-});
+module.exports = app;
+
+// Only start server if this file is run directly
+if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`\n🚀 FindIT Backend running on http://localhost:${PORT}`);
+    console.log(`📁 DB: ${process.env.DB_PATH || './src/database/findit.db'}`);
+    console.log(`\nEndpoints:`);
+    console.log(`  POST   /api/auth/login`);
+    console.log(`  POST   /api/auth/register`);
+    console.log(`  GET    /api/findit-lost-reports`);
+    console.log(`  GET    /api/findit-found-items`);
+    console.log(`  GET    /api/findit-matching`);
+    console.log(`  GET    /api/findit-claims`);
+    console.log(`  GET    /api/findit-storage`);
+    console.log(`  GET    /api/findit-dashboard/stats`);
+  });
+}

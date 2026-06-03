@@ -85,7 +85,9 @@ export function Layout() {
             to={to}
             onClick={() => setSidebarOpen(false)}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all group`
+              isActive
+                ? 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all group'
+                : 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all group text-white'
             }
             style={({ isActive }) => ({
               backgroundColor: isActive ? 'var(--gold-500)' : 'transparent',
@@ -93,8 +95,7 @@ export function Layout() {
             })}
           >
             <Icon className="w-5 h-5 flex-shrink-0" />
-            <span className="flex-1">{label}</span>
-            {/* Active indicator */}
+            <span className="flex-1" style={{ color: 'inherit' }}>{label}</span>
             <ChevronRight className="w-4 h-4 opacity-0 group-active:opacity-100 transition-opacity" />
           </NavLink>
         ))}

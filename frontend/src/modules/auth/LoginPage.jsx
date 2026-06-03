@@ -31,7 +31,10 @@ export default function LoginPage() {
       <div className="w-full md:w-1/3 lg:w-1/4 flex flex-col items-center justify-center px-4 py-12 md:px-6">
         <div className="w-full max-w-sm rounded-3xl p-8 shadow-2xl" style={{ backgroundColor: 'var(--navy-900)' }}>
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-8 flex items-center gap-3">
+            <div className="w-10 h-10 rounded flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'var(--gold-500)' }}>
+              <span className="text-lg font-bold" style={{ color: 'var(--navy-900)' }}>F</span>
+            </div>
             <h1 className="text-2xl font-bold text-white">FindIT</h1>
           </div>
 

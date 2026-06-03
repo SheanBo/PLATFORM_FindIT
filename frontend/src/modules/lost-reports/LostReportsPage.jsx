@@ -67,16 +67,16 @@ export default function LostReportsPage() {
 
         {/* Grid Layout */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white rounded-lg h-72 skeleton" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="bg-white rounded-lg h-56 skeleton" />
             ))}
           </div>
         ) : reports.length === 0 ? (
           <EmptyState icon={FileText} title="No reports found" description="File your first lost report to get started" actionLabel="File Report" onAction={() => setShowForm(true)} />
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {reports.map(report => (
                 <div
                   key={report.Report_ID}
@@ -84,7 +84,7 @@ export default function LostReportsPage() {
                   className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer transform hover:scale-105"
                 >
                   {/* Item Image */}
-                  <div className="w-full h-48 bg-gray-100 flex items-center justify-center" style={{ backgroundColor: 'rgba(212, 162, 78, 0.1)' }}>
+                  <div className="w-full h-32 bg-gray-100 flex items-center justify-center" style={{ backgroundColor: 'rgba(212, 162, 78, 0.1)' }}>
                     <FileText className="w-12 h-12" style={{ color: 'var(--gold-500)' }} />
                   </div>
 

@@ -1,0 +1,14 @@
+USE FindIT_DB;
+SET FOREIGN_KEY_CHECKS=0;
+
+TRUNCATE TABLE found_items;
+TRUNCATE TABLE lost_reports;
+TRUNCATE TABLE matches;
+TRUNCATE TABLE claims;
+TRUNCATE TABLE storage;
+TRUNCATE TABLE items_category;
+TRUNCATE TABLE places;
+
+SET FOREIGN_KEY_CHECKS=1;
+
+SELECT COUNT(*) as 'Total Users Remaining' FROM users;

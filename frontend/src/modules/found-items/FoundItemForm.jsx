@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Upload } from 'lucide-react';
+import { Upload, X } from 'lucide-react';
 import api from '../../lib/api';
 
 const COLORS = ['Black','White','Gray','Brown','Red','Blue','Green','Yellow','Orange','Purple','Pink','Gold','Silver','Multicolor'];
@@ -11,7 +11,8 @@ export default function FoundItemForm({ onSuccess, onCancel }) {
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { register, handleSubmit, watch, formState: { errors } } = useForm();
+  const [selectedFile, setSelectedFile] = useState(null);
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm();
   const storageType = watch('storage_type');
 
   useEffect(() => {
@@ -25,6 +26,17 @@ export default function FoundItemForm({ onSuccess, onCancel }) {
   }, []);
 
   const filteredSections = sections.filter(s => !storageType || s.Storage_Type === storageType);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    setSelectedFile(file || null);
+    if (file) setValue('photo', e.target.files);
+  };
+
+  const clearFile = () => {
+    setSelectedFile(null);
+    setValue('photo', null);
+  };
 
   const onSubmit = async (data) => {
     setLoading(true); setError('');
@@ -141,13 +153,25 @@ export default function FoundItemForm({ onSuccess, onCancel }) {
 
           {/* Photo */}
           <div className="col-span-2">
-            <label className="label mb-2">Photo</label>
-            <div className="border-2 border-dashed rounded-lg p-4 text-center" style={{ borderColor: 'var(--gold-300)', backgroundColor: 'rgba(212, 162, 78, 0.05)' }}>
-              <Upload className="w-5 h-5 mx-auto mb-2" style={{ color: 'var(--gold-500)' }} />
-              <p className="text-xs mb-2" style={{ color: 'var(--rust-600)' }}>Upload photo</p>
-              <input className="hidden" type="file" accept="image/*" {...register('photo')} id="photo" />
-              <label htmlFor="photo" className="cursor-pointer text-xs font-semibold" style={{ color: 'var(--navy-900)' }}>Choose file</label>
-            </div>
+            <label className="label mb-2">Photo (optional)</label>
+            {selectedFile ? (
+              <div className="border-2 border-solid rounded-lg p-3 flex items-center justify-between" style={{ borderColor: 'var(--status-green)', backgroundColor: 'rgba(47, 158, 88, 0.05)' }}>
+                <div className="flex items-center gap-2">
+                  <Upload className="w-4 h-4" style={{ color: 'var(--status-green)' }} />
+                  <span className="text-xs" style={{ color: 'var(--navy-900)' }}>{selectedFile.name}</span>
+                </div>
+                <button type="button" onClick={clearFile} className="p-1 hover:opacity-70">
+                  <X className="w-4 h-4" style={{ color: 'var(--rust-600)' }} />
+                </button>
+              </div>
+            ) : (
+              <div className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:bg-opacity-10 transition-all" style={{ borderColor: 'var(--gold-300)', backgroundColor: 'rgba(212, 162, 78, 0.05)' }}>
+                <Upload className="w-5 h-5 mx-auto mb-2" style={{ color: 'var(--gold-500)' }} />
+                <p className="text-xs mb-2" style={{ color: 'var(--rust-600)' }}>Upload photo</p>
+                <input className="hidden" type="file" accept="image/*" onChange={handleFileChange} id="photo" />
+                <label htmlFor="photo" className="cursor-pointer text-xs font-semibold" style={{ color: 'var(--navy-900)' }}>Choose file</label>
+              </div>
+            )}
           </div>
         </div>
 

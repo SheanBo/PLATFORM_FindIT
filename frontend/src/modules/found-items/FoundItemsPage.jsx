@@ -132,16 +132,10 @@ export default function FoundItemsPage() {
                   totalPages={pagination.pages}
                   onPageChange={setPage}
                 />
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="px-4 pb-4"><Pagination pagination={pagination} onPageChange={setPage} /></div>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       <Modal isOpen={showForm} onClose={() => setShowForm(false)} title="Register Found Item" size="md">

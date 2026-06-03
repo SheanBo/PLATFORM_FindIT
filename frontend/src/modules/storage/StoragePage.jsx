@@ -114,13 +114,13 @@ export default function StoragePage() {
               <table className="w-full text-sm">
                 <thead className="bg-amber-50 border-b">
                   <tr>
-                    <th className="text-left px-3 py-2 font-medium text-gray-600">Item</th>
-                    <th className="text-left px-3 py-2 font-medium text-gray-600">Category</th>
-                    <th className="text-left px-3 py-2 font-medium text-gray-600">Days Stored</th>
-                    <th className="text-left px-3 py-2 font-medium text-gray-600">Status</th>
+                    <th className="text-left px-3 py-2 font-medium text-amber-700">Item</th>
+                    <th className="text-left px-3 py-2 font-medium text-amber-700">Category</th>
+                    <th className="text-left px-3 py-2 font-medium text-amber-700">Days Stored</th>
+                    <th className="text-left px-3 py-2 font-medium text-amber-700">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-amber-100">
                   {sectionDetail.items?.length === 0 && (
                     <tr><td colSpan={4} className="text-center py-4 text-gray-400">No items stored</td></tr>
                   )}
@@ -130,9 +130,9 @@ export default function StoragePage() {
                         <p className="font-medium text-amber-950">{item.Item_Name}</p>
                         <p className="text-amber-700 text-xs">{item.Item_Color}{item.Item_Brand ? ` · ${item.Item_Brand}` : ''}</p>
                       </td>
-                      <td className="px-3 py-2 text-gray-600">{item.Category_Name?.replace(/_/g,' ')}</td>
+                      <td className="px-3 py-2 text-amber-700">{item.Category_Name?.replace(/_/g,' ')}</td>
                       <td className="px-3 py-2">
-                        <span className={item.Days_Stored > 30 ? 'text-red-600 font-medium' : 'text-gray-600'}>
+                        <span className={item.Days_Stored > 30 ? 'text-red-600 font-medium' : 'text-amber-700'}>
                           {item.Days_Stored}d
                         </span>
                       </td>
@@ -156,21 +156,21 @@ export default function StoragePage() {
             <table className="w-full text-sm">
               <thead className="bg-amber-50 border-b">
                 <tr>
-                  <th className="text-left px-3 py-2 font-medium text-gray-600">#</th>
-                  <th className="text-left px-3 py-2 font-medium text-gray-600">Item</th>
-                  <th className="text-left px-3 py-2 font-medium text-gray-600">Category</th>
-                  <th className="text-left px-3 py-2 font-medium text-gray-600">Days</th>
-                  <th className="text-left px-3 py-2 font-medium text-gray-600">Location</th>
+                  <th className="text-left px-3 py-2 font-medium text-amber-700">#</th>
+                  <th className="text-left px-3 py-2 font-medium text-amber-700">Item</th>
+                  <th className="text-left px-3 py-2 font-medium text-amber-700">Category</th>
+                  <th className="text-left px-3 py-2 font-medium text-amber-700">Days</th>
+                  <th className="text-left px-3 py-2 font-medium text-amber-700">Location</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-amber-100">
                 {expired.map(e => (
                   <tr key={e.Item_ID}>
                     <td className="px-3 py-2 text-gray-400">#{e.Item_ID}</td>
                     <td className="px-3 py-2"><p className="font-medium">{e.Item_Name}</p><p className="text-xs text-amber-700">{e.Item_Color}</p></td>
-                    <td className="px-3 py-2 text-gray-600">{e.Category_Name?.replace(/_/g,' ')}</td>
+                    <td className="px-3 py-2 text-amber-700">{e.Category_Name?.replace(/_/g,' ')}</td>
                     <td className="px-3 py-2 text-red-600 font-semibold">{e.Days_Unclaimed}d</td>
-                    <td className="px-3 py-2 text-gray-600">{e.Storage_Location || '—'}</td>
+                    <td className="px-3 py-2 text-amber-700">{e.Storage_Location || '—'}</td>
                   </tr>
                 ))}
               </tbody>

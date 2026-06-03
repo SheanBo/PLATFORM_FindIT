@@ -4,32 +4,46 @@ export default {
   theme: {
     extend: {
       colors: {
-        // FindIT Brand Colors (from mockup)
-        primary: '#1a2942',      // Deep navy blue
-        secondary: '#c9a961',    // Warm gold
-        accent: '#d4b294',       // Light gold
-        cream: '#f5f0eb',        // Off-white/cream
-
-        // Semantic colors
-        success: '#5c8e6e',      // Sage green
-        warning: '#d4a574',      // Warm amber
-        error: '#c74545',        // Warm red
-        info: '#4a7ba7',         // Blue-gray
-
-        // Extended neutral palette
-        slate: {
-          50: '#F9FAFB',
-          100: '#F3F4F6',
-          150: '#F5F7FA',
-          200: '#E5E7EB',
-          300: '#D1D5DB',
-          400: '#9CA3AF',
-          500: '#6B7280',
-          600: '#4B5563',
-          700: '#374151',
-          800: '#1F2937',
-          900: '#111827',
-          950: '#030712',
+        // FindIT Premium Brand Colors
+        navy: {
+          700: '#223259',
+          900: '#16213D',
+        },
+        gold: {
+          300: '#F2CD6B',
+          500: '#D4A24E',
+        },
+        cream: {
+          100: '#FBF3DC',
+        },
+        brown: {
+          900: '#4A2511',
+        },
+        rust: {
+          600: '#C2741F',
+        },
+        status: {
+          blue: {
+            50: '#E8EEFB',
+            100: '#D1DCF7',
+            600: '#3B5FD9',
+            800: '#2340A0',
+            900: '#1A2860',
+          },
+          terracotta: {
+            50: '#F5E5D7',
+            100: '#EBCCB0',
+            500: '#D2691E',
+            600: '#B85C1A',
+            800: '#7A3F0F',
+          },
+          green: {
+            50: '#E8F3ED',
+            100: '#D1E7DB',
+            600: '#2F9E58',
+            800: '#1F6B3A',
+            900: '#0F3D22',
+          },
         },
       },
       fontFamily: {

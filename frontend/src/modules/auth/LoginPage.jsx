@@ -26,24 +26,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-white">
-      {/* Left Side - Clean Login Form */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-6 py-12 lg:px-12">
-        <div className="w-full max-w-xs">
-          {/* Logo */}
-          <div className="mb-12">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded flex items-center justify-center" style={{ backgroundColor: 'var(--gold-500)' }}>
+    <div className="min-h-screen flex" style={{ backgroundColor: 'var(--cream-100)' }}>
+      {/* Left Side - Navy Card Login Form */}
+      <div className="w-full md:w-2/5 lg:w-1/3 flex flex-col items-center justify-center px-4 py-12 md:px-6">
+        <div className="w-full max-w-sm rounded-3xl p-8 shadow-2xl" style={{ backgroundColor: 'var(--navy-900)' }}>
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-2 mx-auto mb-4">
+              <div className="w-10 h-10 rounded flex items-center justify-center" style={{ backgroundColor: 'var(--gold-500)' }}>
                 <span className="text-lg font-bold" style={{ color: 'var(--navy-900)' }}>F</span>
               </div>
-              <h1 className="text-xl font-semibold" style={{ color: 'var(--navy-900)' }}>FindIT</h1>
+              <h1 className="text-2xl font-bold text-white">FindIT</h1>
             </div>
+            <p className="text-sm text-white mt-3" style={{ color: 'var(--gold-300)' }}>Sign in to your account</p>
           </div>
-
-          {/* Heading */}
-          <h2 className="text-2xl font-semibold mb-8" style={{ color: 'var(--navy-900)' }}>
-            Sign in with your Riot Account
-          </h2>
 
           {/* Error Alert */}
           {error && (
@@ -57,48 +53,50 @@ export default function LoginPage() {
           )}
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-3 mb-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Username Field */}
             <div>
+              <label className="label text-white mb-2">Username or Email</label>
               <input
                 type="text"
                 className="input"
-                placeholder="Email"
+                placeholder="ahfresnido@gbox.adnu.edu.ph"
                 value={form.username}
                 onChange={(e) => setForm((f) => ({ ...f, username: e.target.value }))}
                 disabled={loading}
                 autoFocus
                 required
                 style={{
-                  backgroundColor: '#F8F8F8',
-                  borderColor: '#E0E0E0',
-                  fontSize: '14px'
+                  backgroundColor: 'rgba(255,255,255,0.08)',
+                  borderColor: 'rgba(212,162,78,0.3)',
+                  color: 'white'
                 }}
               />
             </div>
 
             {/* Password Field */}
             <div>
+              <label className="label text-white mb-2">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   className="input pr-10"
-                  placeholder="Password"
+                  placeholder="••••••••••"
                   value={form.password}
                   onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
                   disabled={loading}
                   required
                   style={{
-                    backgroundColor: '#F8F8F8',
-                    borderColor: '#E0E0E0',
-                    fontSize: '14px'
+                    backgroundColor: 'rgba(255,255,255,0.08)',
+                    borderColor: 'rgba(212,162,78,0.3)',
+                    color: 'white'
                   }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                  style={{ color: '#999' }}
+                  style={{ color: 'var(--gold-500)' }}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
@@ -110,55 +108,35 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Keep signed in checkbox */}
-            <label className="flex items-center gap-2 text-sm" style={{ color: 'var(--brown-900)' }}>
-              <input
-                type="checkbox"
-                className="w-4 h-4 rounded"
-                defaultChecked
-              />
-              Keep me signed in
-            </label>
-
-            {/* Sign In Button - Red Circular */}
-            <div className="pt-4 flex justify-center">
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-14 h-14 rounded-full flex items-center justify-center transition-all hover:shadow-lg"
-                style={{ backgroundColor: 'var(--status-terracotta)' }}
-                aria-label="Sign in"
-              >
-                {loading ? (
+            {/* Sign In Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 text-base font-semibold rounded-lg transition-all text-white mt-6"
+              style={{ backgroundColor: 'var(--gold-500)', color: 'var(--navy-900)' }}
+            >
+              {loading ? (
+                <>
                   <span className="loading-spinner" />
-                ) : (
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                )}
-              </button>
-            </div>
+                  Signing in...
+                </>
+              ) : (
+                'Sign In'
+              )}
+            </button>
           </form>
 
-          {/* Links */}
-          <div className="space-y-2 text-center text-sm">
-            <p style={{ color: '#999' }}>
+          {/* Register Link */}
+          <div className="text-center mt-6 pt-6" style={{ borderTop: '1px solid rgba(212,162,78,0.2)' }}>
+            <p className="text-sm" style={{ color: 'var(--gold-300)' }}>
+              New student?{' '}
               <Link
                 to="/register"
-                className="hover:opacity-80 transition-all"
-                style={{ color: 'var(--navy-900)' }}
+                className="font-semibold hover:opacity-80 transition-all"
+                style={{ color: 'var(--gold-500)' }}
               >
-                New student? Create an account
+                Create an account
               </Link>
-            </p>
-            <p style={{ color: '#999' }}>
-              <a
-                href="#"
-                className="hover:opacity-80 transition-all"
-                style={{ color: 'var(--navy-900)' }}
-              >
-                Can't sign in?
-              </a>
             </p>
           </div>
         </div>
@@ -166,17 +144,16 @@ export default function LoginPage() {
 
       {/* Right Side - Ateneo Image */}
       <div
-        className="hidden lg:block lg:w-1/2 relative overflow-hidden"
+        className="hidden md:block md:w-3/5 lg:w-2/3 relative overflow-hidden"
         style={{
-          backgroundImage: 'linear-gradient(135deg, rgba(0,120,150,0.6), rgba(0,150,180,0.6)), url(https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&h=1200&fit=crop)',
+          backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.2), rgba(0,0,0,0.1)), url(https://images.unsplash.com/photo-1543269865-cbf427effbad?w=1200&h=1600&fit=crop)',
           backgroundSize: 'cover',
-          backgroundPosition: 'center top',
-          backgroundAttachment: 'fixed'
+          backgroundPosition: 'center'
         }}
       >
-        {/* Bottom branding */}
-        <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/60 to-transparent">
-          <p className="text-white text-lg font-semibold">Ateneo de Naga University</p>
+        {/* Bottom branding overlay */}
+        <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/50 to-transparent">
+          <h3 className="text-white text-2xl font-bold">Ateneo de Naga</h3>
           <p className="text-white/80 text-sm">Office of Student Affairs</p>
         </div>
       </div>

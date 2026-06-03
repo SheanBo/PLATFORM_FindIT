@@ -28,7 +28,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: 'var(--cream-100)' }}>
       {/* Left Side - Navy Card Login Form */}
-      <div className="w-full md:w-2/5 lg:w-1/3 flex flex-col items-center justify-center px-4 py-12 md:px-6">
+      <div className="w-full md:w-1/3 lg:w-1/4 flex flex-col items-center justify-center px-4 py-12 md:px-6">
         <div className="w-full max-w-sm rounded-3xl p-8 shadow-2xl" style={{ backgroundColor: 'var(--navy-900)' }}>
           {/* Header */}
           <div className="text-center mb-8">
@@ -144,7 +144,7 @@ export default function LoginPage() {
 
       {/* Right Side - Ateneo Image */}
       <div
-        className="hidden md:block md:w-3/5 lg:w-2/3 relative overflow-hidden"
+        className="hidden md:block md:w-2/3 lg:w-3/4 relative overflow-hidden"
         style={{
           backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.05)), url(/ateneo.jpg)',
           backgroundSize: 'cover',

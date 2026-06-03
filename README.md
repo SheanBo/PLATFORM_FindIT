@@ -31,6 +31,7 @@ A modern Lost & Found management application for Ateneo de Naga University's Off
 ```bash
 cd backend
 npm install
+node src/database/init.js
 node src/database/seed.js
 npm run dev
 ```

@@ -142,7 +142,7 @@ export default function LoginPage() {
         style={{
           backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.05)), url(/ateneo.jpg)',
           backgroundSize: 'cover',
-          backgroundPosition: 'center'
+          backgroundPosition: 'center 35%'
         }}
       >
         {/* Bottom branding overlay */}

@@ -84,8 +84,12 @@ export default function FoundItemsPage() {
                   className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer transform hover:scale-105"
                 >
                   {/* Item Image */}
-                  <div className="w-full h-32 bg-gray-100 flex items-center justify-center" style={{ backgroundColor: 'rgba(212, 162, 78, 0.1)' }}>
-                    <Package className="w-12 h-12" style={{ color: 'var(--gold-500)' }} />
+                  <div className="w-full h-32 bg-gray-100 flex items-center justify-center overflow-hidden" style={{ backgroundColor: 'rgba(212, 162, 78, 0.1)' }}>
+                    {item.Photo_Path ? (
+                      <img src={item.Photo_Path} alt={item.Item_Name} className="w-full h-full object-cover" />
+                    ) : (
+                      <Package className="w-12 h-12" style={{ color: 'var(--gold-500)' }} />
+                    )}
                   </div>
 
                   {/* Item Info */}

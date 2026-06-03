@@ -26,20 +26,24 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex" style={{ backgroundColor: 'var(--cream-100)' }}>
-      {/* Left Side - Login Form */}
-      <div className="w-full md:w-1/2 flex flex-col items-center justify-center px-8 py-12">
-        <div className="w-full max-w-sm">
-          {/* Header */}
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--gold-500)' }}>
-                <span className="text-xl font-bold" style={{ color: 'var(--navy-900)' }}>F</span>
+    <div className="min-h-screen flex bg-white">
+      {/* Left Side - Clean Login Form */}
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-6 py-12 lg:px-12">
+        <div className="w-full max-w-xs">
+          {/* Logo */}
+          <div className="mb-12">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded flex items-center justify-center" style={{ backgroundColor: 'var(--gold-500)' }}>
+                <span className="text-lg font-bold" style={{ color: 'var(--navy-900)' }}>F</span>
               </div>
-              <h1 className="text-2xl font-bold" style={{ color: 'var(--navy-900)' }}>FindIT</h1>
+              <h1 className="text-xl font-semibold" style={{ color: 'var(--navy-900)' }}>FindIT</h1>
             </div>
-            <h2 className="text-sm font-semibold text-gray-600 mt-4">Ateneo de Naga University</h2>
           </div>
+
+          {/* Heading */}
+          <h2 className="text-2xl font-semibold mb-8" style={{ color: 'var(--navy-900)' }}>
+            Sign in with your Riot Account
+          </h2>
 
           {/* Error Alert */}
           {error && (
@@ -53,19 +57,23 @@ export default function LoginPage() {
           )}
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3 mb-6">
             {/* Username Field */}
             <div>
               <input
                 type="text"
                 className="input"
-                placeholder="your.gbox account"
+                placeholder="Email"
                 value={form.username}
                 onChange={(e) => setForm((f) => ({ ...f, username: e.target.value }))}
                 disabled={loading}
                 autoFocus
                 required
-                style={{ backgroundColor: '#F5F5F5' }}
+                style={{
+                  backgroundColor: '#F8F8F8',
+                  borderColor: '#E0E0E0',
+                  fontSize: '14px'
+                }}
               />
             </div>
 
@@ -75,18 +83,22 @@ export default function LoginPage() {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   className="input pr-10"
-                  placeholder="••••••••••"
+                  placeholder="Password"
                   value={form.password}
                   onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
                   disabled={loading}
                   required
-                  style={{ backgroundColor: '#F5F5F5' }}
+                  style={{
+                    backgroundColor: '#F8F8F8',
+                    borderColor: '#E0E0E0',
+                    fontSize: '14px'
+                  }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                  style={{ color: 'var(--rust-600)' }}
+                  style={{ color: '#999' }}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
@@ -98,84 +110,74 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Sign In Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 text-base font-semibold rounded-lg transition-all text-white mt-6"
-              style={{ backgroundColor: 'var(--navy-900)' }}
-            >
-              {loading ? (
-                <>
+            {/* Keep signed in checkbox */}
+            <label className="flex items-center gap-2 text-sm" style={{ color: 'var(--brown-900)' }}>
+              <input
+                type="checkbox"
+                className="w-4 h-4 rounded"
+                defaultChecked
+              />
+              Keep me signed in
+            </label>
+
+            {/* Sign In Button - Red Circular */}
+            <div className="pt-4 flex justify-center">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-14 h-14 rounded-full flex items-center justify-center transition-all hover:shadow-lg"
+                style={{ backgroundColor: 'var(--status-terracotta)' }}
+                aria-label="Sign in"
+              >
+                {loading ? (
                   <span className="loading-spinner" />
-                  Signing in...
-                </>
-              ) : (
-                'Sign In'
-              )}
-            </button>
+                ) : (
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </form>
 
           {/* Links */}
-          <div className="mt-8 space-y-3">
-            <div className="text-center">
-              <p className="text-xs" style={{ color: 'var(--rust-600)' }}>
-                New student?{' '}
-                <Link
-                  to="/register"
-                  className="font-semibold hover:opacity-80 transition-all"
-                  style={{ color: 'var(--navy-900)' }}
-                >
-                  Create an account
-                </Link>
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-xs" style={{ color: 'var(--rust-600)' }}>
-                Can't sign in?{' '}
-                <a
-                  href="#"
-                  className="font-semibold hover:opacity-80 transition-all"
-                  style={{ color: 'var(--navy-900)' }}
-                >
-                  Reset password
-                </a>
-              </p>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="mt-12 pt-8 border-t" style={{ borderColor: 'var(--gold-300)' }}>
-            <p className="text-xs text-center" style={{ color: 'var(--rust-600)' }}>
-              © 2026 FindIT. All rights reserved.
+          <div className="space-y-2 text-center text-sm">
+            <p style={{ color: '#999' }}>
+              <Link
+                to="/register"
+                className="hover:opacity-80 transition-all"
+                style={{ color: 'var(--navy-900)' }}
+              >
+                New student? Create an account
+              </Link>
+            </p>
+            <p style={{ color: '#999' }}>
+              <a
+                href="#"
+                className="hover:opacity-80 transition-all"
+                style={{ color: 'var(--navy-900)' }}
+              >
+                Can't sign in?
+              </a>
             </p>
           </div>
         </div>
       </div>
 
       {/* Right Side - Ateneo Image */}
-      <div className="hidden md:block md:w-1/2 relative overflow-hidden">
-        <div
-          className="w-full h-full"
-          style={{
-            backgroundImage: 'url(https://images.unsplash.com/photo-1553531088-551f956cbf8d?w=800&h=900&fit=crop)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        >
-          {/* Gradient Overlay */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background: 'linear-gradient(135deg, rgba(22, 33, 61, 0.4) 0%, rgba(74, 37, 17, 0.2) 100%)',
-            }}
-          ></div>
-
-          {/* Ateneo Branding */}
-          <div className="absolute bottom-8 left-8 right-8">
-            <h2 className="text-white text-3xl font-bold mb-2">Ateneo de Naga</h2>
-            <p className="text-white text-sm opacity-90">Office of Student Affairs</p>
-          </div>
+      <div
+        className="hidden lg:block lg:w-1/2 relative overflow-hidden"
+        style={{
+          backgroundImage: 'linear-gradient(135deg, rgba(0,120,150,0.6), rgba(0,150,180,0.6)), url(https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&h=1200&fit=crop)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center top',
+          backgroundAttachment: 'fixed'
+        }}
+      >
+        {/* Bottom branding */}
+        <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/60 to-transparent">
+          <p className="text-white text-lg font-semibold">Ateneo de Naga University</p>
+          <p className="text-white/80 text-sm">Office of Student Affairs</p>
         </div>
       </div>
     </div>

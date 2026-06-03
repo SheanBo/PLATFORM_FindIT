@@ -6,8 +6,7 @@ import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Pagination } from '../../components/ui/Pagination';
 import { Modal } from '../../components/ui/Modal';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { TableSkeleton } from '../../components/ui/LoadingSpinner';
-import { Plus, Search, Eye, Package } from 'lucide-react';
+import { Plus, Search, Eye, Package, MapPin } from 'lucide-react';
 import FoundItemForm from './FoundItemForm';
 import FoundItemDetail from './FoundItemDetail';
 
@@ -25,7 +24,7 @@ export default function FoundItemsPage() {
 
   const load = () => {
     setLoading(true);
-    api.get('/findit-found-items', { params: { search, status, page, limit: 10 } })
+    api.get('/findit-found-items', { params: { search, status, page, limit: 12 } })
       .then(r => { setItems(r.data.data); setPagination(r.data.pagination); })
       .finally(() => setLoading(false));
   };
@@ -33,71 +32,106 @@ export default function FoundItemsPage() {
   useEffect(() => { load(); }, [search, status, page]);
 
   return (
-    <div className="p-6 max-w-7xl mx-auto min-h-screen bg-amber-50">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-amber-950">Found Items</h1>
-          <p className="text-amber-700 text-sm">Items surrendered to the OSA</p>
-        </div>
-        {['Staff','Admin'].includes(user.role) && (
-          <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2 w-fit" aria-label="Register a new found item">
-            <Plus className="w-4 h-4" /> Register Item
-          </button>
-        )}
-      </div>
-
-      <div className="card mb-4">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-400" />
-            <input className="input pl-9" placeholder="Search by name, brand..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} aria-label="Search items" />
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--cream-100)' }}>
+      {/* Header */}
+      <div className="bg-white border-b sticky top-0 z-40" style={{ borderColor: 'var(--gold-300)' }}>
+        <div className="p-6 max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--brown-900)' }}>Found Items</h1>
+              <p style={{ color: 'var(--rust-600)' }}>Items surrendered to the OSA</p>
+            </div>
+            {['Staff','Admin'].includes(user.role) && (
+              <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2 w-fit">
+                <Plus className="w-4 h-4" /> Register Item
+              </button>
+            )}
           </div>
-          <select className="select sm:w-40" value={status} onChange={e => { setStatus(e.target.value); setPage(1); }} aria-label="Filter by status">
-            <option value="">All Status</option>
-            {['Unclaimed','Matched','Claimed','Disputed','Disposed'].map(s => <option key={s}>{s}</option>)}
-          </select>
         </div>
       </div>
 
-      <div className="card overflow-hidden p-0">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm" role="grid" aria-label="Found items list">
-            <thead className="bg-amber-50 border-b border-amber-200">
-              <tr>
-                <th className="text-left px-4 py-3 font-medium text-amber-900">#</th>
-                <th className="text-left px-4 py-3 font-medium text-amber-900">Item</th>
-                <th className="text-left px-4 py-3 font-medium text-amber-900 hidden md:table-cell">Category</th>
-                <th className="text-left px-4 py-3 font-medium text-amber-900 hidden md:table-cell">Date Found</th>
-                <th className="text-left px-4 py-3 font-medium text-amber-900 hidden lg:table-cell">Storage</th>
-                <th className="text-left px-4 py-3 font-medium text-amber-900">Status</th>
-                <th className="px-4 py-3"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-amber-100">
-              {loading ? (
-                <tr><td colSpan={7} className="p-0"><TableSkeleton rows={5} columns={7} /></td></tr>
-              ) : items.length === 0 ? (
-                <tr><td colSpan={7} className="p-0"><EmptyState icon={Package} title="No items found" description="Start by registering your first found item" actionLabel="Register Item" onAction={() => setShowForm(true)} /></td></tr>
-              ) : items.map(item => (
-                <tr key={item.Item_ID} className="hover:bg-amber-100 transition-colors cursor-pointer">
-                  <td className="px-4 py-3 text-amber-600">#{item.Item_ID}</td>
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-amber-950">{item.Item_Name}</p>
-                    <p className="text-amber-700 text-xs">{item.Item_Color}{item.Item_Brand ? ` · ${item.Item_Brand}` : ''}</p>
-                  </td>
-                  <td className="px-4 py-3 text-amber-700 hidden md:table-cell">{item.Category_Name?.replace(/_/g,' ')}</td>
-                  <td className="px-4 py-3 text-amber-700 hidden md:table-cell">{item.Date_Found}</td>
-                  <td className="px-4 py-3 text-amber-700 hidden lg:table-cell">
-                    {item.Section_Name || item.Storage_Type}
-                    <StatusBadge status={item.Storage_Type} />
-                  </td>
-                  <td className="px-4 py-3"><StatusBadge status={item.Item_Status} /></td>
-                  <td className="px-4 py-3">
-                    <button
-                      onClick={() => setSelectedId(item.Item_ID)}
-                      className="text-amber-600 hover:text-amber-700 p-1 rounded hover:bg-amber-50 transition-colors"
-                      title="View item details"
-                      aria-label={`View details for ${item.Item_Name}`}
+      <div className="p-6 max-w-7xl mx-auto">
+        {/* Filters */}
+        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 mb-6">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--rust-600)' }} />
+              <input className="input pl-9" placeholder="Search by name, brand..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} style={{ borderColor: 'var(--gold-300)' }} />
+            </div>
+            <select className="select sm:w-40" value={status} onChange={e => { setStatus(e.target.value); setPage(1); }} style={{ borderColor: 'var(--gold-300)' }}>
+              <option value="">All Status</option>
+              {['Unclaimed','Matched','Claimed','Disputed','Disposed'].map(s => <option key={s}>{s}</option>)}
+            </select>
+          </div>
+        </div>
+
+        {/* Grid Layout */}
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="bg-white rounded-lg h-72 skeleton" />
+            ))}
+          </div>
+        ) : items.length === 0 ? (
+          <EmptyState icon={Package} title="No items found" description="Start by registering your first found item" actionLabel="Register Item" onAction={() => setShowForm(true)} />
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {items.map(item => (
+                <div
+                  key={item.Item_ID}
+                  onClick={() => setSelectedId(item.Item_ID)}
+                  className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer transform hover:scale-105"
+                >
+                  {/* Item Image */}
+                  <div className="w-full h-48 bg-gray-100 flex items-center justify-center" style={{ backgroundColor: 'rgba(212, 162, 78, 0.1)' }}>
+                    <Package className="w-12 h-12" style={{ color: 'var(--gold-500)' }} />
+                  </div>
+
+                  {/* Item Info */}
+                  <div className="p-4">
+                    {/* Name */}
+                    <h3 className="font-bold text-sm mb-1" style={{ color: 'var(--navy-900)' }}>
+                      {item.Item_Name}
+                    </h3>
+
+                    {/* Details */}
+                    <p className="text-xs mb-3" style={{ color: 'var(--rust-600)' }}>
+                      {item.Item_Color}{item.Item_Brand ? ` · ${item.Item_Brand}` : ''}
+                    </p>
+
+                    {/* Location */}
+                    <div className="flex items-center gap-1 mb-3" style={{ color: 'var(--rust-600)' }}>
+                      <MapPin className="w-3 h-3" />
+                      <span className="text-xs">{item.Place_Name}</span>
+                    </div>
+
+                    {/* Status Badge */}
+                    <div className="flex justify-between items-center">
+                      <StatusBadge status={item.Item_Status} />
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setSelectedId(item.Item_ID); }}
+                        className="p-2 rounded hover:opacity-80 transition-opacity"
+                        style={{ color: 'var(--navy-900)' }}
+                        title="View item details"
+                        aria-label={`View details for ${item.Item_Name}`}
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {pagination && pagination.total > pagination.limit && (
+              <div className="mt-8 flex justify-center">
+                <Pagination
+                  currentPage={page}
+                  totalPages={pagination.pages}
+                  onPageChange={setPage}
+                />
                     >
                       <Eye className="w-4 h-4" />
                     </button>

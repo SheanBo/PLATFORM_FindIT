@@ -30,16 +30,6 @@ export default function LoginPage() {
       {/* Left Side - Navy Card Login Form */}
       <div className="w-full md:w-1/3 lg:w-1/4 flex flex-col items-center justify-center px-4 py-12 md:px-6">
         <div className="w-full max-w-sm rounded-3xl p-8 shadow-2xl" style={{ backgroundColor: 'var(--navy-900)' }}>
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-2 mx-auto mb-4">
-              <div className="w-10 h-10 rounded flex items-center justify-center" style={{ backgroundColor: 'var(--gold-500)' }}>
-                <span className="text-lg font-bold" style={{ color: 'var(--navy-900)' }}>F</span>
-              </div>
-              <h1 className="text-2xl font-bold text-white">FindIT</h1>
-            </div>
-            <p className="text-sm text-white mt-3" style={{ color: 'var(--gold-300)' }}>Sign in to your account</p>
-          </div>
 
           {/* Error Alert */}
           {error && (

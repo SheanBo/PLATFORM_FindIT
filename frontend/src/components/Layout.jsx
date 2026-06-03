@@ -65,14 +65,14 @@ export function Layout() {
   const SidebarContent = () => (
     <>
       {/* Sidebar Header */}
-      <div className="p-6 border-b border-slate-800">
+      <div className="p-6 border-b" style={{ borderColor: 'rgba(212, 162, 78, 0.2)' }}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-secondary bg-opacity-20 rounded-xl flex items-center justify-center">
-            <Search className="w-5 h-5 text-secondary" />
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'var(--gold-500)' }}>
+            <Search className="w-5 h-5" style={{ color: 'var(--navy-900)' }} />
           </div>
           <div>
             <h1 className="text-white font-bold text-lg leading-none">FindIT</h1>
-            <p className="text-slate-400 text-xs">OSA Lost & Found</p>
+            <p className="text-sm opacity-75" style={{ color: 'white' }}>OSA Lost & Found</p>
           </div>
         </div>
       </div>
@@ -86,11 +86,13 @@ export function Layout() {
             onClick={() => setSidebarOpen(false)}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all group ${
-                isActive
-                  ? 'bg-secondary text-white shadow-md'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                isActive ? 'text-white shadow-md' : 'text-white text-opacity-70 hover:text-opacity-100'
               }`
             }
+            style={({ isActive }) => ({
+              backgroundColor: isActive ? 'var(--gold-500)' : 'transparent',
+              color: isActive ? 'var(--navy-900)' : 'white'
+            })}
           >
             <Icon className="w-5 h-5 flex-shrink-0" />
             <span className="flex-1">{label}</span>
@@ -101,24 +103,22 @@ export function Layout() {
       </nav>
 
       {/* User Profile & Logout */}
-      <div className="p-4 border-t border-slate-800">
-        <div className="flex items-center gap-3 px-4 py-3 mb-3 bg-slate-800 rounded-lg">
-          <div className="w-9 h-9 bg-secondary rounded-full flex items-center justify-center flex-shrink-0">
-            <span className="text-primary text-xs font-bold">
-              {user.first_name?.[0]}
-              {user.last_name?.[0]}
-            </span>
+      <div className="p-4 border-t" style={{ borderColor: 'rgba(212, 162, 78, 0.2)' }}>
+        <div className="flex items-center gap-3 px-4 py-3 mb-3 rounded-lg" style={{ backgroundColor: 'rgba(212, 162, 78, 0.1)' }}>
+          <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold text-white" style={{ backgroundColor: 'var(--gold-500)' }}>
+            {user.first_name?.[0]}
+            {user.last_name?.[0]}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-white text-sm font-semibold truncate">
               {user.first_name} {user.last_name}
             </p>
-            <p className="text-slate-400 text-xs">{user.role}</p>
+            <p className="text-sm opacity-75" style={{ color: 'white' }}>{user.role}</p>
           </div>
         </div>
         <button
           onClick={logout}
-          className="flex items-center gap-3 text-slate-300 hover:text-white hover:bg-slate-800 text-sm px-4 py-2.5 w-full rounded-lg transition-colors font-semibold"
+          className="flex items-center gap-3 text-white text-sm px-4 py-2.5 w-full rounded-lg transition-colors font-semibold hover:opacity-80"
         >
           <LogOut className="w-4 h-4" />
           Sign Out
@@ -128,9 +128,9 @@ export function Layout() {
   );
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
+    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: 'var(--cream-100)' }}>
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 bg-primary flex-shrink-0 border-r border-slate-800">
+      <aside className="hidden md:flex flex-col w-64 flex-shrink-0 border-r" style={{ backgroundColor: 'var(--navy-900)', borderColor: 'rgba(212, 162, 78, 0.2)' }}>
         <SidebarContent />
       </aside>
 
@@ -141,10 +141,10 @@ export function Layout() {
             className="absolute inset-0 bg-black/50"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="relative flex flex-col w-64 bg-primary">
+          <aside className="relative flex flex-col w-64" style={{ backgroundColor: 'var(--navy-900)' }}>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition-colors"
+              className="absolute top-4 right-4 text-white p-2 rounded-lg transition-colors hover:opacity-80"
             >
               <X className="w-5 h-5" />
             </button>
@@ -156,16 +156,17 @@ export function Layout() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Mobile Header */}
-        <header className="md:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center gap-3 sticky top-0 z-40">
+        <header className="md:hidden bg-white border-b px-4 py-3 flex items-center gap-3 sticky top-0 z-40" style={{ borderColor: 'var(--gold-300)' }}>
           <button
             onClick={() => setSidebarOpen(true)}
-            className="text-slate-600 hover:text-slate-900 transition-colors"
+            className="transition-colors"
+            style={{ color: 'var(--navy-900)' }}
           >
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex-1 flex items-center gap-2">
-            <Search className="w-4 h-4 text-slate-400" />
-            <h1 className="font-bold text-slate-900">FindIT</h1>
+            <Search className="w-4 h-4" style={{ color: 'var(--rust-600)' }} />
+            <h1 className="font-bold" style={{ color: 'var(--navy-900)' }}>FindIT</h1>
           </div>
         </header>
 

@@ -2,78 +2,113 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Design System: FindIT Lost & Found Management */
-
-/* Base Typography */
-@layer base {
-  body {
-    @apply bg-amber-50 text-amber-950 antialiased font-sans;
-  }
-  h1 { @apply text-h1 font-bold text-amber-950; }
-  h2 { @apply text-h2 font-bold text-amber-950; }
-  h3 { @apply text-h3 font-semibold text-amber-950; }
-  h4 { @apply text-h4 font-semibold text-amber-900; }
-  h5 { @apply text-h5 font-semibold text-amber-900; }
-  h6 { @apply text-h5 font-semibold text-amber-800; }
+:root {
+  --navy-900: #16213D;
+  --navy-700: #223259;
+  --gold-500: #D4A24E;
+  --gold-300: #F2CD6B;
+  --cream-100: #FBF3DC;
+  --brown-900: #4A2511;
+  --rust-600: #C2741F;
+  --status-blue: #3B5FD9;
+  --status-terracotta: #D2691E;
+  --status-green: #2F9E58;
 }
 
-/* Modern Professional Components */
+@layer base {
+  * {
+    @apply transition-colors duration-200;
+  }
+
+  html, body {
+    background-color: var(--cream-100);
+    color: var(--brown-900);
+  }
+
+  body {
+    @apply antialiased font-sans;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--brown-900);
+    @apply font-bold;
+  }
+
+  p, span, div {
+    color: var(--brown-900);
+  }
+
+  a {
+    color: var(--navy-900);
+    @apply hover:opacity-80 transition-opacity;
+  }
+
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--gold-500);
+    outline-offset: 2px;
+  }
+}
+
 @layer components {
-  /* ===== BUTTONS ===== */
-  /* Primary Button - Navy background, white text */
+  /* Buttons */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg
-           bg-slate-900 text-white font-semibold text-sm
-           hover:bg-slate-800 active:bg-slate-900
+           text-white font-semibold text-sm
            disabled:opacity-50 disabled:cursor-not-allowed
-           focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2
            transition-all duration-200 cursor-pointer
-           whitespace-nowrap shadow-sm hover:shadow-md;
+           whitespace-nowrap shadow-sm hover:shadow-md hover:brightness-110;
+    background-color: var(--navy-900);
+  }
+  .btn-primary:hover {
+    background-color: var(--navy-700);
   }
 
-  /* Secondary Button - Gold accent, navy text */
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg
-           text-slate-900 font-semibold text-sm
-           bg-amber-200 border border-amber-300
-           hover:bg-amber-300 active:bg-amber-400
+           font-semibold text-sm border
            disabled:opacity-50 disabled:cursor-not-allowed
-           focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2
            transition-all duration-200 cursor-pointer
-           whitespace-nowrap;
+           whitespace-nowrap hover:brightness-95;
+    background-color: var(--gold-300);
+    color: var(--brown-900);
+    border-color: var(--gold-500);
+  }
+  .btn-secondary:hover {
+    background-color: var(--gold-500);
   }
 
-  /* Ghost Button - Transparent, text only */
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg
-           text-slate-900 font-semibold text-sm
-           hover:bg-amber-100 active:bg-amber-200
+           font-semibold text-sm
            disabled:opacity-50 disabled:cursor-not-allowed
-           focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2
            transition-all duration-200 cursor-pointer
-           whitespace-nowrap;
+           whitespace-nowrap hover:bg-opacity-10;
+    color: var(--brown-900);
+    background-color: transparent;
+  }
+  .btn-ghost:hover {
+    background-color: rgba(212, 162, 78, 0.15);
   }
 
-  /* Danger Button - Red background */
   .btn-danger {
     @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg
-           bg-red-600 text-white font-semibold text-sm
-           hover:bg-red-700 active:bg-red-800
+           text-white font-semibold text-sm
            disabled:opacity-50 disabled:cursor-not-allowed
-           focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2
            transition-all duration-200 cursor-pointer
-           whitespace-nowrap shadow-sm hover:shadow-md;
+           whitespace-nowrap shadow-sm hover:shadow-md hover:brightness-110;
+    background-color: var(--status-terracotta);
   }
 
-  /* Success Button - Green background */
   .btn-success {
     @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg
-           bg-green-600 text-white font-semibold text-sm
-           hover:bg-green-700 active:bg-green-800
+           text-white font-semibold text-sm
            disabled:opacity-50 disabled:cursor-not-allowed
-           focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
            transition-all duration-200 cursor-pointer
-           whitespace-nowrap shadow-sm hover:shadow-md;
+           whitespace-nowrap shadow-sm hover:shadow-md hover:brightness-110;
+    background-color: var(--status-green);
   }
 
   .btn-sm {
@@ -84,69 +119,57 @@
     @apply px-6 py-3 text-base font-semibold;
   }
 
-  /* ===== FORM INPUTS ===== */
-  .input {
-    @apply w-full px-4 py-2.5 rounded-lg text-sm
-           border border-amber-200 bg-white
-           text-amber-950
-           placeholder:text-amber-400
-           focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-0 focus:border-transparent
-           hover:border-amber-300
-           disabled:bg-amber-50 disabled:text-amber-600 disabled:cursor-not-allowed disabled:border-amber-200
-           transition-all duration-200
-           shadow-xs;
+  /* Form Elements */
+  .input, .textarea, .select {
+    @apply w-full px-4 py-2.5 rounded-lg text-sm bg-white
+           disabled:cursor-not-allowed disabled:opacity-60
+           transition-all duration-200 shadow-xs;
+    border: 1px solid var(--gold-300);
+    color: var(--brown-900);
   }
 
-  .input-error {
-    @apply border-red-600 focus:ring-red-600;
+  .input::placeholder, .textarea::placeholder {
+    color: var(--rust-600);
   }
 
-  .input-success {
-    @apply border-green-600 focus:ring-green-600;
+  .input:hover, .textarea:hover, .select:hover {
+    border-color: var(--gold-500);
+    box-shadow: 0 2px 4px rgba(212, 162, 78, 0.1);
   }
 
-  .textarea {
-    @apply w-full px-4 py-2.5 rounded-lg text-sm
-           border border-amber-200 bg-white
-           text-amber-950
-           placeholder:text-amber-400
-           focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-0 focus:border-transparent
-           hover:border-amber-300
-           disabled:bg-amber-50 disabled:text-amber-600 disabled:cursor-not-allowed
-           transition-all duration-200
-           font-sans resize-none
-           shadow-xs;
+  .input:focus, .textarea:focus, .select:focus {
+    outline: 2px solid var(--gold-500);
+    outline-offset: 0;
+    border-color: var(--gold-500);
   }
 
   .select {
-    @apply w-full px-4 py-2.5 rounded-lg text-sm
-           border border-amber-200 bg-white
-           text-amber-950
-           focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-0 focus:border-transparent
-           hover:border-amber-300
-           disabled:bg-amber-50 disabled:text-amber-600 disabled:cursor-not-allowed
-           transition-all duration-200
-           cursor-pointer
-           shadow-xs appearance-none bg-no-repeat bg-right pr-10;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23B8860B' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23D4A24E' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
     background-position: right 12px center;
+    background-repeat: no-repeat;
+    padding-right: 40px;
   }
 
-  /* ===== LABELS ===== */
   .label {
-    @apply block text-label font-semibold text-amber-900 mb-2;
+    @apply block text-sm font-semibold;
+    color: var(--brown-900);
   }
 
   .label-required::after {
-    @apply text-red-600 ml-1;
+    color: var(--status-terracotta);
     content: '*';
+    margin-left: 4px;
   }
 
-  /* ===== CARDS ===== */
+  /* Cards */
   .card {
-    @apply bg-white rounded-xl border border-amber-200 p-6
-           shadow-sm transition-all duration-300
-           hover:shadow-md hover:border-amber-300;
+    @apply bg-white rounded-lg p-6 shadow-sm transition-all duration-300;
+    border: 1px solid var(--gold-300);
+  }
+  .card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: var(--gold-500);
   }
 
   .card-compact {
@@ -154,154 +177,201 @@
   }
 
   .card-elevated {
-    @apply shadow-md border-amber-300 hover:shadow-lg;
+    @apply shadow-md;
+    border-color: var(--gold-500);
   }
 
   .card-interactive {
-    @apply cursor-pointer hover:shadow-md hover:border-amber-400 hover:border-opacity-50;
+    @apply cursor-pointer transition-all;
+  }
+  .card-interactive:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    border-color: var(--gold-500);
+    transform: translateY(-2px);
   }
 
-  .card-success {
-    @apply border-green-400 border-opacity-30 bg-green-50;
-  }
-
-  /* ===== BADGES ===== */
+  /* Badges */
   .badge {
     @apply inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap;
   }
 
   .badge-success {
-    @apply badge bg-green-100 text-green-800;
+    @apply badge;
+    background-color: rgba(47, 158, 88, 0.15);
+    color: var(--status-green);
   }
 
   .badge-pending {
-    @apply badge bg-amber-100 text-amber-800;
+    @apply badge;
+    background-color: rgba(212, 162, 78, 0.15);
+    color: var(--gold-500);
   }
 
-  .badge-warning {
-    @apply badge bg-yellow-100 text-yellow-800;
-  }
-
-  .badge-error {
-    @apply badge bg-red-100 text-red-800;
+  .badge-warning, .badge-error {
+    @apply badge;
+    background-color: rgba(210, 105, 30, 0.15);
+    color: var(--status-terracotta);
   }
 
   .badge-info {
-    @apply badge bg-blue-100 text-blue-800;
+    @apply badge;
+    background-color: rgba(59, 95, 217, 0.15);
+    color: var(--status-blue);
   }
 
   .badge-neutral {
-    @apply badge bg-amber-100 text-amber-700;
+    @apply badge;
+    background-color: rgba(212, 162, 78, 0.15);
+    color: var(--gold-500);
   }
 
-  /* ===== TABLES ===== */
+  /* Tables */
   .table {
     @apply w-full text-sm border-collapse;
   }
 
   .table thead {
-    @apply bg-amber-50 border-b border-amber-200;
+    border-bottom: 2px solid var(--gold-300);
+    background-color: var(--cream-100);
   }
 
   .table thead th {
-    @apply text-left px-6 py-4 font-semibold text-amber-900 text-xs uppercase tracking-wide;
+    @apply text-left px-6 py-4 font-bold text-xs uppercase tracking-wide;
+    color: var(--brown-900);
   }
 
   .table tbody tr {
-    @apply border-b border-amber-100 hover:bg-amber-50 transition-colors duration-150;
+    border-bottom: 1px solid rgba(212, 162, 78, 0.2);
+    transition: background-color 150ms;
+  }
+  .table tbody tr:hover {
+    background-color: rgba(212, 162, 78, 0.05);
   }
 
   .table tbody td {
-    @apply px-6 py-4 text-amber-950;
+    @apply px-6 py-4;
+    color: var(--brown-900);
   }
 
-  /* ===== STATES & FEEDBACK ===== */
+  /* Loading & Skeleton */
   .skeleton {
-    @apply animate-pulse bg-amber-200 rounded-lg;
+    @apply animate-pulse rounded-lg;
+    background: linear-gradient(90deg, rgba(212, 162, 78, 0.2), rgba(212, 162, 78, 0.3), rgba(212, 162, 78, 0.2));
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
   }
 
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  .loading-spinner {
+    @apply inline-block h-4 w-4 animate-spin rounded-full border-2;
+    border-color: var(--gold-300);
+    border-top-color: var(--navy-900);
+  }
+
+  /* Dividers */
   .divider {
-    @apply h-px bg-amber-200;
+    @apply h-px;
+    background-color: var(--gold-300);
   }
 
   .divider-vertical {
-    @apply w-px h-full bg-amber-200;
+    @apply w-px h-full;
+    background-color: var(--gold-300);
   }
 
+  /* Help & Status Text */
   .help-text {
-    @apply text-xs text-amber-600 mt-1.5;
+    @apply text-xs mt-1.5;
+    color: var(--rust-600);
   }
 
   .help-text-error {
-    @apply text-xs text-red-600 mt-1.5;
+    @apply text-xs mt-1.5;
+    color: var(--status-terracotta);
   }
 
   .help-text-success {
-    @apply text-xs text-green-600 mt-1.5;
+    @apply text-xs mt-1.5;
+    color: var(--status-green);
   }
 
-  /* ===== ALERTS ===== */
+  /* Alerts */
   .alert {
     @apply p-4 rounded-lg border flex items-start gap-4;
   }
 
   .alert-success {
-    @apply bg-green-50 border-green-200 text-green-900;
+    background-color: rgba(47, 158, 88, 0.08);
+    border-color: var(--status-green);
+    border-left-width: 4px;
+    color: var(--status-green);
   }
 
   .alert-error {
-    @apply bg-red-50 border-red-200 text-red-900;
+    background-color: rgba(210, 105, 30, 0.08);
+    border-color: var(--status-terracotta);
+    border-left-width: 4px;
+    color: var(--status-terracotta);
   }
 
   .alert-warning {
-    @apply bg-amber-50 border-amber-200 text-amber-900;
+    background-color: rgba(212, 162, 78, 0.08);
+    border-color: var(--gold-500);
+    border-left-width: 4px;
+    color: var(--brown-900);
   }
 
   .alert-info {
-    @apply bg-blue-50 border-blue-200 text-blue-900;
+    background-color: rgba(59, 95, 217, 0.08);
+    border-color: var(--status-blue);
+    border-left-width: 4px;
+    color: var(--status-blue);
   }
 
   .alert-title {
     @apply font-semibold text-sm mb-1;
   }
 
-  /* ===== ACCESSIBILITY ===== */
+  /* Accessibility */
   .sr-only {
-    @apply absolute w-px h-px p-0 -m-px overflow-hidden clip-path-0 whitespace-nowrap border-0;
+    @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+    clip: rect(0, 0, 0, 0);
   }
 
-  *:focus-visible {
-    @apply outline-none ring-2 ring-amber-500 ring-offset-2;
-  }
-
-  /* ===== UTILITIES ===== */
-  .loading-spinner {
-    @apply inline-block h-4 w-4 animate-spin rounded-full border-2 border-amber-200 border-t-slate-900;
-  }
-
+  /* Empty States */
   .empty-state {
     @apply flex flex-col items-center justify-center py-12 px-6;
   }
 
   .empty-state-icon {
-    @apply text-amber-300 mb-4;
+    @apply mb-4;
+    color: var(--gold-500);
   }
 
+  /* Gradients */
   .gradient-primary {
-    @apply bg-gradient-to-br from-slate-900 to-slate-800;
+    background: linear-gradient(135deg, var(--navy-900), var(--navy-700));
   }
 
   .gradient-accent {
-    @apply bg-gradient-to-br from-amber-200 to-amber-400;
+    background: linear-gradient(135deg, var(--gold-300), var(--gold-500));
   }
 
-  /* ===== SMOOTH TRANSITIONS ===== */
-  * {
-    @apply transition-colors duration-200;
-  }
-
-  /* ===== SHADOWS ===== */
+  /* Shadows */
   .shadow-xs {
-    box-shadow: 0 1px 2px 0 rgba(26, 41, 66, 0.08);
+    box-shadow: 0 1px 2px 0 rgba(22, 33, 61, 0.08);
+  }
+
+  /* Link & Interactive States */
+  a {
+    @apply hover:opacity-80 transition-opacity;
+  }
+
+  button:not(.btn-primary):not(.btn-secondary):not(.btn-ghost):not(.btn-danger):not(.btn-success) {
+    @apply transition-all duration-200;
   }
 }

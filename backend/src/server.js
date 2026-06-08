@@ -3,7 +3,6 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const compression = require('compression');
 const path = require('path');
 const { initializeDatabase } = require('./database/init');
 const { performanceTracker } = require('./utils/performance');
@@ -52,7 +51,6 @@ const authLimiter = rateLimit({
 app.use(globalLimiter);
 
 // Performance Optimization
-app.use(compression()); // Gzip compression
 app.use(performanceTracker()); // Track request performance
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));

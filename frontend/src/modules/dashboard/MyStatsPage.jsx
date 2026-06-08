@@ -6,9 +6,7 @@ import {
   FileText,
   Zap,
   CheckCircle,
-  Plus,
   ArrowRight,
-  Activity,
 } from 'lucide-react';
 
 export default function MyStatsPage() {
@@ -94,119 +92,6 @@ export default function MyStatsPage() {
           />
         </div>
 
-        {/* Quick Actions & Details */}
-        <div className="grid md:grid-cols-3 gap-6">
-          {/* Quick Actions */}
-          <div className="md:col-span-1">
-            <div className="card">
-              <h2 className="text-lg font-bold text-amber-950 mb-4 flex items-center gap-2">
-                <Activity className="w-5 h-5 text-amber-600" />
-                Quick Actions
-              </h2>
-              <div className="space-y-3">
-                <Link
-                  to="/lost-reports/new"
-                  className="btn-primary w-full justify-center"
-                >
-                  <Plus className="w-4 h-4" />
-                  File Lost Report
-                </Link>
-                <Link
-                  to="/found-items"
-                  className="btn-secondary w-full justify-center"
-                >
-                  Browse Found Items
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Report Status Breakdown */}
-          <div className="md:col-span-2">
-            <div className="card">
-              <h2 className="text-lg font-bold text-amber-950 mb-4">
-                Report Status Breakdown
-              </h2>
-              {!loading && stats?.my_reports?.length ? (
-                <div className="space-y-3">
-                  {stats.my_reports.map((report) => (
-                    <div
-                      key={report.Report_Status}
-                      className="flex items-center justify-between p-3 bg-amber-100 rounded-lg hover:bg-amber-200 transition-colors"
-                    >
-                      <div className="flex items-center gap-3 flex-1">
-                        <div className="w-2 h-2 rounded-full bg-amber-600"></div>
-                        <span className="font-medium text-amber-900">
-                          {report.Report_Status || 'Unknown'}
-                        </span>
-                      </div>
-                      <span className="text-2xl font-bold text-amber-950">
-                        {report.cnt}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              ) : loading ? (
-                <div className="space-y-3">
-                  {[1, 2, 3].map((i) => (
-                    <div
-                      key={i}
-                      className="h-12 bg-amber-200 rounded-lg animate-pulse"
-                    ></div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <FileText className="w-12 h-12 text-amber-300 mx-auto mb-3" />
-                  <p className="text-amber-700">No reports yet.</p>
-                  <Link
-                    to="/lost-reports/new"
-                    className="text-amber-600 font-semibold text-sm mt-3 inline-block hover:text-amber-700"
-                  >
-                    Create your first report →
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Claims Status */}
-        {stats?.my_claims?.length > 0 && (
-          <div className="mt-6">
-            <div className="card">
-              <h2 className="text-lg font-bold text-amber-950 mb-4">
-                Claim Status Summary
-              </h2>
-              <div className="space-y-3">
-                {stats.my_claims.map((claim) => (
-                  <div
-                    key={claim.Claim_Status}
-                    className="flex items-center justify-between p-3 bg-amber-100 rounded-lg hover:bg-amber-200 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-3 h-3 rounded-full ${
-                          claim.Claim_Status === 'Approved'
-                            ? 'bg-green-600'
-                            : claim.Claim_Status === 'Pending'
-                              ? 'bg-yellow-600'
-                              : 'bg-red-600'
-                        }`}
-                      ></div>
-                      <span className="font-medium text-amber-900">
-                        {claim.Claim_Status || 'Unknown'}
-                      </span>
-                    </div>
-                    <span className="text-lg font-bold text-amber-950">
-                      {claim.cnt}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

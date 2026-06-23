@@ -6,7 +6,7 @@ import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Pagination } from '../../components/ui/Pagination';
 import { Modal } from '../../components/ui/Modal';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { Plus, Search, Eye, Package, MapPin } from 'lucide-react';
+import { Plus, Search, Eye, Package, MapPin, Rows3, Grid3x3 } from 'lucide-react';
 import FoundItemForm from './FoundItemForm';
 import FoundItemDetail from './FoundItemDetail';
 
@@ -21,6 +21,7 @@ export default function FoundItemsPage() {
   const [page, setPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
+  const [viewMode, setViewMode] = useState('column');
 
   const load = () => {
     setLoading(true);
@@ -32,9 +33,9 @@ export default function FoundItemsPage() {
   useEffect(() => { load(); }, [search, status, page]);
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--cream-100)' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'white' }}>
       {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-40" style={{ borderColor: 'var(--gold-300)' }}>
+      <div className="border-b sticky top-0 z-40" style={{ backgroundColor: 'var(--cream-100)', borderColor: 'var(--gold-300)' }}>
         <div className="p-3 max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -52,81 +53,157 @@ export default function FoundItemsPage() {
 
       <div className="p-3 max-w-7xl mx-auto">
         {/* Filters */}
-        <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100 mb-3">
-          <div className="flex flex-col sm:flex-row gap-3">
+        <div className="rounded-lg p-3 shadow-sm border border-gray-100 mb-3" style={{ backgroundColor: 'var(--cream-100)' }}>
+          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--rust-600)' }} />
               <input className="input pl-9" placeholder="Search by name, brand..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} style={{ borderColor: 'var(--gold-300)' }} />
             </div>
-            <select className="select sm:w-40" value={status} onChange={e => { setStatus(e.target.value); setPage(1); }} style={{ borderColor: 'var(--gold-300)' }}>
-              <option value="">All Status</option>
-              {['Unclaimed','Matched','Claimed','Disputed','Disposed'].map(s => <option key={s}>{s}</option>)}
-            </select>
+            <div className="flex gap-3 items-center">
+              <select className="select sm:w-40" value={status} onChange={e => { setStatus(e.target.value); setPage(1); }} style={{ borderColor: 'var(--gold-300)' }}>
+                <option value="">All Status</option>
+                {['Unclaimed','Matched','Claimed','Disputed','Disposed'].map(s => <option key={s}>{s}</option>)}
+              </select>
+              <div className="flex items-center gap-1 border rounded-lg p-1" style={{ borderColor: 'var(--gold-300)' }}>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className="p-2 rounded transition-all cursor-pointer hover:opacity-80"
+                  style={{
+                    backgroundColor: viewMode === 'list' ? 'var(--gold-500)' : 'transparent',
+                    color: viewMode === 'list' ? 'var(--navy-900)' : 'var(--brown-900)',
+                  }}
+                  title="List view"
+                  aria-label="Switch to list view"
+                  aria-pressed={viewMode === 'list'}
+                >
+                  <Rows3 className="w-4 h-4" aria-hidden="true" />
+                </button>
+                <button
+                  onClick={() => setViewMode('column')}
+                  className="p-2 rounded transition-all cursor-pointer hover:opacity-80"
+                  style={{
+                    backgroundColor: viewMode === 'column' ? 'var(--gold-500)' : 'transparent',
+                    color: viewMode === 'column' ? 'var(--navy-900)' : 'var(--brown-900)',
+                  }}
+                  title="Column view"
+                  aria-label="Switch to column view"
+                  aria-pressed={viewMode === 'column'}
+                >
+                  <Grid3x3 className="w-4 h-4" aria-hidden="true" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Grid Layout */}
+        {/* Grid/List Layout */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="bg-white rounded-lg h-56 skeleton" />
+              <div key={i} className="rounded-lg h-56 skeleton" style={{ backgroundColor: 'var(--cream-100)' }} />
             ))}
           </div>
         ) : items.length === 0 ? (
-          <EmptyState icon={Package} title="No items found" description="Start by registering your first found item" actionLabel="Register Item" onAction={() => setShowForm(true)} />
+          <EmptyState icon={Package} title="No items yet" description="Items brought to the OSA will show up here. Help us reunite lost items with their owners!" actionLabel="Register First Item" onAction={() => setShowForm(true)} />
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {items.map(item => (
-                <div
-                  key={item.Item_ID}
-                  onClick={() => setSelectedId(item.Item_ID)}
-                  className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer transform hover:scale-105"
-                >
-                  {/* Item Image */}
-                  <div className="w-full h-32 bg-gray-100 flex items-center justify-center overflow-hidden" style={{ backgroundColor: 'rgba(212, 162, 78, 0.1)' }}>
-                    {item.Photo_Path ? (
-                      <img src={item.Photo_Path} alt={item.Item_Name} className="w-full h-full object-cover" />
-                    ) : (
-                      <Package className="w-12 h-12" style={{ color: 'var(--gold-500)' }} />
-                    )}
-                  </div>
-
-                  {/* Item Info */}
-                  <div className="p-2.5">
-                    {/* Name */}
-                    <h3 className="font-bold text-xs mb-1" style={{ color: 'var(--navy-900)' }}>
-                      {item.Item_Name}
-                    </h3>
-
-                    {/* Details */}
-                    <p className="text-xs mb-1.5" style={{ color: 'var(--rust-600)' }}>
-                      {item.Item_Color}{item.Item_Brand ? ` · ${item.Item_Brand}` : ''}
-                    </p>
-
-                    {/* Location */}
-                    <div className="flex items-center gap-1 mb-1.5" style={{ color: 'var(--rust-600)' }}>
-                      <MapPin className="w-3 h-3" />
-                      <span className="text-xs">{item.Place_Name}</span>
-                    </div>
-
-                    {/* Status Badge */}
-                    <div className="flex justify-between items-center">
-                      <StatusBadge status={item.Item_Status} />
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setSelectedId(item.Item_ID); }}
-                        className="p-2 rounded hover:opacity-80 transition-opacity"
-                        style={{ color: 'var(--navy-900)' }}
-                        title="View item details"
-                        aria-label={`View details for ${item.Item_Name}`}
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
+            {viewMode === 'list' ? (
+              // List View - Table Layout
+              <div className="rounded-lg overflow-hidden shadow-sm border border-gray-100" style={{ backgroundColor: 'var(--cream-100)' }}>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead style={{ backgroundColor: 'rgba(212, 162, 78, 0.1)', borderBottom: '2px solid var(--gold-300)' }}>
+                      <tr>
+                        <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--navy-900)' }}>Item Name</th>
+                        <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--navy-900)' }}>Details</th>
+                        <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--navy-900)' }}>Location</th>
+                        <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--navy-900)' }}>Status</th>
+                        <th className="px-4 py-3"></th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y" style={{ borderColor: 'var(--gold-300)' }}>
+                      {items.map(item => (
+                        <tr key={item.Item_ID} className="hover:bg-amber-50 transition-colors cursor-pointer">
+                          <td className="px-4 py-3 font-semibold" style={{ color: 'var(--navy-900)' }}>{item.Item_Name}</td>
+                          <td className="px-4 py-3 text-xs" style={{ color: 'var(--rust-600)' }}>
+                            {item.Item_Color}{item.Item_Brand ? ` · ${item.Item_Brand}` : ''}
+                          </td>
+                          <td className="px-4 py-3 text-xs" style={{ color: 'var(--rust-600)' }}>
+                            <MapPin className="w-3 h-3 inline mr-1" />{item.Place_Name}
+                          </td>
+                          <td className="px-4 py-3"><StatusBadge status={item.Item_Status} /></td>
+                          <td className="px-4 py-3">
+                            <button
+                              onClick={() => setSelectedId(item.Item_ID)}
+                              className="p-2 rounded hover:opacity-80 transition-opacity"
+                              style={{ color: 'var(--navy-900)' }}
+                              title="View item details"
+                              aria-label={`View details for ${item.Item_Name}`}
+                            >
+                              <Eye className="w-4 h-4" aria-hidden="true" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-              ))}
-            </div>
+              </div>
+            ) : (
+              // Column View - Grid Layout
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {items.map(item => (
+                  <div
+                    key={item.Item_ID}
+                    onClick={() => setSelectedId(item.Item_ID)}
+                    className="rounded-lg overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer transform hover:scale-105"
+                    style={{ backgroundColor: 'var(--cream-100)' }}
+                  >
+                    {/* Item Image */}
+                    <div className="w-full h-32 bg-gray-100 flex items-center justify-center overflow-hidden" style={{ backgroundColor: 'rgba(212, 162, 78, 0.1)' }}>
+                      {item.Photo_Path ? (
+                        <img src={item.Photo_Path} alt={item.Item_Name} className="w-full h-full object-cover" />
+                      ) : (
+                        <Package className="w-12 h-12" style={{ color: 'var(--gold-500)' }} />
+                      )}
+                    </div>
+
+                    {/* Item Info */}
+                    <div className="p-2.5">
+                      {/* Name */}
+                      <h3 className="font-bold text-xs mb-1" style={{ color: 'var(--navy-900)' }}>
+                        {item.Item_Name}
+                      </h3>
+
+                      {/* Details */}
+                      <p className="text-xs mb-1.5" style={{ color: 'var(--rust-600)' }}>
+                        {item.Item_Color}{item.Item_Brand ? ` · ${item.Item_Brand}` : ''}
+                      </p>
+
+                      {/* Location */}
+                      <div className="flex items-center gap-1 mb-1.5" style={{ color: 'var(--rust-600)' }}>
+                        <MapPin className="w-3 h-3" />
+                        <span className="text-xs">{item.Place_Name}</span>
+                      </div>
+
+                      {/* Status Badge */}
+                      <div className="flex justify-between items-center">
+                        <StatusBadge status={item.Item_Status} />
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setSelectedId(item.Item_ID); }}
+                          className="p-2 rounded hover:opacity-80 transition-opacity"
+                          style={{ color: 'var(--navy-900)' }}
+                          title="View item details"
+                          aria-label={`View details for ${item.Item_Name}`}
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Pagination */}
             {pagination && pagination.total > pagination.limit && (

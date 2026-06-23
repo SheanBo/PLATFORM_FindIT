@@ -35,7 +35,7 @@ function StatCard({ icon: Icon, label, value, color, to }) {
                   'var(--rust-600)';
 
   const content = (
-    <div className="bg-white rounded-lg p-6 shadow-sm border hover:shadow-md transition-all" style={{ borderLeftColor: bgColor, borderLeftWidth: '4px', borderColor: '#f0f0f0' }}>
+    <div className="rounded-lg p-6 shadow-sm border hover:shadow-md transition-all" style={{ backgroundColor: 'var(--cream-100)', borderLeftColor: bgColor, borderLeftWidth: '4px', borderColor: 'var(--gold-300)' }}>
       <div className="flex items-start justify-between mb-4">
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg" style={{ backgroundColor: bgColor + '20', color: bgColor }}>
           <Icon className="w-6 h-6" />
@@ -54,15 +54,26 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     Promise.all([
       api.get('/findit-dashboard/stats'),
       api.get('/findit-dashboard/recent-activity'),
     ])
       .then(([s, a]) => {
-        setStats(s.data);
-        setActivity(a.data);
+        if (isMounted) {
+          setStats(s.data);
+          setActivity(a.data);
+        }
       })
-      .finally(() => setLoading(false));
+      .catch(() => {
+        if (isMounted) setLoading(false);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => { isMounted = false; };
   }, []);
 
   if (loading) {
@@ -104,9 +115,9 @@ export default function DashboardPage() {
   const CHART_COLORS = ['#D4A24E', '#2F9E58', '#C2741F', '#3B5FD9'];
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--cream-100)' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'white' }}>
       {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-40" style={{ borderColor: 'var(--gold-300)' }}>
+      <div className="border-b sticky top-0 z-40" style={{ backgroundColor: 'var(--cream-100)', borderColor: 'var(--gold-300)' }}>
         <div className="p-3 max-w-7xl mx-auto">
           <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--brown-900)' }}>Dashboard</h1>
           <p style={{ color: 'var(--rust-600)' }}>FindIT — Office of Student Affairs Operations Overview</p>
@@ -145,7 +156,7 @@ export default function DashboardPage() {
         {/* Charts Section */}
         <div className="grid md:grid-cols-2 gap-3">
           {/* Items Status Chart */}
-          <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+          <div className="rounded-lg p-3 shadow-sm border" style={{ backgroundColor: 'var(--cream-100)', borderColor: 'var(--gold-300)' }}>
             <h3 className="text-sm font-bold mb-3" style={{ color: 'var(--brown-900)' }}>Items Status Distribution</h3>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -216,78 +227,34 @@ export default function DashboardPage() {
           </ResponsiveContainer>
         </div>
 
-        {/* Activity Feeds */}
-        <div className="grid md:grid-cols-3 gap-3">
-          {/* Recent Found Items */}
-          <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-2.5">
-              <h3 className="text-sm font-bold" style={{ color: 'var(--brown-900)' }}>Recent Found Items</h3>
-              <Link to="/found-items" className="text-sm font-semibold hover:opacity-80 transition-all" style={{ color: 'var(--rust-600)' }}>View all →</Link>
-            </div>
-            <div className="space-y-3">
-              {activity?.recent_items && activity.recent_items.length > 0 ? (
-                activity.recent_items.slice(0, 5).map((item) => (
-                  <Link key={item.Item_ID} to={`/found-items/${item.Item_ID}`} className="block p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
-                    <p className="font-semibold text-sm" style={{ color: 'var(--navy-900)' }}>{item.Item_Name}</p>
-                    <p className="text-xs mt-1" style={{ color: 'var(--rust-600)' }}>{item.Category_Name}</p>
-                  </Link>
-                ))
-              ) : (
-                <div className="text-center py-8">
-                  <Package className="w-10 h-10 mx-auto mb-2" style={{ color: 'var(--gold-300)' }} />
-                  <p className="text-sm" style={{ color: 'var(--rust-600)' }}>No items yet</p>
+        {/* Most Lost Categories Leaderboard */}
+        <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+          <h3 className="text-sm font-bold mb-4" style={{ color: 'var(--brown-900)' }}>Most Lost Items by Category (This Month)</h3>
+          <div className="space-y-2">
+            {[
+              { rank: 1, category: 'Electronics_Accessories', count: 24, icon: '🔌' },
+              { rank: 2, category: 'Phone', count: 18, icon: '📱' },
+              { rank: 3, category: 'Wallet', count: 15, icon: '👛' },
+              { rank: 4, category: 'ID_Card', count: 12, icon: '🎫' },
+              { rank: 5, category: 'Keys', count: 10, icon: '🔑' },
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-all border border-gray-100 cursor-pointer"
+                onClick={() => { /* navigate to lost-reports filtered by category */ }}
+              >
+                <div className="text-2xl">{item.icon}</div>
+                <div className="flex-1">
+                  <p className="font-semibold text-sm" style={{ color: 'var(--navy-900)' }}>
+                    {item.rank}. {item.category.replace(/_/g, ' ')}
+                  </p>
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Recent Lost Reports */}
-          <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-2.5">
-              <h3 className="text-sm font-bold" style={{ color: 'var(--brown-900)' }}>Recent Lost Reports</h3>
-              <Link to="/lost-reports" className="text-sm font-semibold hover:opacity-80 transition-all" style={{ color: 'var(--rust-600)' }}>View all →</Link>
-            </div>
-            <div className="space-y-3">
-              {activity?.recent_reports && activity.recent_reports.length > 0 ? (
-                activity.recent_reports.slice(0, 5).map((report) => (
-                  <Link key={report.Report_ID} to={`/lost-reports/${report.Report_ID}`} className="block p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
-                    <p className="font-semibold text-sm" style={{ color: 'var(--navy-900)' }}>{report.Item_Name}</p>
-                    <p className="text-xs mt-1" style={{ color: 'var(--rust-600)' }}>{report.Category_Name}</p>
-                  </Link>
-                ))
-              ) : (
-                <div className="text-center py-8">
-                  <FileText className="w-10 h-10 mx-auto mb-2" style={{ color: 'var(--gold-300)' }} />
-                  <p className="text-sm" style={{ color: 'var(--rust-600)' }}>No reports yet</p>
+                <div className="text-right">
+                  <p className="text-lg font-bold" style={{ color: 'var(--gold-500)' }}>{item.count}</p>
+                  <p className="text-xs" style={{ color: 'var(--rust-600)' }}>reports</p>
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Recent Claims */}
-          <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-2.5">
-              <h3 className="text-sm font-bold" style={{ color: 'var(--brown-900)' }}>Recent Claims</h3>
-              <Link to="/claims" className="text-sm font-semibold hover:opacity-80 transition-all" style={{ color: 'var(--rust-600)' }}>View all →</Link>
-            </div>
-            <div className="space-y-3">
-              {activity?.recent_claims && activity.recent_claims.length > 0 ? (
-                activity.recent_claims.slice(0, 5).map((claim) => (
-                  <Link key={claim.Claim_ID} to={`/claims/${claim.Claim_ID}`} className="block p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
-                    <p className="font-semibold text-sm" style={{ color: 'var(--navy-900)' }}>{claim.Item_Name}</p>
-                    <p className="text-xs mt-1 flex items-center gap-1" style={{ color: 'var(--rust-600)' }}>
-                      <Clock className="w-3 h-3" />
-                      {new Date(claim.Claim_Date).toLocaleDateString()}
-                    </p>
-                  </Link>
-                ))
-              ) : (
-                <div className="text-center py-8">
-                  <ClipboardCheck className="w-10 h-10 mx-auto mb-2" style={{ color: 'var(--gold-300)' }} />
-                  <p className="text-sm" style={{ color: 'var(--rust-600)' }}>No claims yet</p>
-                </div>
-              )}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

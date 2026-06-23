@@ -29,6 +29,12 @@ const navItems = [
     roles: ['Student'],
   },
   {
+    to: '/search',
+    icon: Search,
+    label: 'Search',
+    roles: ['Student', 'Staff', 'Admin'],
+  },
+  {
     to: '/lost-reports',
     icon: FileText,
     label: 'Lost Reports',

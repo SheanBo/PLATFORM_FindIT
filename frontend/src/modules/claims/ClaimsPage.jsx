@@ -8,7 +8,7 @@ import { Modal } from '../../components/ui/Modal';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { TableSkeleton } from '../../components/ui/LoadingSpinner';
-import { Eye, CheckCircle, XCircle, FileText } from 'lucide-react';
+import { Eye, CheckCircle, CheckCircle2, XCircle, FileText } from 'lucide-react';
 import ClaimDetail from './ClaimDetail';
 
 export default function ClaimsPage() {
@@ -37,7 +37,7 @@ export default function ClaimsPage() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto min-h-screen bg-amber-50">
+    <div className="p-6 max-w-7xl mx-auto min-h-screen" style={{ backgroundColor: 'white' }}>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-amber-950">Claims</h1>
@@ -45,17 +45,17 @@ export default function ClaimsPage() {
         </div>
       </div>
 
-      <div className="card mb-4">
+      <div className="card mb-4" style={{ backgroundColor: 'var(--cream-100)' }}>
         <select className="select sm:w-40" value={status} onChange={e => { setStatus(e.target.value); setPage(1); }} aria-label="Filter claims by status">
           <option value="">All Status</option>
           {['Pending','Approved','Rejected','Disputed'].map(s => <option key={s}>{s}</option>)}
         </select>
       </div>
 
-      <div className="card overflow-hidden p-0">
+      <div className="card overflow-hidden p-0" style={{ backgroundColor: 'var(--cream-100)' }}>
         <div className="overflow-x-auto">
           <table className="w-full text-sm" role="grid" aria-label="Claims list">
-            <thead className="bg-amber-50 border-b border-amber-200">
+            <thead style={{ backgroundColor: 'rgba(212, 162, 78, 0.1)', borderBottom: '2px solid var(--gold-300)' }}>
               <tr>
                 <th className="text-left px-4 py-3 font-medium text-amber-900">#</th>
                 <th className="text-left px-4 py-3 font-medium text-amber-900">Item</th>
@@ -69,7 +69,7 @@ export default function ClaimsPage() {
               {loading ? (
                 <tr><td colSpan={6} className="p-0"><TableSkeleton rows={5} columns={6} /></td></tr>
               ) : claims.length === 0 ? (
-                <tr><td colSpan={6} className="p-0"><EmptyState icon={FileText} title="No claims found" description="Claim requests will appear here" /></td></tr>
+                <tr><td colSpan={6} className="p-0"><EmptyState icon={CheckCircle2} title="All clear" description="No pending claims — all verified matches have been processed" /></td></tr>
               ) : claims.map(c => (
                 <tr key={c.Claim_ID} className="hover:bg-amber-100 transition-colors cursor-pointer">
                   <td className="px-4 py-3 text-amber-600">#{c.Claim_ID}</td>

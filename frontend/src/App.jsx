@@ -16,6 +16,7 @@ import FoundItemsPage from './modules/found-items/FoundItemsPage';
 import MatchingPage from './modules/matching/MatchingPage';
 import ClaimsPage from './modules/claims/ClaimsPage';
 import StoragePage from './modules/storage/StoragePage';
+import AdvancedSearchPage from './modules/search/AdvancedSearchPage';
 
 function RequireRole({ roles, children }) {
   const { user } = useAuth();
@@ -53,6 +54,7 @@ export default function App() {
             <Route path="/storage" element={
               <RequireRole roles={['Staff','Admin']}><StoragePage /></RequireRole>
             } />
+            <Route path="/search" element={<AdvancedSearchPage />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" />} />

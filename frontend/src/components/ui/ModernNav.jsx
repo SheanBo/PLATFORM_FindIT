@@ -16,7 +16,7 @@ export function ModernNavigation({ navItems = [], user, onLogout, onSettings }) 
           <img
             src="/FindIT Logo.jpg"
             alt="FindIT Logo"
-            className="w-10 h-10 rounded-lg object-contain flex-shrink-0"
+            className="w-10 h-10 object-contain flex-shrink-0"
           />
           <div className="flex-1 min-w-0">
             <h1 className="text-h4 font-bold text-white leading-none">FindIT</h1>
@@ -93,7 +93,7 @@ export function ModernNavigation({ navItems = [], user, onLogout, onSettings }) 
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 bg-slate-900 border-r border-amber-700 flex-shrink-0 h-screen sticky top-0">
+      <aside className="hidden md:flex flex-col w-80 bg-slate-900 border-r border-amber-700 flex-shrink-0 h-screen sticky top-0">
         <SidebarContent />
       </aside>
 

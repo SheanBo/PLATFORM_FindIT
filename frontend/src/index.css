@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,12 +9,14 @@
   --navy-700: #223259;
   --gold-500: #D4A24E;
   --gold-300: #F2CD6B;
-  --cream-100: #FBF3DC;
+  --cream-100: #FDFBF5;
   --brown-900: #4A2511;
   --rust-600: #C2741F;
   --status-blue: #3B5FD9;
   --status-terracotta: #D2691E;
   --status-green: #2F9E58;
+  --font-primary: 'Lora', serif;
+  --font-secondary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 @layer base {
@@ -22,13 +26,26 @@
   }
 
   body {
-    @apply antialiased font-sans;
+    @apply antialiased;
+    font-family: var(--font-secondary);
+    font-size: 15px;
+    line-height: 1.6;
+    font-weight: 400;
   }
 
   h1, h2, h3, h4, h5, h6 {
     color: var(--brown-900);
-    @apply font-bold;
+    font-family: var(--font-primary);
+    font-weight: 700;
+    letter-spacing: -0.5px;
   }
+
+  h1 { font-size: 2rem; line-height: 1.2; font-weight: 800; }
+  h2 { font-size: 1.5rem; line-height: 1.3; font-weight: 700; }
+  h3 { font-size: 1.25rem; line-height: 1.4; font-weight: 700; }
+  h4 { font-size: 1rem; line-height: 1.5; font-weight: 600; }
+  h5 { font-size: 0.9375rem; line-height: 1.5; font-weight: 600; }
+  h6 { font-size: 0.875rem; line-height: 1.5; font-weight: 600; }
 
   p, span, div {
     color: var(--brown-900);
@@ -55,11 +72,13 @@
            text-white font-semibold text-sm
            disabled:opacity-50 disabled:cursor-not-allowed
            transition-all duration-200 cursor-pointer
-           whitespace-nowrap shadow-sm hover:shadow-md hover:brightness-110;
+           whitespace-nowrap shadow-sm;
     background-color: var(--navy-900);
   }
-  .btn-primary:hover {
+  .btn-primary:hover:not(:disabled) {
     background-color: var(--navy-700);
+    box-shadow: 0 4px 12px rgba(22, 33, 61, 0.2);
+    transform: translateY(-1px);
   }
 
   .btn-secondary {
@@ -67,13 +86,15 @@
            font-semibold text-sm border
            disabled:opacity-50 disabled:cursor-not-allowed
            transition-all duration-200 cursor-pointer
-           whitespace-nowrap hover:brightness-95;
+           whitespace-nowrap shadow-sm;
     background-color: var(--gold-300);
     color: var(--brown-900);
     border-color: var(--gold-500);
   }
-  .btn-secondary:hover {
+  .btn-secondary:hover:not(:disabled) {
     background-color: var(--gold-500);
+    box-shadow: 0 4px 12px rgba(212, 162, 78, 0.2);
+    transform: translateY(-1px);
   }
 
   .btn-ghost {
@@ -150,12 +171,35 @@
   .label {
     @apply block text-sm font-semibold;
     color: var(--brown-900);
+    font-family: var(--font-primary);
+    letter-spacing: -0.3px;
   }
 
   .label-required::after {
     color: var(--status-terracotta);
     content: '*';
     margin-left: 4px;
+  }
+
+  /* Input Validation States */
+  .input-error, .textarea-error, .select-error {
+    @apply border-2 border-red-500;
+    background-color: rgba(239, 68, 68, 0.05);
+  }
+  .input-error:focus, .textarea-error:focus, .select-error:focus {
+    outline: 2px solid var(--status-terracotta);
+    outline-offset: 0;
+    border-color: var(--status-terracotta);
+  }
+
+  .input-success, .textarea-success, .select-success {
+    @apply border-2 border-green-500;
+    background-color: rgba(34, 197, 94, 0.05);
+  }
+  .input-success:focus, .textarea-success:focus, .select-success:focus {
+    outline: 2px solid var(--status-green);
+    outline-offset: 0;
+    border-color: var(--status-green);
   }
 
   /* Cards */
@@ -178,12 +222,12 @@
   }
 
   .card-interactive {
-    @apply cursor-pointer transition-all;
+    @apply cursor-pointer transition-all duration-200;
   }
   .card-interactive:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     border-color: var(--gold-500);
-    transform: translateY(-2px);
+    transform: translateY(-4px);
   }
 
   /* Badges */
@@ -260,6 +304,30 @@
   @keyframes shimmer {
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
+  }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .animate-in {
+    animation: slideInUp 0.3s ease-out;
+  }
+
+  .fade-in {
+    animation: fadeIn 0.3s ease-out;
   }
 
   .loading-spinner {

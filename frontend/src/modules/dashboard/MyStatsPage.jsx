@@ -15,10 +15,21 @@ export default function MyStatsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     api
       .get('/findit-dashboard/my-stats')
-      .then((r) => setStats(r.data))
-      .finally(() => setLoading(false));
+      .then((r) => {
+        if (isMounted) setStats(r.data);
+      })
+      .catch(() => {
+        if (isMounted) setLoading(false);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => { isMounted = false; };
   }, []);
 
   const totalReports = stats?.my_reports?.reduce((s, r) => s + r.cnt, 0) || 0;
@@ -52,7 +63,7 @@ export default function MyStatsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-amber-50">
+    <div className="min-h-screen" style={{ backgroundColor: 'white' }}>
       {/* Header */}
       <div className="bg-white border-b border-amber-200 sticky top-0 z-40">
         <div className="p-6 max-w-7xl mx-auto">

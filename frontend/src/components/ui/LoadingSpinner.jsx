@@ -8,8 +8,8 @@ export function LoadingSpinner({ size = 'md', message = 'Loading...' }) {
   }[size];
 
   return (
-    <div className="flex flex-col items-center justify-center p-lg gap-md">
-      <Loader2 className={`${sizeClass} animate-spin text-amber-600`} />
+    <div className="flex flex-col items-center justify-center p-lg gap-md" role="status" aria-busy="true" aria-label={message || "Loading"}>
+      <Loader2 className={`${sizeClass} animate-spin text-amber-600`} aria-hidden="true" />
       {message && <p className="text-body-sm text-amber-700">{message}</p>}
     </div>
   );

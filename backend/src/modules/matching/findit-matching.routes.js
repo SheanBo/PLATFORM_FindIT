@@ -51,7 +51,7 @@ router.get('/', authenticate, async (req, res) => {
 router.get('/:id', authenticate, async (req, res) => {
   try {
     const match = await getAsync(`
-      SELECT im.*,
+      SELECT im.*, lr.User_ID,
              fi.Item_Name AS Found_Name, fi.Item_Color AS Found_Color,
              fi.Item_Brand AS Found_Brand, fi.Item_Size AS Found_Size,
              fi.Item_Description AS Found_Description, fi.Date_Found,

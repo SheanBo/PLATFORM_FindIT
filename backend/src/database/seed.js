@@ -49,6 +49,7 @@ async function seed() {
           ['Water_Bottle', 'Tumblers and containers'],
           ['Food_Container', 'Lunchboxes'],
           ['Electronics_Accessories', 'Chargers, earphones, cables'],
+          ['Other', 'Items that do not fit any standard category'],
         ];
 
         for (const c of categories) {

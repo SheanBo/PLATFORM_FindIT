@@ -56,13 +56,50 @@ function execAsync(sql) {
   });
 }
 
-async function initializeDatabase() {
-  const db = getDb();
+// 'Other' was added to the category CHECK list after initial release. On a
+// database created with the old 15-value constraint the insert is silently
+// skipped (OR IGNORE swallows the CHECK violation), so detect that case and
+// rebuild ITEM_CATEGORY with the expanded constraint, preserving IDs.
+// Foreign keys are not enforced by this connection (sqlite3 default), so the
+// rebuild does not disturb FOUND_ITEM/LOST_REPORT references.
+async function ensureOtherCategory() {
+  const OTHER_DESCRIPTION = 'Items that do not fit any standard category';
+  const existing = await getAsync("SELECT Category_ID FROM ITEM_CATEGORY WHERE Category_Name='Other'");
+  if (existing) return false;
 
-  return new Promise((resolve, reject) => {
-    db.serialize(async () => {
-      try {
-        await execAsync(`
+  await runAsync("INSERT OR IGNORE INTO ITEM_CATEGORY (Category_Name,Category_Description) VALUES ('Other',?)", [OTHER_DESCRIPTION]);
+  const inserted = await getAsync("SELECT Category_ID FROM ITEM_CATEGORY WHERE Category_Name='Other'");
+  if (inserted) return false;
+
+  // The views referencing ITEM_CATEGORY must be dropped first: ALTER TABLE
+  // RENAME validates every view, and they'd point at a missing table mid-swap.
+  // The caller re-runs SCHEMA_SQL afterwards to recreate them.
+  await execAsync(`
+    DROP VIEW IF EXISTS VW_EXPIRED_ITEMS;
+    DROP VIEW IF EXISTS VW_ACTIVE_MATCHES;
+    DROP VIEW IF EXISTS VW_DASHBOARD_STATS;
+    BEGIN;
+    CREATE TABLE ITEM_CATEGORY_NEW (
+      Category_ID          INTEGER PRIMARY KEY AUTOINCREMENT,
+      Category_Name        TEXT NOT NULL UNIQUE CHECK (Category_Name IN (
+        'Wallet','Phone','ID_Card','Keys','Umbrella','Bag','Clothing',
+        'Laptop','Tablet','Documents','Jewelry','Eyewear',
+        'Water_Bottle','Food_Container','Electronics_Accessories','Other'
+      )),
+      Category_Description TEXT,
+      Date_Created         DATE DEFAULT CURRENT_DATE NOT NULL
+    );
+    INSERT INTO ITEM_CATEGORY_NEW SELECT * FROM ITEM_CATEGORY;
+    DROP TABLE ITEM_CATEGORY;
+    ALTER TABLE ITEM_CATEGORY_NEW RENAME TO ITEM_CATEGORY;
+    COMMIT;
+  `);
+  await runAsync("INSERT INTO ITEM_CATEGORY (Category_Name,Category_Description) VALUES ('Other',?)", [OTHER_DESCRIPTION]);
+  console.log("✅ Migrated ITEM_CATEGORY: added 'Other' category");
+  return true;
+}
+
+const SCHEMA_SQL = `
           CREATE TABLE IF NOT EXISTS PERSON (
             Person_ID       INTEGER PRIMARY KEY AUTOINCREMENT,
             First_Name      TEXT NOT NULL,
@@ -94,7 +131,7 @@ async function initializeDatabase() {
             Category_Name        TEXT NOT NULL UNIQUE CHECK (Category_Name IN (
               'Wallet','Phone','ID_Card','Keys','Umbrella','Bag','Clothing',
               'Laptop','Tablet','Documents','Jewelry','Eyewear',
-              'Water_Bottle','Food_Container','Electronics_Accessories'
+              'Water_Bottle','Food_Container','Electronics_Accessories','Other'
             )),
             Category_Description TEXT,
             Date_Created         DATE DEFAULT CURRENT_DATE NOT NULL
@@ -262,14 +299,15 @@ async function initializeDatabase() {
           BEGIN
             UPDATE LOST_REPORT SET Date_Modified=CURRENT_DATE WHERE Report_ID=NEW.Report_ID;
           END;
-        `);
-        console.log('✅ Database initialized:', DB_PATH);
-        resolve();
-      } catch (err) {
-        reject(err);
-      }
-    });
-  });
+`;
+
+async function initializeDatabase() {
+  getDb();
+  await execAsync(SCHEMA_SQL);
+  // A rebuild drops the views that reference ITEM_CATEGORY; re-running the
+  // idempotent schema recreates them.
+  if (await ensureOtherCategory()) await execAsync(SCHEMA_SQL);
+  console.log('✅ Database initialized:', DB_PATH);
 }
 
 module.exports = { getDb, initializeDatabase, runAsync, getAsync, allAsync, execAsync };

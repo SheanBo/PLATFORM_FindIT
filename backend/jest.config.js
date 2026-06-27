@@ -5,7 +5,8 @@ module.exports = {
   // route modules are currently untested and would sink the global
   // thresholds. Add files here as tests are written for them.
   collectCoverageFrom: [
-    'src/modules/matching/score.js'
+    'src/modules/matching/score.js',
+    'src/middleware/auth.middleware.js'
   ],
   testMatch: ['**/__tests__/**/*.test.js', '**/?(*.)+(spec|test).js'],
   coverageThreshold: {

@@ -4,7 +4,7 @@ export function Surface({ className = '', children, style, ...rest }) {
   return (
     <div
       className={`bg-white rounded-xl ${className}`}
-      style={{ border: '1px solid var(--gold-300)', boxShadow: '0 1px 2px rgba(22,33,61,0.04)', ...style }}
+      style={{ border: '1px solid var(--gold-300)', boxShadow: '0 1px 2px rgba(22,33,61,0.05), 0 4px 16px rgba(22,33,61,0.04)', ...style }}
       {...rest}
     >
       {children}
@@ -74,7 +74,7 @@ export function Meter({ value, max, tone = 'var(--gold-500)' }) {
   const pct = Math.min(100, Math.round((value / (max || 1)) * 100));
   return (
     <div className="h-1.5 rounded-full w-full" style={{ backgroundColor: 'rgba(212,162,78,0.20)' }}>
-      <div className="h-1.5 rounded-full" style={{ width: `${pct}%`, backgroundColor: tone }} />
+      <div className="h-1.5 rounded-full" style={{ width: `${pct}%`, backgroundColor: tone, transition: 'width 400ms cubic-bezier(0.4,0,0.2,1)' }} />
     </div>
   );
 }

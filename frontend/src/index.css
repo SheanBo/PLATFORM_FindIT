@@ -66,6 +66,31 @@
     outline: 2px solid var(--gold-500);
     outline-offset: 2px;
   }
+
+  ::selection {
+    background-color: rgba(212, 162, 78, 0.35);
+    color: var(--navy-900);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold-300) transparent;
+  }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--gold-300);
+    border-radius: 8px;
+    border: 2px solid var(--cream-100);
+  }
+  ::-webkit-scrollbar-track { background: transparent; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }
 
 @layer components {
@@ -82,6 +107,13 @@
     background-color: var(--navy-700);
     box-shadow: 0 4px 12px rgba(22, 33, 61, 0.2);
     transform: translateY(-1px);
+  }
+  .btn-primary:active:not(:disabled),
+  .btn-secondary:active:not(:disabled),
+  .btn-danger:active:not(:disabled),
+  .btn-success:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: none;
   }
 
   .btn-secondary {
@@ -246,8 +278,8 @@
 
   .badge-pending {
     @apply badge;
-    background-color: rgba(212, 162, 78, 0.15);
-    color: var(--gold-500);
+    background-color: rgba(212, 162, 78, 0.20);
+    color: var(--brown-900);
   }
 
   .badge-warning, .badge-error {
@@ -264,8 +296,8 @@
 
   .badge-neutral {
     @apply badge;
-    background-color: rgba(212, 162, 78, 0.15);
-    color: var(--gold-500);
+    background-color: rgba(95, 107, 124, 0.12);
+    color: var(--rust-600);
   }
 
   /* Tables */
@@ -279,8 +311,9 @@
   }
 
   .table thead th {
-    @apply text-left px-6 py-4 font-bold text-xs uppercase tracking-wide;
-    color: var(--brown-900);
+    @apply text-left px-6 py-3.5 font-semibold text-xs uppercase;
+    letter-spacing: 0.08em;
+    color: var(--rust-600);
   }
 
   .table tbody tr {

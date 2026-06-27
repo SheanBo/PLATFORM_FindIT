@@ -6,6 +6,7 @@ module.exports = {
   // thresholds. Add files here as tests are written for them.
   collectCoverageFrom: [
     'src/modules/matching/score.js',
+    'src/modules/storage/recommend.js',
     'src/middleware/auth.middleware.js'
   ],
   testMatch: ['**/__tests__/**/*.test.js', '**/?(*.)+(spec|test).js'],

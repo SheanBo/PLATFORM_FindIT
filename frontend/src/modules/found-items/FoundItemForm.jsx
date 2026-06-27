@@ -12,8 +12,26 @@ export default function FoundItemForm({ onSuccess, onCancel }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [photo, setPhoto] = useState(null);
-  const { register, handleSubmit, watch, formState: { errors } } = useForm();
+  const [recommendation, setRecommendation] = useState(null);
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm();
   const storageType = watch('storage_type');
+  const categoryId = watch('category_id');
+
+  // Smart storage: when a category is picked, suggest and pre-fill the
+  // storage type and least-loaded section (both stay editable).
+  useEffect(() => {
+    if (!categoryId) { setRecommendation(null); return; }
+    let cancelled = false;
+    api.get('/findit-storage/recommend', { params: { category_id: categoryId } })
+      .then(r => {
+        if (cancelled) return;
+        setRecommendation(r.data);
+        setValue('storage_type', r.data.storage_type);
+        setValue('section_id', r.data.section ? String(r.data.section.Section_ID) : '');
+      })
+      .catch(() => { if (!cancelled) setRecommendation(null); });
+    return () => { cancelled = true; };
+  }, [categoryId, setValue]);
 
   useEffect(() => {
     Promise.all([
@@ -114,6 +132,12 @@ export default function FoundItemForm({ onSuccess, onCancel }) {
               <option value="Locker">Locker (other items)</option>
             </select>
             {errors.storage_type && <p id="storage_type-error" role="alert" className="text-xs mt-1" style={{ color: 'var(--status-terracotta)' }}>{errors.storage_type.message}</p>}
+            {recommendation && (
+              <p className="text-xs mt-1" style={{ color: 'var(--status-green)' }}>
+                Recommended: {recommendation.storage_type === 'Office_Safe' ? 'Office Safe' : 'Locker'}
+                {recommendation.section && ` — ${recommendation.section.Section_Name} (${recommendation.section.Actual_Load}/${recommendation.section.Capacity})`}
+              </p>
+            )}
           </div>
           <div>
             <label htmlFor="section_id" className="label mb-2">Storage Assignment</label>
@@ -129,9 +153,10 @@ export default function FoundItemForm({ onSuccess, onCancel }) {
 
           {/* Finder Info */}
           <div className="col-span-2">
-            <label htmlFor="found_by_contact" className="label mb-2">Who brought it in? <span style={{ color: '#9CA3AF' }}>(Optional)</span></label>
-            <p className="text-xs mb-2" style={{ color: 'var(--rust-600)' }}>If someone else found it, leave their name and contact</p>
-            <input id="found_by_contact" className="input" {...register('found_by_contact')} placeholder="e.g., Juan Santos — 09171234567" style={{ borderColor: 'var(--gold-300)' }} />
+            <label htmlFor="found_by_contact" className="label mb-2">Who brought it in?</label>
+            <p className="text-xs mb-2" style={{ color: 'var(--rust-600)' }}>Name and contact of the person who found or turned in the item</p>
+            <input id="found_by_contact" className="input" {...register('found_by_contact', { required: 'Required — the finder\'s information is significant' })} placeholder="e.g., Juan Santos — 09171234567" aria-invalid={errors.found_by_contact ? 'true' : undefined} aria-describedby={errors.found_by_contact ? 'found_by_contact-error' : undefined} style={{ borderColor: errors.found_by_contact ? 'var(--status-terracotta)' : 'var(--gold-300)' }} />
+            {errors.found_by_contact && <p id="found_by_contact-error" role="alert" className="text-xs mt-1" style={{ color: 'var(--status-terracotta)' }}>{errors.found_by_contact.message}</p>}
           </div>
 
           {/* Description */}

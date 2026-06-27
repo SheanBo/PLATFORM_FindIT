@@ -4,6 +4,7 @@ const { body, validationResult } = require('express-validator');
 const { getAsync, runAsync, allAsync } = require('../../database/init');
 const { authenticate, authorize } = require('../../middleware/auth.middleware');
 const { auditLog } = require('../../utils/audit');
+const { recommendStorageType, pickSection } = require('./recommend');
 
 // GET /api/findit-storage  - list all sections
 router.get('/', authenticate, authorize('Staff','Admin'), async (req, res) => {
@@ -17,6 +18,37 @@ router.get('/', authenticate, authorize('Staff','Admin'), async (req, res) => {
       GROUP BY ss.Section_ID ORDER BY ss.Storage_Type, ss.Section_Name
     `, []);
     res.json({ data: sections });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /api/findit-storage/recommend?category_id=N  - smart storage suggestion.
+// Must be registered before /:id so 'recommend' is not captured as an id.
+router.get('/recommend', authenticate, authorize('Staff','Admin'), async (req, res) => {
+  try {
+    const categoryId = parseInt(req.query.category_id, 10);
+    if (!Number.isFinite(categoryId)) return res.status(400).json({ error: 'category_id is required' });
+
+    const category = await getAsync('SELECT * FROM ITEM_CATEGORY WHERE Category_ID=?', [categoryId]);
+    if (!category) return res.status(404).json({ error: 'Category not found' });
+
+    const storageType = recommendStorageType(category.Category_Name);
+    const sections = await allAsync(`
+      SELECT ss.*, COUNT(fi.Item_ID) AS Actual_Load
+      FROM STORAGE_SECTION ss
+      LEFT JOIN FOUND_ITEM fi ON fi.Section_ID=ss.Section_ID AND fi.Item_Status NOT IN ('Claimed','Disposed')
+      GROUP BY ss.Section_ID
+    `, []);
+    const section = pickSection(sections, storageType);
+
+    const label = category.Category_Name.replace(/_/g, ' ');
+    const place = storageType === 'Office_Safe' ? 'office safe' : 'lockers';
+    res.json({
+      storage_type: storageType,
+      section,
+      reason: section
+        ? `${label} items go in the ${place}; ${section.Section_Name} has the most free space`
+        : `${label} items go in the ${place}, but all ${place} sections are at capacity`
+    });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

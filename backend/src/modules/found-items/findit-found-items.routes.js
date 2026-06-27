@@ -72,6 +72,7 @@ router.post('/', authenticate, authorize('Staff','Admin'), upload.single('photo'
   body('item_color').trim().notEmpty(),
   body('date_found').isDate(),
   body('storage_type').isIn(['Locker','Office_Safe']),
+  body('found_by_contact').trim().notEmpty().withMessage('Finder name and contact are required'),
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });

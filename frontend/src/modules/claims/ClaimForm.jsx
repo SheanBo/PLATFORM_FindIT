@@ -9,8 +9,11 @@ export default function ClaimForm({ itemId, onSuccess, onCancel }) {
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   useEffect(() => {
-    api.get('/findit-lost-reports', { params: { status: 'Active', limit: 100 } })
-      .then(r => setReports(r.data.data || []));
+    // A report flips from Active to Matched when the system pairs it with a
+    // found item - which is exactly when the student comes here to claim it,
+    // so both statuses must be selectable.
+    api.get('/findit-lost-reports', { params: { limit: 100 } })
+      .then(r => setReports((r.data.data || []).filter(x => ['Active', 'Matched'].includes(x.Report_Status))));
   }, []);
 
   const onSubmit = async (data) => {
@@ -41,7 +44,7 @@ export default function ClaimForm({ itemId, onSuccess, onCancel }) {
           ))}
         </select>
         {errors.report_id && <p className="text-red-500 text-xs mt-1">{errors.report_id.message}</p>}
-        {reports.length === 0 && <p className="text-amber-600 text-xs mt-1">No active lost reports found. File a lost report first.</p>}
+        {reports.length === 0 && <p className="text-amber-600 text-xs mt-1">No open lost reports found. File a lost report first.</p>}
       </div>
 
       <div>

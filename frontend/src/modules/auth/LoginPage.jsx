@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../lib/AuthContext';
-import { Eye, EyeOff, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, User, Lock, ShieldCheck } from 'lucide-react';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -27,7 +27,7 @@ export default function LoginPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center"
+      className="min-h-screen flex items-center relative"
       style={{
         backgroundImage: 'url(/ateneo.jpg)',
         backgroundSize: 'cover',
@@ -35,14 +35,30 @@ export default function LoginPage() {
         backgroundAttachment: 'fixed'
       }}
     >
-      {/* Overlay for readability */}
-      <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}></div>
+      {/* Branded directional overlay — deep navy behind the form, clearing to
+          reveal the campus on the right. Adds depth and keeps text legible. */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(105deg, rgba(22,33,61,0.92) 0%, rgba(22,33,61,0.72) 38%, rgba(22,33,61,0.30) 66%, rgba(22,33,61,0.05) 100%)'
+        }}
+      />
 
-      {/* Left Side - Navy Card Login Form */}
-      <div className="relative w-full md:w-1/3 flex flex-col items-center justify-center pl-32 pr-2 py-12 z-10" style={{ transform: 'translateY(-10px) translateX(150px)' }}>
-        <div className="w-full max-w-2xl rounded-3xl p-12 shadow-2xl" style={{ backgroundColor: 'transparent' }}>
+      {/* Login Form */}
+      <div className="relative z-10 w-full flex justify-center md:justify-start px-6 sm:px-10 lg:pl-20 py-12">
+        <div
+          className="w-full max-w-md rounded-2xl p-8 sm:p-10"
+          style={{
+            backgroundColor: 'rgba(22,33,61,0.45)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            border: '1px solid rgba(242,205,107,0.25)',
+            boxShadow: '0 24px 60px -24px rgba(0,0,0,0.65)'
+          }}
+        >
           {/* Logo and Branding */}
-          <div className="mb-8 flex items-center gap-3">
+          <div className="mb-6 flex items-center gap-3">
             <img
               src="/FindIT_Logo.png"
               alt="FindIT Logo"
@@ -51,9 +67,17 @@ export default function LoginPage() {
             <h1 className="text-2xl font-bold" style={{ color: 'var(--cream-100)' }}>FindIT</h1>
           </div>
 
+          {/* Welcome heading */}
+          <div className="mb-7">
+            <h2 className="text-xl font-bold" style={{ color: 'var(--cream-100)' }}>Welcome back</h2>
+            <p className="text-sm mt-1" style={{ color: 'rgba(251,243,220,0.7)' }}>
+              Sign in to the OSA Lost &amp; Found system
+            </p>
+          </div>
+
           {/* Error Alert */}
           {error && (
-            <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(199, 69, 69, 0.1)', borderLeft: '4px solid var(--status-terracotta)' }}>
+            <div role="alert" className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(199, 69, 69, 0.1)', borderLeft: '4px solid var(--status-terracotta)' }}>
               <div className="flex gap-3">
                 <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--status-terracotta)' }} />
                 <div>
@@ -68,36 +92,46 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Username Field */}
             <div>
-              <label className="block mb-2 text-sm font-medium" style={{ color: 'var(--cream-100)' }}>Username or Email</label>
-              <input
-                type="text"
-                placeholder="xxxxxxxx@gbox.adnu.edu.ph"
-                value={form.username}
-                onChange={(e) => setForm((f) => ({ ...f, username: e.target.value }))}
-                disabled={loading}
-                autoFocus
-                required
-                className="w-full px-4 py-3 rounded-lg border-2 transition-all focus:outline-none"
-                style={{
-                  backgroundColor: 'rgba(251,243,220,0.08)',
-                  borderColor: 'rgba(212,162,78,0.5)',
-                  color: 'var(--cream-100)'
-                }}
-              />
+              <label htmlFor="username" className="block mb-2 text-sm font-medium" style={{ color: 'var(--cream-100)' }}>Username or Email</label>
+              <div className="relative">
+                <User className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--gold-500)' }} aria-hidden="true" />
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  autoComplete="username"
+                  placeholder="xxxxxxxx@gbox.adnu.edu.ph"
+                  value={form.username}
+                  onChange={(e) => setForm((f) => ({ ...f, username: e.target.value }))}
+                  disabled={loading}
+                  autoFocus
+                  required
+                  className="w-full pl-11 pr-4 py-3 rounded-lg border-2 transition-all focus:outline-none"
+                  style={{
+                    backgroundColor: 'rgba(251,243,220,0.08)',
+                    borderColor: 'rgba(212,162,78,0.5)',
+                    color: 'var(--cream-100)'
+                  }}
+                />
+              </div>
             </div>
 
             {/* Password Field */}
             <div>
-              <label className="block mb-2 text-sm font-medium" style={{ color: '#FBF3DC' }}>Password</label>
+              <label htmlFor="password" className="block mb-2 text-sm font-medium" style={{ color: '#FBF3DC' }}>Password</label>
               <div className="relative">
+                <Lock className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--gold-500)' }} aria-hidden="true" />
                 <input
+                  id="password"
+                  name="password"
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
                   placeholder="••••••••••"
                   value={form.password}
                   onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
                   disabled={loading}
                   required
-                  className="w-full px-4 py-3 pr-12 rounded-lg border-2 transition-all focus:outline-none"
+                  className="w-full pl-11 pr-12 py-3 rounded-lg border-2 transition-all focus:outline-none"
                   style={{
                     backgroundColor: 'rgba(255,255,255,0.08)',
                     borderColor: 'rgba(212,162,78,0.5)',
@@ -124,10 +158,10 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 font-semibold rounded-lg transition-all mt-8"
+              className="w-full py-3 font-semibold rounded-lg transition-all mt-8 hover:brightness-95 shadow-lg disabled:opacity-70"
               style={{
-                backgroundColor: 'var(--cream-100)',
-                color: 'var(--gold-500)'
+                backgroundColor: 'var(--gold-500)',
+                color: 'var(--navy-900)'
               }}
             >
               {loading ? (
@@ -153,20 +187,14 @@ export default function LoginPage() {
                 Create an account
               </Link>
             </p>
+            <p className="text-xs mt-4 flex items-center justify-center gap-1.5" style={{ color: 'rgba(251,243,220,0.6)' }}>
+              <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
+              Secure sign-in for Ateneo de Naga accounts
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Left side branding overlay - Ateneo de Naga text */}
-      <div
-        className="absolute left-0 top-0 bottom-0 p-8 hidden md:flex flex-col items-start justify-end"
-        style={{
-          background: 'linear-gradient(to right, rgba(0,0,0,0.5), rgba(0,0,0,0.2), transparent)'
-        }}
-      >
-        <h3 className="text-white text-3xl font-bold">Ateneo de Naga</h3>
-        <p className="text-white/90 text-sm">Office of Student Affairs</p>
-      </div>
     </div>
   );
 }

@@ -1,8 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { getDb, getAsync, runAsync, allAsync } = require('../../database/init');
+const bcrypt = require('bcryptjs');
+const { body, validationResult } = require('express-validator');
+const { getAsync, runAsync, allAsync } = require('../../database/init');
 const { authenticate, authorize } = require('../../middleware/auth.middleware');
 const { getMetrics } = require('../../utils/performance');
+const { parsePagination } = require('../../utils/pagination');
+const { auditLog } = require('../../utils/audit');
 
 // GET /api/findit-dashboard/stats
 router.get('/stats', authenticate, authorize('Staff','Admin'), async (req, res) => {
@@ -102,8 +106,8 @@ router.get('/categories', authenticate, async (req, res) => {
 // GET /api/findit-dashboard/users (Admin)
 router.get('/users', authenticate, authorize('Admin'), async (req, res) => {
   try {
-    const { role, search, page = 1, limit = 10 } = req.query;
-    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const { role, search } = req.query;
+    const { page, limit, offset } = parsePagination(req.query);
     let where = 'WHERE 1=1'; const params = [];
     if (role) { where += ' AND ou.Role_Type=?'; params.push(role); }
     if (search) { where += ' AND (ou.Username LIKE ? OR ou.Email LIKE ? OR p.First_Name LIKE ? OR p.Last_Name LIKE ?)'; params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`); }
@@ -115,9 +119,39 @@ router.get('/users', authenticate, authorize('Admin'), async (req, res) => {
              p.First_Name, p.Last_Name, p.Department
       FROM ONLINE_USER ou JOIN PERSON p ON ou.Person_ID=p.Person_ID
       ${where} ORDER BY ou.Date_Registered DESC LIMIT ? OFFSET ?
-    `, [...params, parseInt(limit), offset]);
+    `, [...params, limit, offset]);
 
-    res.json({ data: users, pagination: { total, page: parseInt(page), limit: parseInt(limit), pages: Math.ceil(total / parseInt(limit)) } });
+    res.json({ data: users, pagination: { total, page, limit, pages: Math.ceil(total / limit) } });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/findit-dashboard/users  (Admin) — create a Staff account.
+// Only Staff accounts are created here; students self-register, and the
+// system allows exactly one admin, so neither role is creatable via this route.
+router.post('/users', authenticate, authorize('Admin'), [
+  body('first_name').trim().notEmpty(),
+  body('last_name').trim().notEmpty(),
+  body('email').isEmail().normalizeEmail(),
+  body('username').trim().isLength({ min: 3 }),
+  body('password').isLength({ min: 8 }),
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+  const { first_name, last_name, email, username, password, department } = req.body;
+  try {
+    const existing = await getAsync('SELECT User_ID FROM ONLINE_USER WHERE Username=? OR Email=?', [username, email]);
+    if (existing) return res.status(409).json({ error: 'Username or email already exists' });
+
+    const hash = bcrypt.hashSync(password, 10);
+    const p = await runAsync('INSERT INTO PERSON (First_Name,Last_Name,Department) VALUES (?,?,?)', [first_name, last_name, department || null]);
+    const r = await runAsync(
+      "INSERT INTO ONLINE_USER (Person_ID,Username,Password_Hash,Email,Role_Type) VALUES (?,?,?,?,'Staff')",
+      [p.lastID, username, hash, email]
+    );
+
+    auditLog({ userId: req.user.User_ID, action: 'CREATE_STAFF', entityType: 'ONLINE_USER', entityId: r.lastID, newValue: { username, role: 'Staff' }, ip: req.ip });
+    res.status(201).json({ message: 'Staff account created', id: r.lastID });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -133,11 +167,28 @@ router.put('/users/:id/toggle', authenticate, authorize('Admin'), async (req, re
 });
 
 // PUT /api/findit-dashboard/users/:id/role (Admin)
+// Enforces exactly one admin: no second admin may be created, and the last
+// remaining admin cannot be demoted.
 router.put('/users/:id/role', authenticate, authorize('Admin'), async (req, res) => {
   try {
     const { role } = req.body;
-    if (!['Student','Staff','Admin'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
+    if (!['Student', 'Staff', 'Admin'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
+
+    const target = await getAsync('SELECT User_ID, Role_Type FROM ONLINE_USER WHERE User_ID=?', [req.params.id]);
+    if (!target) return res.status(404).json({ error: 'User not found' });
+
+    if (role === 'Admin') {
+      const otherAdmin = await getAsync("SELECT User_ID FROM ONLINE_USER WHERE Role_Type='Admin' AND User_ID != ?", [req.params.id]);
+      if (otherAdmin) return res.status(409).json({ error: 'Only one admin account is allowed' });
+    }
+
+    if (target.Role_Type === 'Admin' && role !== 'Admin') {
+      const admins = await getAsync("SELECT COUNT(*) AS c FROM ONLINE_USER WHERE Role_Type='Admin'");
+      if (admins.c <= 1) return res.status(409).json({ error: 'Cannot remove the only admin account' });
+    }
+
     await runAsync('UPDATE ONLINE_USER SET Role_Type=? WHERE User_ID=?', [role, req.params.id]);
+    auditLog({ userId: req.user.User_ID, action: 'UPDATE_ROLE', entityType: 'ONLINE_USER', entityId: req.params.id, newValue: { role }, ip: req.ip });
     res.json({ message: 'Role updated' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

@@ -2,9 +2,13 @@ require('dotenv').config();
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-const DB_PATH = process.env.DB_PATH
-  ? path.resolve(process.env.DB_PATH)
-  : path.join(__dirname, 'findit.db');
+// ':memory:' is a special sqlite target and must not be run through
+// path.resolve (which would turn it into an invalid on-disk path).
+const DB_PATH = !process.env.DB_PATH
+  ? path.join(__dirname, 'findit.db')
+  : process.env.DB_PATH === ':memory:'
+    ? ':memory:'
+    : path.resolve(process.env.DB_PATH);
 
 let _db = null;
 

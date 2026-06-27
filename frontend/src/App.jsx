@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './lib/AuthContext';
+import { ToastProvider } from './lib/ToastContext';
 import { Layout } from './components/Layout';
 
 // Auth
@@ -17,6 +18,7 @@ import MatchingPage from './modules/matching/MatchingPage';
 import ClaimsPage from './modules/claims/ClaimsPage';
 import StoragePage from './modules/storage/StoragePage';
 import AdvancedSearchPage from './modules/search/AdvancedSearchPage';
+import UsersPage from './modules/admin/UsersPage';
 
 function RequireRole({ roles, children }) {
   const { user } = useAuth();
@@ -35,6 +37,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <ToastProvider>
         <Routes>
           {/* Public */}
           <Route path="/login" element={<LoginPage />} />
@@ -55,10 +58,14 @@ export default function App() {
               <RequireRole roles={['Staff','Admin']}><StoragePage /></RequireRole>
             } />
             <Route path="/search" element={<AdvancedSearchPage />} />
+            <Route path="/users" element={
+              <RequireRole roles={['Admin']}><UsersPage /></RequireRole>
+            } />
           </Route>
 
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
+        </ToastProvider>
       </AuthProvider>
     </BrowserRouter>
   );

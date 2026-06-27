@@ -1,16 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
-const { getDb, getAsync, runAsync, allAsync } = require('../../database/init');
+const { getAsync, runAsync, allAsync } = require('../../database/init');
 const { authenticate, authorize } = require('../../middleware/auth.middleware');
 const { auditLog } = require('../../utils/audit');
+const { parsePagination } = require('../../utils/pagination');
 const upload = require('../../utils/upload');
 
 // GET /api/findit-found-items
 router.get('/', authenticate, async (req, res) => {
   try {
-    const { status, category, search, page = 1, limit = 10 } = req.query;
-    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const { status, category, search } = req.query;
+    const { page, limit, offset } = parsePagination(req.query);
     let where = 'WHERE 1=1'; const params = [];
 
     if (status) { where += ' AND fi.Item_Status=?'; params.push(status); }
@@ -29,9 +30,9 @@ router.get('/', authenticate, async (req, res) => {
       JOIN ONLINE_USER ou ON fi.Contact_Staff_ID=ou.User_ID
       JOIN PERSON p ON ou.Person_ID=p.Person_ID
       ${where} ORDER BY fi.Date_Found DESC LIMIT ? OFFSET ?
-    `, [...params, parseInt(limit), offset]);
+    `, [...params, limit, offset]);
 
-    res.json({ data: rows, pagination: { total, page: parseInt(page), limit: parseInt(limit), pages: Math.ceil(total / parseInt(limit)) } });
+    res.json({ data: rows, pagination: { total, page, limit, pages: Math.ceil(total / limit) } });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

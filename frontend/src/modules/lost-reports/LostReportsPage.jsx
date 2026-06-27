@@ -1,222 +1,156 @@
 import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import api from '../../lib/api';
-import { useAuth } from '../../lib/AuthContext';
-import { StatusBadge } from '../../components/ui/StatusBadge';
+import { useToast } from '../../lib/ToastContext';
+import { useDebounce } from '../../lib/useDebounce';
 import { Pagination } from '../../components/ui/Pagination';
 import { Modal } from '../../components/ui/Modal';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { Plus, Search, Eye, FileText, MapPin, Rows3, Grid3x3 } from 'lucide-react';
+import { PageHead, Surface, StatusBadge } from '../../components/ui/kit';
+import { Plus, Search, ChevronRight, FileText, MapPin, Rows3, LayoutGrid, UserRound } from 'lucide-react';
 import LostReportForm from './LostReportForm';
 import LostReportDetail from './LostReportDetail';
 
 export default function LostReportsPage() {
-  const { user } = useAuth();
+  const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const [reports, setReports] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [status, setStatus] = useState(searchParams.get('status') || '');
   const [page, setPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
-  const [viewMode, setViewMode] = useState('column');
+  const [view, setView] = useState('gallery');
 
   const load = () => {
     setLoading(true);
-    api.get('/findit-lost-reports', { params: { search, status, page, limit: 12 } })
-      .then(r => { setReports(r.data.data); setPagination(r.data.pagination); })
+    api.get('/findit-lost-reports', { params: { search: debouncedSearch, status, page, limit: 12 } })
+      .then((r) => { setReports(r.data.data); setPagination(r.data.pagination); })
+      .catch(() => toast('Failed to load lost reports', 'error'))
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); }, [search, status, page]);
+  useEffect(() => { load(); }, [debouncedSearch, status, page]);
 
-  const handleCreated = () => { setShowForm(false); load(); };
+  const handleCreated = () => { setShowForm(false); load(); toast('Lost report filed successfully', 'success'); };
+
+  const fileBtn = (
+    <button onClick={() => setShowForm(true)} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: 'var(--navy-900)' }}>
+      <Plus className="w-4 h-4" /> File report
+    </button>
+  );
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'white' }}>
-      {/* Header */}
-      <div className="border-b sticky top-0 z-40" style={{ backgroundColor: 'var(--cream-100)', borderColor: 'var(--gold-300)' }}>
-        <div className="p-3 max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--brown-900)' }}>Lost Reports</h1>
-              <p style={{ color: 'var(--rust-600)' }}>Report and track lost items</p>
-            </div>
-            <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2 w-fit">
-              <Plus className="w-4 h-4" /> File Report
-            </button>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-white">
+      <div className="max-w-6xl mx-auto px-6 sm:px-8 py-8">
+        <PageHead title="Lost reports" subtitle="Report and track lost items" actions={fileBtn} />
 
-      <div className="p-3 max-w-7xl mx-auto">
-        {/* Filters */}
-        <div className="rounded-lg p-3 shadow-sm border border-gray-100 mb-3" style={{ backgroundColor: 'var(--cream-100)' }}>
-          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--rust-600)' }} />
-              <input className="input pl-9" placeholder="Search by item name..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} style={{ borderColor: 'var(--gold-300)' }} />
-            </div>
-            <div className="flex gap-3 items-center">
-              <select className="select sm:w-40" value={status} onChange={e => { setStatus(e.target.value); setPage(1); }} style={{ borderColor: 'var(--gold-300)' }}>
-                <option value="">All Status</option>
-                {['Active','Matched','Closed','Expired','Cancelled'].map(s => <option key={s}>{s}</option>)}
-              </select>
-              <div className="flex items-center gap-1 border rounded-lg p-1" style={{ borderColor: 'var(--gold-300)' }}>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className="p-2 rounded transition-all cursor-pointer hover:opacity-80"
-                  style={{
-                    backgroundColor: viewMode === 'list' ? 'var(--gold-500)' : 'transparent',
-                    color: viewMode === 'list' ? 'var(--navy-900)' : 'var(--brown-900)',
-                  }}
-                  title="List view"
-                  aria-label="Switch to list view"
-                  aria-pressed={viewMode === 'list'}
-                >
-                  <Rows3 className="w-4 h-4" aria-hidden="true" />
-                </button>
-                <button
-                  onClick={() => setViewMode('column')}
-                  className="p-2 rounded transition-all cursor-pointer hover:opacity-80"
-                  style={{
-                    backgroundColor: viewMode === 'column' ? 'var(--gold-500)' : 'transparent',
-                    color: viewMode === 'column' ? 'var(--navy-900)' : 'var(--brown-900)',
-                  }}
-                  title="Column view"
-                  aria-label="Switch to column view"
-                  aria-pressed={viewMode === 'column'}
-                >
-                  <Grid3x3 className="w-4 h-4" aria-hidden="true" />
-                </button>
-              </div>
-            </div>
+        {/* Toolbar */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-4">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-rust-600" />
+            <input className="input pl-9" placeholder="Search by item name" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
           </div>
-        </div>
-
-        {/* Grid/List Layout */}
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="rounded-lg h-56 skeleton" style={{ backgroundColor: 'var(--cream-100)' }} />
+          <select className="input" style={{ width: 'auto' }} value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }}>
+            <option value="">Any status</option>
+            {['Active', 'Matched', 'Closed', 'Expired', 'Cancelled'].map((s) => <option key={s}>{s}</option>)}
+          </select>
+          <div className="flex items-center gap-1 rounded-lg p-1" style={{ border: '1px solid var(--gold-300)' }}>
+            {[['gallery', LayoutGrid, 'Gallery'], ['table', Rows3, 'Table']].map(([key, Icon, label]) => (
+              <button
+                key={key}
+                onClick={() => setView(key)}
+                className="p-2 rounded transition-colors"
+                style={{ backgroundColor: view === key ? 'var(--gold-500)' : 'transparent', color: view === key ? 'var(--navy-900)' : 'var(--rust-600)' }}
+                title={`${label} view`}
+                aria-label={`${label} view`}
+                aria-pressed={view === key}
+              >
+                <Icon className="w-4 h-4" />
+              </button>
             ))}
           </div>
+        </div>
+
+        {loading ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[...Array(6)].map((_, i) => <div key={i} className="rounded-xl h-64 skeleton" />)}
+          </div>
         ) : reports.length === 0 ? (
-          <EmptyState icon={FileText} title="No lost reports yet" description="Your lost items will appear here. File a report to get the search started!" actionLabel="File First Report" onAction={() => setShowForm(true)} />
-        ) : (
-          <>
-            {viewMode === 'list' ? (
-              // List View - Table Layout
-              <div className="rounded-lg overflow-hidden shadow-sm border border-gray-100" style={{ backgroundColor: 'var(--cream-100)' }}>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead style={{ backgroundColor: 'rgba(212, 162, 78, 0.1)', borderBottom: '2px solid var(--gold-300)' }}>
-                      <tr>
-                        <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--navy-900)' }}>Item Name</th>
-                        <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--navy-900)' }}>Details</th>
-                        <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--navy-900)' }}>Location</th>
-                        <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--navy-900)' }}>Status</th>
-                        <th className="px-4 py-3"></th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y" style={{ borderColor: 'var(--gold-300)' }}>
-                      {reports.map(report => (
-                        <tr key={report.Report_ID} className="hover:bg-amber-50 transition-colors cursor-pointer">
-                          <td className="px-4 py-3 font-semibold" style={{ color: 'var(--navy-900)' }}>{report.Item_Name}</td>
-                          <td className="px-4 py-3 text-xs" style={{ color: 'var(--rust-600)' }}>
-                            {report.Item_Color}{report.Item_Brand ? ` · ${report.Item_Brand}` : ''}
-                          </td>
-                          <td className="px-4 py-3 text-xs" style={{ color: 'var(--rust-600)' }}>
-                            <MapPin className="w-3 h-3 inline mr-1" />{report.Place_Name}
-                          </td>
-                          <td className="px-4 py-3"><StatusBadge status={report.Report_Status} /></td>
-                          <td className="px-4 py-3">
-                            <button
-                              onClick={() => setSelectedId(report.Report_ID)}
-                              className="p-2 rounded hover:opacity-80 transition-opacity"
-                              style={{ color: 'var(--navy-900)' }}
-                              title="View report details"
-                              aria-label={`View details for ${report.Item_Name}`}
-                            >
-                              <Eye className="w-4 h-4" aria-hidden="true" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+          <EmptyState icon={FileText} title="No lost reports yet" description="File a report to get the search started." actionLabel="File first report" onAction={() => setShowForm(true)} />
+        ) : view === 'gallery' ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {reports.map((r) => (
+              <Surface key={r.Report_ID} onClick={() => setSelectedId(r.Report_ID)} className="overflow-hidden p-0 cursor-pointer transition-shadow hover:shadow-md group">
+                <div className="aspect-[4/3] overflow-hidden" style={{ backgroundColor: 'rgba(212,162,78,0.10)' }}>
+                  {r.Photo_Path ? (
+                    <img src={r.Photo_Path} alt={r.Item_Name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-rust-600">
+                      <FileText className="w-9 h-9 text-gold-500" aria-hidden="true" />
+                      <span className="text-xs">No photo</span>
+                    </div>
+                  )}
                 </div>
-              </div>
-            ) : (
-              // Column View - Grid Layout
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {reports.map(report => (
-                  <div
-                    key={report.Report_ID}
-                    onClick={() => setSelectedId(report.Report_ID)}
-                    className="rounded-lg overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer transform hover:scale-105"
-                    style={{ backgroundColor: 'var(--cream-100)' }}
-                  >
-                    {/* Item Image */}
-                    <div className="w-full h-32 bg-gray-100 flex items-center justify-center overflow-hidden" style={{ backgroundColor: 'rgba(212, 162, 78, 0.1)' }}>
-                      {report.Photo_Path ? (
-                        <img src={report.Photo_Path} alt={report.Item_Name} className="w-full h-full object-cover" />
-                      ) : (
-                        <FileText className="w-12 h-12" style={{ color: 'var(--gold-500)' }} />
-                      )}
-                    </div>
-
-                    {/* Report Info */}
-                    <div className="p-2.5">
-                      {/* Name */}
-                      <h3 className="font-bold text-xs mb-1" style={{ color: 'var(--navy-900)' }}>
-                        {report.Item_Name}
-                      </h3>
-
-                      {/* Details */}
-                      <p className="text-xs mb-1.5" style={{ color: 'var(--rust-600)' }}>
-                        {report.Item_Color}{report.Item_Brand ? ` · ${report.Item_Brand}` : ''}
-                      </p>
-
-                      {/* Location */}
-                      <div className="flex items-center gap-1 mb-1.5" style={{ color: 'var(--rust-600)' }}>
-                        <MapPin className="w-3 h-3" />
-                        <span className="text-xs">{report.Place_Name}</span>
-                      </div>
-
-                      {/* Status Badge */}
-                      <div className="flex justify-between items-center">
-                        <StatusBadge status={report.Report_Status} />
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setSelectedId(report.Report_ID); }}
-                          className="p-2 rounded hover:opacity-80 transition-opacity"
-                          style={{ color: 'var(--navy-900)' }}
-                          title="View report details"
-                          aria-label={`View details for ${report.Item_Name}`}
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
+                <div className="p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-semibold text-navy-900 leading-snug">{r.Item_Name}</h3>
+                    <StatusBadge status={r.Report_Status} />
                   </div>
-                ))}
-              </div>
-            )}
-
-            {/* Pagination */}
-            {pagination && pagination.total > pagination.limit && (
-              <div className="mt-4 flex justify-center">
-                <Pagination
-                  currentPage={page}
-                  totalPages={pagination.pages}
-                  onPageChange={setPage}
-                />
-              </div>
-            )}
-          </>
+                  {r.Reporter_Name && (
+                    <p className="text-xs text-rust-600 mt-1 flex items-center gap-1.5"><UserRound className="w-3.5 h-3.5" aria-hidden="true" /> {r.Reporter_Name}</p>
+                  )}
+                  <div className="flex items-center justify-between mt-3 pt-3 text-xs text-rust-600" style={{ borderTop: '1px solid rgba(212,162,78,0.20)' }}>
+                    <span className="flex items-center gap-1.5 min-w-0"><MapPin className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">{r.Place_Name}</span></span>
+                    <span className="tabular-nums flex-shrink-0">{r.Date_Lost}</span>
+                  </div>
+                </div>
+              </Surface>
+            ))}
+          </div>
+        ) : (
+          <Surface className="overflow-hidden p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-[680px]">
+                <thead>
+                  <tr style={{ backgroundColor: 'rgba(212,162,78,0.08)', borderBottom: '1px solid var(--gold-300)' }}>
+                    {['Report', 'Category', 'Location', 'Reporter', 'Date lost', 'Status', ''].map((h) => (
+                      <th key={h} className="text-left px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.06em] text-rust-600">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {reports.map((r, i) => (
+                    <tr key={r.Report_ID} onClick={() => setSelectedId(r.Report_ID)} className="cursor-pointer transition-colors hover:bg-cream-100" style={{ borderTop: i === 0 ? 'none' : '1px solid rgba(212,162,78,0.18)' }}>
+                      <td className="px-5 py-3">
+                        <div className="flex items-center gap-3">
+                          <span className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(212,162,78,0.14)' }}>
+                            <FileText className="w-4 h-4 text-gold-500" />
+                          </span>
+                          <div>
+                            <p className="font-semibold text-navy-900">{r.Item_Name}</p>
+                            <p className="text-xs text-rust-600">{r.Item_Color} · #{r.Report_ID}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3 text-rust-600">{r.Category_Name?.replace(/_/g, ' ')}</td>
+                      <td className="px-5 py-3 text-rust-600">{r.Place_Name}</td>
+                      <td className="px-5 py-3 text-rust-600">{r.Reporter_Name}</td>
+                      <td className="px-5 py-3 text-rust-600 tabular-nums">{r.Date_Lost}</td>
+                      <td className="px-5 py-3"><StatusBadge status={r.Report_Status} /></td>
+                      <td className="px-5 py-3 text-right"><ChevronRight className="w-4 h-4 text-rust-600 inline" /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Surface>
         )}
+
+        {!loading && <Pagination pagination={pagination} onPageChange={setPage} />}
       </div>
 
       <Modal isOpen={showForm} onClose={() => setShowForm(false)} title="File a Lost Report" size="md">

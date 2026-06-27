@@ -1,15 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
-const { getDb, getAsync, runAsync, allAsync } = require('../../database/init');
+const { getAsync, runAsync, allAsync } = require('../../database/init');
 const { authenticate, authorize } = require('../../middleware/auth.middleware');
 const { auditLog } = require('../../utils/audit');
+const { parsePagination } = require('../../utils/pagination');
 
 // GET /api/findit-claims
 router.get('/', authenticate, async (req, res) => {
   try {
-    const { status, page = 1, limit = 10 } = req.query;
-    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const { status } = req.query;
+    const { page, limit, offset } = parsePagination(req.query);
     const isStudent = req.user.Role_Type === 'Student';
 
     let where = isStudent ? 'WHERE c.User_ID=?' : 'WHERE 1=1';
@@ -32,9 +33,9 @@ router.get('/', authenticate, async (req, res) => {
       LEFT JOIN ONLINE_USER vou ON c.Verified_By_ID=vou.User_ID
       LEFT JOIN PERSON vp ON vou.Person_ID=vp.Person_ID
       ${where} ORDER BY c.Claim_Date DESC LIMIT ? OFFSET ?
-    `, [...params, parseInt(limit), offset]);
+    `, [...params, limit, offset]);
 
-    res.json({ data: rows, pagination: { total, page: parseInt(page), limit: parseInt(limit), pages: Math.ceil(total / parseInt(limit)) } });
+    res.json({ data: rows, pagination: { total, page, limit, pages: Math.ceil(total / limit) } });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

@@ -7,6 +7,16 @@ const path = require('path');
 const { initializeDatabase } = require('./database/init');
 const { performanceTracker } = require('./utils/performance');
 
+// Fail fast if the JWT secret is missing or left at the insecure default.
+// Skipped under tests, which set their own throwaway secret.
+if (process.env.NODE_ENV !== 'test') {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret === 'findit_super_secret_key_change_in_production') {
+    console.error('FATAL: JWT_SECRET is unset or using the insecure default. Set a strong JWT_SECRET in the environment.');
+    process.exit(1);
+  }
+}
+
 // Initialize database
 initializeDatabase();
 

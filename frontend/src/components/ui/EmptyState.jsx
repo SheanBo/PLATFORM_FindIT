@@ -10,25 +10,16 @@ export function EmptyState({
   actionIcon,
 }) {
   return (
-    <div className="flex flex-col items-center justify-center p-3xl gap-lg">
-      <div className="w-16 h-16 rounded-2xl bg-amber-200 flex items-center justify-center">
-        <Icon className="w-8 h-8 text-amber-900" />
+    <div className="flex flex-col items-center justify-center py-16 gap-4">
+      <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ backgroundColor: 'rgba(212,162,78,0.15)' }}>
+        <Icon className="w-8 h-8 text-gold-500" />
       </div>
       <div className="text-center">
-        <h3 className="text-h3 font-semibold text-amber-950 mb-md">
-          {title}
-        </h3>
-        <p className="text-body text-amber-700">
-          {description}
-        </p>
+        <h3 className="text-navy-900 font-semibold text-lg mb-1">{title}</h3>
+        <p className="text-rust-600 text-sm max-w-sm">{description}</p>
       </div>
       {actionLabel && onAction && (
-        <Button
-          variant="primary"
-          icon={actionIcon}
-          onClick={onAction}
-          aria-label={actionLabel}
-        >
+        <Button variant="primary" icon={actionIcon} onClick={onAction} aria-label={actionLabel}>
           {actionLabel}
         </Button>
       )}
@@ -37,24 +28,8 @@ export function EmptyState({
 }
 
 export const emptyStates = {
-  noItems: {
-    icon: Inbox,
-    title: 'No items yet',
-    description: 'Start by adding your first item',
-  },
-  noReports: {
-    icon: FileText,
-    title: 'No reports found',
-    description: 'File a new lost report to get started',
-  },
-  noMatches: {
-    icon: Search,
-    title: 'No matches found',
-    description: 'Try adjusting your filters or search criteria',
-  },
-  noResults: {
-    icon: Search,
-    title: 'No results found',
-    description: 'Try a different search term',
-  },
+  noItems: { icon: Inbox, title: 'No items yet', description: 'Start by adding your first item' },
+  noReports: { icon: FileText, title: 'No reports found', description: 'File a new lost report to get started' },
+  noMatches: { icon: Search, title: 'No matches found', description: 'Try adjusting your filters or search criteria' },
+  noResults: { icon: Search, title: 'No results found', description: 'Try a different search term' },
 };

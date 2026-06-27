@@ -11,7 +11,10 @@
   --gold-300: #F2CD6B;
   --cream-100: #FDFBF5;
   --brown-900: #4A2511;
-  --rust-600: #C2741F;
+  /* Secondary / muted text colour used app-wide (helper text, placeholders,
+     meta, labels-secondary). Refined from a saturated orange to a soft slate
+     for a cleaner, more premium read. */
+  --rust-600: #5F6B7C;
   --status-blue: #3B5FD9;
   --status-terracotta: #D2691E;
   --status-green: #2F9E58;
@@ -170,7 +173,7 @@
 
   .label {
     @apply block text-sm font-semibold;
-    color: var(--brown-900);
+    color: var(--navy-900);
     font-family: var(--font-primary);
     letter-spacing: -0.3px;
   }

@@ -3,11 +3,24 @@
  * Track response times, query performance, and bottlenecks
  */
 
+// Bounded ring-buffer size. Without a cap these arrays grow for the lifetime
+// of the process (one entry per request/query), which is a slow memory leak.
+const MAX_ENTRIES = 500;
+
 const metrics = {
   requests: [],
   queries: [],
-  errors: []
+  errors: [],
+  // Lifetime counters (the arrays above are bounded, so their length can no
+  // longer be used as an all-time total).
+  totals: { requests: 0, queries: 0, errors: 0 }
 };
+
+// Push onto an array while keeping only the most recent MAX_ENTRIES items.
+function pushCapped(arr, entry) {
+  arr.push(entry);
+  if (arr.length > MAX_ENTRIES) arr.shift();
+}
 
 /**
  * Middleware to track request performance
@@ -19,7 +32,8 @@ function performanceTracker() {
 
     res.json = (data) => {
       const duration = Date.now() - start;
-      metrics.requests.push({
+      metrics.totals.requests++;
+      pushCapped(metrics.requests, {
         method: req.method,
         path: req.path,
         duration,
@@ -45,7 +59,8 @@ function performanceTracker() {
  * Track database query performance
  */
 function trackQuery(sql, duration) {
-  metrics.queries.push({
+  metrics.totals.queries++;
+  pushCapped(metrics.queries, {
     sql: sql.substring(0, 100),
     duration,
     timestamp: new Date()
@@ -72,7 +87,7 @@ function getMetrics() {
 
   return {
     requests: {
-      total: metrics.requests.length,
+      total: metrics.totals.requests,
       avgResponseTime: `${avgResponseTime}ms`,
       recent: requests.map(r => ({
         ...r,
@@ -80,7 +95,7 @@ function getMetrics() {
       }))
     },
     queries: {
-      total: metrics.queries.length,
+      total: metrics.totals.queries,
       avgQueryTime: `${avgQueryTime}ms`,
       recent: queries.map(q => ({
         ...q,
@@ -88,7 +103,7 @@ function getMetrics() {
       }))
     },
     errors: {
-      total: metrics.errors.length,
+      total: metrics.totals.errors,
       recent: metrics.errors.slice(-10)
     }
   };
@@ -101,6 +116,7 @@ function resetMetrics() {
   metrics.requests = [];
   metrics.queries = [];
   metrics.errors = [];
+  metrics.totals = { requests: 0, queries: 0, errors: 0 };
 }
 
 module.exports = {

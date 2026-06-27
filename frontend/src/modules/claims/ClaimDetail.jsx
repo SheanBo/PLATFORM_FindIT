@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { AlertTriangle, CheckCircle } from 'lucide-react';
 import api from '../../lib/api';
 import { useAuth } from '../../lib/AuthContext';
 
@@ -98,7 +99,7 @@ export default function ClaimDetail({ id, onClose, onRefresh }) {
 
       {claim.Is_Disputed === 'Y' && claim.Dispute_Reason && (
         <div className="bg-white rounded-lg p-6 border" style={{ borderColor: 'var(--status-terracotta)', borderLeftWidth: '4px' }}>
-          <p style={{ color: 'var(--status-terracotta)' }} className="font-semibold mb-2">⚠ Dispute Reason</p>
+          <p style={{ color: 'var(--status-terracotta)' }} className="font-semibold mb-2 flex items-center gap-2"><AlertTriangle className="w-4 h-4" aria-hidden="true" /> Dispute Reason</p>
           <p style={{ color: 'var(--status-terracotta)' }} className="text-sm">{claim.Dispute_Reason}</p>
         </div>
       )}
@@ -137,7 +138,7 @@ export default function ClaimDetail({ id, onClose, onRefresh }) {
       {/* Student Acknowledgement */}
       {user.role === 'Student' && claim.Claim_Status === 'Approved' && claim.Acknowledged === 'N' && (
         <div className="bg-white rounded-lg p-6 border space-y-3" style={{ borderColor: 'var(--status-green)', borderLeftWidth: '4px' }}>
-          <p style={{ color: 'var(--status-green)' }} className="font-semibold">✓ Claim Approved</p>
+          <p style={{ color: 'var(--status-green)' }} className="font-semibold flex items-center gap-2"><CheckCircle className="w-4 h-4" aria-hidden="true" /> Claim Approved</p>
           <p style={{ color: 'var(--rust-600)' }} className="text-sm">Your claim has been approved. Please visit the OSA to claim your item.</p>
           <button onClick={acknowledge} className="w-full py-3 rounded-lg font-semibold text-white transition-all" style={{ backgroundColor: 'var(--status-green)' }}>Acknowledge Receipt</button>
         </div>

@@ -2,225 +2,157 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../../lib/api';
 import { useAuth } from '../../lib/AuthContext';
-import { StatusBadge } from '../../components/ui/StatusBadge';
+import { useToast } from '../../lib/ToastContext';
+import { useDebounce } from '../../lib/useDebounce';
 import { Pagination } from '../../components/ui/Pagination';
 import { Modal } from '../../components/ui/Modal';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { Plus, Search, Eye, Package, MapPin, Rows3, Grid3x3 } from 'lucide-react';
+import { PageHead, Surface, StatusBadge } from '../../components/ui/kit';
+import { Plus, Search, ChevronRight, Package, MapPin, Rows3, LayoutGrid } from 'lucide-react';
 import FoundItemForm from './FoundItemForm';
 import FoundItemDetail from './FoundItemDetail';
 
 export default function FoundItemsPage() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const [items, setItems] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [status, setStatus] = useState(searchParams.get('status') || '');
   const [page, setPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
-  const [viewMode, setViewMode] = useState('column');
+  const [view, setView] = useState('gallery');
+  const canManage = ['Staff', 'Admin'].includes(user.role);
 
   const load = () => {
     setLoading(true);
-    api.get('/findit-found-items', { params: { search, status, page, limit: 12 } })
-      .then(r => { setItems(r.data.data); setPagination(r.data.pagination); })
+    api.get('/findit-found-items', { params: { search: debouncedSearch, status, page, limit: 12 } })
+      .then((r) => { setItems(r.data.data); setPagination(r.data.pagination); })
+      .catch(() => toast('Failed to load found items', 'error'))
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); }, [search, status, page]);
+  useEffect(() => { load(); }, [debouncedSearch, status, page]);
+
+  const registerBtn = canManage && (
+    <button onClick={() => setShowForm(true)} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: 'var(--navy-900)' }}>
+      <Plus className="w-4 h-4" /> Register item
+    </button>
+  );
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'white' }}>
-      {/* Header */}
-      <div className="border-b sticky top-0 z-40" style={{ backgroundColor: 'var(--cream-100)', borderColor: 'var(--gold-300)' }}>
-        <div className="p-3 max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--brown-900)' }}>Found Items</h1>
-              <p style={{ color: 'var(--rust-600)' }}>Items surrendered to the OSA</p>
-            </div>
-            {['Staff','Admin'].includes(user.role) && (
-              <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2 w-fit">
-                <Plus className="w-4 h-4" /> Register Item
+    <div className="min-h-screen bg-white">
+      <div className="max-w-6xl mx-auto px-6 sm:px-8 py-8">
+        <PageHead title="Found items" subtitle="Items surrendered to the Office of Student Affairs" actions={registerBtn} />
+
+        {/* Toolbar */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-4">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-rust-600" />
+            <input className="input pl-9" placeholder="Search by name, brand, or description" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
+          </div>
+          <select className="input" style={{ width: 'auto' }} value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }}>
+            <option value="">Any status</option>
+            {['Unclaimed', 'Matched', 'Claimed', 'Disputed', 'Disposed'].map((s) => <option key={s}>{s}</option>)}
+          </select>
+          <div className="flex items-center gap-1 rounded-lg p-1" style={{ border: '1px solid var(--gold-300)' }}>
+            {[['gallery', LayoutGrid, 'Gallery'], ['table', Rows3, 'Table']].map(([key, Icon, label]) => (
+              <button
+                key={key}
+                onClick={() => setView(key)}
+                className="p-2 rounded transition-colors"
+                style={{ backgroundColor: view === key ? 'var(--gold-500)' : 'transparent', color: view === key ? 'var(--navy-900)' : 'var(--rust-600)' }}
+                title={`${label} view`}
+                aria-label={`${label} view`}
+                aria-pressed={view === key}
+              >
+                <Icon className="w-4 h-4" />
               </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="p-3 max-w-7xl mx-auto">
-        {/* Filters */}
-        <div className="rounded-lg p-3 shadow-sm border border-gray-100 mb-3" style={{ backgroundColor: 'var(--cream-100)' }}>
-          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--rust-600)' }} />
-              <input className="input pl-9" placeholder="Search by name, brand..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} style={{ borderColor: 'var(--gold-300)' }} />
-            </div>
-            <div className="flex gap-3 items-center">
-              <select className="select sm:w-40" value={status} onChange={e => { setStatus(e.target.value); setPage(1); }} style={{ borderColor: 'var(--gold-300)' }}>
-                <option value="">All Status</option>
-                {['Unclaimed','Matched','Claimed','Disputed','Disposed'].map(s => <option key={s}>{s}</option>)}
-              </select>
-              <div className="flex items-center gap-1 border rounded-lg p-1" style={{ borderColor: 'var(--gold-300)' }}>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className="p-2 rounded transition-all cursor-pointer hover:opacity-80"
-                  style={{
-                    backgroundColor: viewMode === 'list' ? 'var(--gold-500)' : 'transparent',
-                    color: viewMode === 'list' ? 'var(--navy-900)' : 'var(--brown-900)',
-                  }}
-                  title="List view"
-                  aria-label="Switch to list view"
-                  aria-pressed={viewMode === 'list'}
-                >
-                  <Rows3 className="w-4 h-4" aria-hidden="true" />
-                </button>
-                <button
-                  onClick={() => setViewMode('column')}
-                  className="p-2 rounded transition-all cursor-pointer hover:opacity-80"
-                  style={{
-                    backgroundColor: viewMode === 'column' ? 'var(--gold-500)' : 'transparent',
-                    color: viewMode === 'column' ? 'var(--navy-900)' : 'var(--brown-900)',
-                  }}
-                  title="Column view"
-                  aria-label="Switch to column view"
-                  aria-pressed={viewMode === 'column'}
-                >
-                  <Grid3x3 className="w-4 h-4" aria-hidden="true" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Grid/List Layout */}
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="rounded-lg h-56 skeleton" style={{ backgroundColor: 'var(--cream-100)' }} />
             ))}
           </div>
+        </div>
+
+        {loading ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[...Array(6)].map((_, i) => <div key={i} className="rounded-xl h-64 skeleton" />)}
+          </div>
         ) : items.length === 0 ? (
-          <EmptyState icon={Package} title="No items yet" description="Items brought to the OSA will show up here. Help us reunite lost items with their owners!" actionLabel="Register First Item" onAction={() => setShowForm(true)} />
-        ) : (
-          <>
-            {viewMode === 'list' ? (
-              // List View - Table Layout
-              <div className="rounded-lg overflow-hidden shadow-sm border border-gray-100" style={{ backgroundColor: 'var(--cream-100)' }}>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead style={{ backgroundColor: 'rgba(212, 162, 78, 0.1)', borderBottom: '2px solid var(--gold-300)' }}>
-                      <tr>
-                        <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--navy-900)' }}>Item Name</th>
-                        <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--navy-900)' }}>Details</th>
-                        <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--navy-900)' }}>Location</th>
-                        <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--navy-900)' }}>Status</th>
-                        <th className="px-4 py-3"></th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y" style={{ borderColor: 'var(--gold-300)' }}>
-                      {items.map(item => (
-                        <tr key={item.Item_ID} className="hover:bg-amber-50 transition-colors cursor-pointer">
-                          <td className="px-4 py-3 font-semibold" style={{ color: 'var(--navy-900)' }}>{item.Item_Name}</td>
-                          <td className="px-4 py-3 text-xs" style={{ color: 'var(--rust-600)' }}>
-                            {item.Item_Color}{item.Item_Brand ? ` · ${item.Item_Brand}` : ''}
-                          </td>
-                          <td className="px-4 py-3 text-xs" style={{ color: 'var(--rust-600)' }}>
-                            <MapPin className="w-3 h-3 inline mr-1" />{item.Place_Name}
-                          </td>
-                          <td className="px-4 py-3"><StatusBadge status={item.Item_Status} /></td>
-                          <td className="px-4 py-3">
-                            <button
-                              onClick={() => setSelectedId(item.Item_ID)}
-                              className="p-2 rounded hover:opacity-80 transition-opacity"
-                              style={{ color: 'var(--navy-900)' }}
-                              title="View item details"
-                              aria-label={`View details for ${item.Item_Name}`}
-                            >
-                              <Eye className="w-4 h-4" aria-hidden="true" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+          <EmptyState icon={Package} title="No items yet" description="Items brought to the OSA will show up here." actionLabel={canManage ? 'Register first item' : undefined} onAction={canManage ? () => setShowForm(true) : undefined} />
+        ) : view === 'gallery' ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {items.map((item) => (
+              <Surface key={item.Item_ID} onClick={() => setSelectedId(item.Item_ID)} className="overflow-hidden p-0 cursor-pointer transition-shadow hover:shadow-md group">
+                <div className="aspect-[4/3] overflow-hidden" style={{ backgroundColor: 'rgba(212,162,78,0.10)' }}>
+                  {item.Photo_Path ? (
+                    <img src={item.Photo_Path} alt={item.Item_Name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-rust-600">
+                      <Package className="w-9 h-9 text-gold-500" aria-hidden="true" />
+                      <span className="text-xs">No photo</span>
+                    </div>
+                  )}
                 </div>
-              </div>
-            ) : (
-              // Column View - Grid Layout
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {items.map(item => (
-                  <div
-                    key={item.Item_ID}
-                    onClick={() => setSelectedId(item.Item_ID)}
-                    className="rounded-lg overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer transform hover:scale-105"
-                    style={{ backgroundColor: 'var(--cream-100)' }}
-                  >
-                    {/* Item Image */}
-                    <div className="w-full h-32 bg-gray-100 flex items-center justify-center overflow-hidden" style={{ backgroundColor: 'rgba(212, 162, 78, 0.1)' }}>
-                      {item.Photo_Path ? (
-                        <img src={item.Photo_Path} alt={item.Item_Name} className="w-full h-full object-cover" />
-                      ) : (
-                        <Package className="w-12 h-12" style={{ color: 'var(--gold-500)' }} />
-                      )}
-                    </div>
-
-                    {/* Item Info */}
-                    <div className="p-2.5">
-                      {/* Name */}
-                      <h3 className="font-bold text-xs mb-1" style={{ color: 'var(--navy-900)' }}>
-                        {item.Item_Name}
-                      </h3>
-
-                      {/* Details */}
-                      <p className="text-xs mb-1.5" style={{ color: 'var(--rust-600)' }}>
-                        {item.Item_Color}{item.Item_Brand ? ` · ${item.Item_Brand}` : ''}
-                      </p>
-
-                      {/* Location */}
-                      <div className="flex items-center gap-1 mb-1.5" style={{ color: 'var(--rust-600)' }}>
-                        <MapPin className="w-3 h-3" />
-                        <span className="text-xs">{item.Place_Name}</span>
-                      </div>
-
-                      {/* Status Badge */}
-                      <div className="flex justify-between items-center">
-                        <StatusBadge status={item.Item_Status} />
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setSelectedId(item.Item_ID); }}
-                          className="p-2 rounded hover:opacity-80 transition-opacity"
-                          style={{ color: 'var(--navy-900)' }}
-                          title="View item details"
-                          aria-label={`View details for ${item.Item_Name}`}
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
+                <div className="p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-semibold text-navy-900 leading-snug">{item.Item_Name}</h3>
+                    <StatusBadge status={item.Item_Status} />
                   </div>
-                ))}
-              </div>
-            )}
-
-            {/* Pagination */}
-            {pagination && pagination.total > pagination.limit && (
-              <div className="mt-4 flex justify-center">
-                <Pagination
-                  currentPage={page}
-                  totalPages={pagination.pages}
-                  onPageChange={setPage}
-                />
-              </div>
-            )}
-          </>
+                  <p className="text-xs text-rust-600 mt-1">
+                    {item.Category_Name?.replace(/_/g, ' ')}{item.Item_Brand ? ` · ${item.Item_Brand}` : ''} · {item.Item_Color}
+                  </p>
+                  <div className="flex items-center justify-between mt-3 pt-3 text-xs text-rust-600" style={{ borderTop: '1px solid rgba(212,162,78,0.20)' }}>
+                    <span className="flex items-center gap-1.5 min-w-0"><MapPin className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">{item.Place_Name}</span></span>
+                    <span className="tabular-nums flex-shrink-0">{item.Date_Found}</span>
+                  </div>
+                </div>
+              </Surface>
+            ))}
+          </div>
+        ) : (
+          <Surface className="overflow-hidden p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-[680px]">
+                <thead>
+                  <tr style={{ backgroundColor: 'rgba(212,162,78,0.08)', borderBottom: '1px solid var(--gold-300)' }}>
+                    {['Item', 'Category', 'Details', 'Location', 'Date found', 'Status', ''].map((h) => (
+                      <th key={h} className="text-left px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.06em] text-rust-600">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((item, i) => (
+                    <tr key={item.Item_ID} onClick={() => setSelectedId(item.Item_ID)} className="cursor-pointer transition-colors hover:bg-cream-100" style={{ borderTop: i === 0 ? 'none' : '1px solid rgba(212,162,78,0.18)' }}>
+                      <td className="px-5 py-3">
+                        <div className="flex items-center gap-3">
+                          <span className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(212,162,78,0.14)' }}>
+                            <Package className="w-4 h-4 text-gold-500" />
+                          </span>
+                          <span className="font-semibold text-navy-900">{item.Item_Name}</span>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3 text-rust-600">{item.Category_Name?.replace(/_/g, ' ')}</td>
+                      <td className="px-5 py-3 text-rust-600">{item.Item_Color}{item.Item_Brand ? ` · ${item.Item_Brand}` : ''}</td>
+                      <td className="px-5 py-3 text-rust-600">{item.Place_Name}</td>
+                      <td className="px-5 py-3 text-rust-600 tabular-nums">{item.Date_Found}</td>
+                      <td className="px-5 py-3"><StatusBadge status={item.Item_Status} /></td>
+                      <td className="px-5 py-3 text-right"><ChevronRight className="w-4 h-4 text-rust-600 inline" /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Surface>
         )}
+
+        {!loading && <Pagination pagination={pagination} onPageChange={setPage} />}
       </div>
 
       <Modal isOpen={showForm} onClose={() => setShowForm(false)} title="Register Found Item" size="md">
-        <FoundItemForm onSuccess={() => { setShowForm(false); load(); }} onCancel={() => setShowForm(false)} />
+        <FoundItemForm onSuccess={() => { setShowForm(false); load(); toast('Found item registered successfully', 'success'); }} onCancel={() => setShowForm(false)} />
       </Modal>
 
       <Modal isOpen={!!selectedId} onClose={() => setSelectedId(null)} title="Found Item Details" size="lg">

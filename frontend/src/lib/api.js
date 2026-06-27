@@ -13,7 +13,12 @@ let retryCount = {};
 const MAX_RETRIES = 2;
 
 api.interceptors.response.use(
-  res => res,
+  res => {
+    // A successful response clears any retry bookkeeping for that URL so the
+    // map cannot grow unbounded and stale counts cannot block future retries.
+    if (res.config?.url) delete retryCount[res.config.url];
+    return res;
+  },
   err => {
     if (err.response?.status === 401) {
       localStorage.removeItem('findit_token');
@@ -34,6 +39,8 @@ api.interceptors.response.use(
           }, delay);
         });
       }
+      // Retries exhausted — drop the counter so the next attempt starts fresh.
+      delete retryCount[key];
     }
 
     return Promise.reject(err);

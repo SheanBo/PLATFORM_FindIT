@@ -4,46 +4,31 @@ export default {
   theme: {
     extend: {
       colors: {
-        // FindIT Premium Brand Colors
+        // FindIT brand colors. These reference the CSS custom properties
+        // defined in src/index.css :root so there is a single source of
+        // truth — `text-navy-900` renders identically to inline
+        // `color: var(--navy-900)`.
         navy: {
-          700: '#223259',
-          900: '#16213D',
+          700: 'var(--navy-700)',
+          900: 'var(--navy-900)',
         },
         gold: {
-          300: '#F2CD6B',
-          500: '#D4A24E',
+          300: 'var(--gold-300)',
+          500: 'var(--gold-500)',
         },
         cream: {
-          100: '#FBF3DC',
+          100: 'var(--cream-100)',
         },
         brown: {
-          900: '#4A2511',
+          900: 'var(--brown-900)',
         },
         rust: {
-          600: '#C2741F',
+          600: 'var(--rust-600)',
         },
         status: {
-          blue: {
-            50: '#E8EEFB',
-            100: '#D1DCF7',
-            600: '#3B5FD9',
-            800: '#2340A0',
-            900: '#1A2860',
-          },
-          terracotta: {
-            50: '#F5E5D7',
-            100: '#EBCCB0',
-            500: '#D2691E',
-            600: '#B85C1A',
-            800: '#7A3F0F',
-          },
-          green: {
-            50: '#E8F3ED',
-            100: '#D1E7DB',
-            600: '#2F9E58',
-            800: '#1F6B3A',
-            900: '#0F3D22',
-          },
+          blue: 'var(--status-blue)',
+          green: 'var(--status-green)',
+          terracotta: 'var(--status-terracotta)',
         },
       },
       fontFamily: {

@@ -67,7 +67,7 @@ router.get('/me', authenticate, async (req, res) => {
       SELECT ou.User_ID,ou.Username,ou.Email,ou.Role_Type,ou.Student_ID,ou.Date_Registered,
              p.First_Name,p.Last_Name,p.Department,p.Contact_Number
       FROM ONLINE_USER ou JOIN PERSON p ON ou.Person_ID=p.Person_ID WHERE ou.User_ID=?
-    `, [req.user.userId]);
+    `, [req.user.User_ID]);
     res.json(user);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

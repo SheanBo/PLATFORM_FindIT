@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Search, Filter, Calendar } from 'lucide-react';
+import { Search, Package, FileText, MapPin, Palette, Ruler } from 'lucide-react';
 import api from '../../lib/api';
 import { Link } from 'react-router-dom';
+import { PageHead, Surface, SectionLabel, StatusBadge, Badge } from '../../components/ui/kit';
+
+const COLORS = ['Black', 'White', 'Gray', 'Brown', 'Red', 'Blue', 'Green', 'Yellow', 'Orange', 'Purple', 'Pink', 'Gold', 'Silver', 'Multicolor'];
 
 export default function AdvancedSearchPage() {
   const [categories, setCategories] = useState([]);
@@ -10,113 +13,56 @@ export default function AdvancedSearchPage() {
   const [loading, setLoading] = useState(false);
   const [searchPerformed, setSearchPerformed] = useState(false);
   const [error, setError] = useState('');
-
-  // Filter states
   const [filters, setFilters] = useState({
-    searchTerm: '',
-    category: '',
-    color: '',
-    status: '',
-    dateFrom: '',
-    dateTo: '',
-    location: '',
-    itemType: 'all', // all, lost, found
+    searchTerm: '', category: '', color: '', status: '', dateFrom: '', dateTo: '', location: '', itemType: 'all',
   });
 
-  const COLORS = ['Black', 'White', 'Gray', 'Brown', 'Red', 'Blue', 'Green', 'Yellow', 'Orange', 'Purple', 'Pink', 'Gold', 'Silver', 'Multicolor'];
-
   useEffect(() => {
-    Promise.all([
-      api.get('/findit-dashboard/categories'),
-      api.get('/findit-dashboard/locations'),
-    ])
-      .then(([c, l]) => {
-        setCategories(c.data.data);
-        setLocations(l.data.data);
-      });
+    Promise.all([api.get('/findit-dashboard/categories'), api.get('/findit-dashboard/locations')])
+      .then(([c, l]) => { setCategories(c.data.data); setLocations(l.data.data); });
   }, []);
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSearch = async (e) => {
     e.preventDefault();
     setLoading(true);
     setSearchPerformed(true);
     setError('');
-
     try {
       const [lostRes, foundRes] = await Promise.all([
-        api.get('/findit-lost-reports'),
-        api.get('/findit-found-items'),
+        api.get('/findit-lost-reports', { params: { limit: 100 } }),
+        api.get('/findit-found-items', { params: { limit: 100 } }),
       ]);
+      const lostItems = lostRes.data?.data || [];
+      const foundItems = foundRes.data?.data || [];
 
-      let lostItems = lostRes.data?.data || lostRes.data || [];
-      let foundItems = foundRes.data?.data || foundRes.data || [];
+      const applyFilters = (items, isLost) => items.filter((item) => {
+        const name = (item.Item_Name || '').toLowerCase();
+        const desc = (item.Item_Description || '').toLowerCase();
+        const term = filters.searchTerm.toLowerCase();
+        if (term && !name.includes(term) && !desc.includes(term)) return false;
+        if (filters.category && item.Category_ID != filters.category) return false;
+        if (filters.color && item.Item_Color !== filters.color) return false;
+        if (filters.location && item.Location_ID != filters.location) return false;
+        if (!isLost && filters.status && item.Item_Status !== filters.status) return false;
+        const itemDate = new Date(isLost ? item.Date_Lost : item.Date_Found);
+        if (filters.dateFrom && itemDate < new Date(filters.dateFrom)) return false;
+        if (filters.dateTo && itemDate > new Date(filters.dateTo)) return false;
+        return true;
+      });
 
-      // Apply filters
-      const applyFilters = (items, isLost) => {
-        return items.filter(item => {
-          const itemName = (item.Item_Name || '').toLowerCase();
-          const description = (item.Item_Description || '').toLowerCase();
-          const searchTermLower = filters.searchTerm.toLowerCase();
-
-          // Search term
-          if (searchTermLower && !itemName.includes(searchTermLower) && !description.includes(searchTermLower)) {
-            return false;
-          }
-
-          // Category
-          if (filters.category && item.Category_ID != filters.category) {
-            return false;
-          }
-
-          // Color
-          if (filters.color && item.Item_Color !== filters.color) {
-            return false;
-          }
-
-          // Location
-          if (filters.location && item.Location_ID != filters.location) {
-            return false;
-          }
-
-          // Status (for found items)
-          if (!isLost && filters.status && item.Item_Status !== filters.status) {
-            return false;
-          }
-
-          // Date range
-          const itemDate = new Date(isLost ? item.Date_Lost : item.Date_Found);
-          if (filters.dateFrom && itemDate < new Date(filters.dateFrom)) {
-            return false;
-          }
-          if (filters.dateTo && itemDate > new Date(filters.dateTo)) {
-            return false;
-          }
-
-          return true;
-        });
-      };
-
-      let filteredResults = [];
-
+      let out = [];
       if (filters.itemType === 'lost' || filters.itemType === 'all') {
-        filteredResults = [...filteredResults, ...applyFilters(lostItems, true).map(item => ({
-          ...item,
-          type: 'Lost',
-          typeColor: '#c74545',
-          link: `/lost-reports/${item.Report_ID}`,
-        }))];
+        out = out.concat(applyFilters(lostItems, true).map((i) => ({ ...i, type: 'Lost', link: '/lost-reports' })));
       }
-
       if (filters.itemType === 'found' || filters.itemType === 'all') {
-        filteredResults = [...filteredResults, ...applyFilters(foundItems, false).map(item => ({
-          ...item,
-          type: 'Found',
-          typeColor: '#5c8e6e',
-          link: `/found-items/${item.Item_ID}`,
-        }))];
+        out = out.concat(applyFilters(foundItems, false).map((i) => ({ ...i, type: 'Found', link: '/found-items' })));
       }
-
-      setResults(filteredResults);
+      setResults(out);
     } catch (err) {
       setError(err.response?.data?.error || 'Search failed. Please try again.');
       setResults([]);
@@ -125,233 +71,121 @@ export default function AdvancedSearchPage() {
     }
   };
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
-  };
-
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'white' }}>
-      {/* Header */}
-      <div className="border-b sticky top-0 z-40" style={{ backgroundColor: 'var(--cream-100)', borderColor: 'var(--gold-300)' }}>
-        <div className="p-6 max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold mb-1" style={{ color: 'var(--brown-900)' }}>Advanced Search</h1>
-          <p style={{ color: 'var(--rust-600)' }}>Find lost or found items with detailed filters</p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-white">
+      <div className="max-w-6xl mx-auto px-6 sm:px-8 py-8">
+        <PageHead title="Search" subtitle="Find lost or found items with detailed filters" />
 
-      <div className="p-6 max-w-7xl mx-auto">
-        {/* Search Form */}
-        <div className="rounded-lg shadow-sm p-6 mb-6" style={{ backgroundColor: 'var(--cream-100)' }}>
-          <form onSubmit={handleSearch} className="space-y-6">
-            {/* Search Term */}
-            <div>
-              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--brown-900)' }}>
-                <Search className="w-4 h-4 inline mr-2" />
-                Search Term
-              </label>
-              <input
-                type="text"
-                name="searchTerm"
-                value={filters.searchTerm}
-                onChange={handleFilterChange}
-                placeholder="Search by item name or description..."
-                className="w-full px-4 py-2 rounded-lg border-2"
-                style={{ borderColor: 'var(--gold-300)' }}
-              />
+        {/* Search panel */}
+        <Surface className="p-5 mb-4">
+          <form onSubmit={handleSearch} className="space-y-4">
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-rust-600" />
+              <input className="input pl-9" name="searchTerm" value={filters.searchTerm} onChange={handleFilterChange} placeholder="Describe the item — e.g. black leather wallet" />
             </div>
 
-            {/* Filter Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Item Type */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--brown-900)' }}>Type</label>
-                <select
-                  name="itemType"
-                  value={filters.itemType}
-                  onChange={handleFilterChange}
-                  className="w-full px-4 py-2 rounded-lg border-2"
-                  style={{ borderColor: 'var(--gold-300)' }}
-                >
-                  <option value="all">All Items</option>
-                  <option value="lost">Lost Items</option>
-                  <option value="found">Found Items</option>
+                <SectionLabel className="mb-1.5">Type</SectionLabel>
+                <select className="input" name="itemType" value={filters.itemType} onChange={handleFilterChange}>
+                  <option value="all">Everything</option>
+                  <option value="found">Found items</option>
+                  <option value="lost">Lost reports</option>
                 </select>
               </div>
-
-              {/* Category */}
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--brown-900)' }}>Category</label>
-                <select
-                  name="category"
-                  value={filters.category}
-                  onChange={handleFilterChange}
-                  className="w-full px-4 py-2 rounded-lg border-2"
-                  style={{ borderColor: 'var(--gold-300)' }}
-                >
-                  <option value="">All Categories</option>
-                  {categories.map(c => (
-                    <option key={c.Category_ID} value={c.Category_ID}>
-                      {c.Category_Name.replace(/_/g, ' ')}
-                    </option>
-                  ))}
+                <SectionLabel className="mb-1.5">Category</SectionLabel>
+                <select className="input" name="category" value={filters.category} onChange={handleFilterChange}>
+                  <option value="">Any</option>
+                  {categories.map((c) => <option key={c.Category_ID} value={c.Category_ID}>{c.Category_Name.replace(/_/g, ' ')}</option>)}
                 </select>
               </div>
-
-              {/* Color */}
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--brown-900)' }}>Color</label>
-                <select
-                  name="color"
-                  value={filters.color}
-                  onChange={handleFilterChange}
-                  className="w-full px-4 py-2 rounded-lg border-2"
-                  style={{ borderColor: 'var(--gold-300)' }}
-                >
-                  <option value="">All Colors</option>
-                  {COLORS.map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
+                <SectionLabel className="mb-1.5">Color</SectionLabel>
+                <select className="input" name="color" value={filters.color} onChange={handleFilterChange}>
+                  <option value="">Any</option>
+                  {COLORS.map((c) => <option key={c}>{c}</option>)}
                 </select>
               </div>
-
-              {/* Location */}
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--brown-900)' }}>Location</label>
-                <select
-                  name="location"
-                  value={filters.location}
-                  onChange={handleFilterChange}
-                  className="w-full px-4 py-2 rounded-lg border-2"
-                  style={{ borderColor: 'var(--gold-300)' }}
-                >
-                  <option value="">All Locations</option>
-                  {locations.map(l => (
-                    <option key={l.Location_ID} value={l.Location_ID}>
-                      {l.Place_Name}
-                    </option>
-                  ))}
+                <SectionLabel className="mb-1.5">Location</SectionLabel>
+                <select className="input" name="location" value={filters.location} onChange={handleFilterChange}>
+                  <option value="">Any</option>
+                  {locations.map((l) => <option key={l.Location_ID} value={l.Location_ID}>{l.Place_Name}</option>)}
                 </select>
               </div>
-
-              {/* Status (Found items only) */}
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--brown-900)' }}>Status</label>
-                <select
-                  name="status"
-                  value={filters.status}
-                  onChange={handleFilterChange}
-                  className="w-full px-4 py-2 rounded-lg border-2"
-                  style={{ borderColor: 'var(--gold-300)' }}
-                >
-                  <option value="">All Statuses</option>
+                <SectionLabel className="mb-1.5">Status</SectionLabel>
+                <select className="input" name="status" value={filters.status} onChange={handleFilterChange}>
+                  <option value="">Any</option>
                   <option value="Unclaimed">Unclaimed</option>
                   <option value="Matched">Matched</option>
                   <option value="Claimed">Claimed</option>
                 </select>
               </div>
-            </div>
-
-            {/* Date Range */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--brown-900)' }}>
-                  <Calendar className="w-4 h-4 inline mr-2" />
-                  Date From
-                </label>
-                <input
-                  type="date"
-                  name="dateFrom"
-                  value={filters.dateFrom}
-                  onChange={handleFilterChange}
-                  className="w-full px-4 py-2 rounded-lg border-2"
-                  style={{ borderColor: 'var(--gold-300)' }}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--brown-900)' }}>Date To</label>
-                <input
-                  type="date"
-                  name="dateTo"
-                  value={filters.dateTo}
-                  onChange={handleFilterChange}
-                  className="w-full px-4 py-2 rounded-lg border-2"
-                  style={{ borderColor: 'var(--gold-300)' }}
-                />
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <SectionLabel className="mb-1.5">From</SectionLabel>
+                  <input type="date" className="input" name="dateFrom" value={filters.dateFrom} onChange={handleFilterChange} />
+                </div>
+                <div>
+                  <SectionLabel className="mb-1.5">To</SectionLabel>
+                  <input type="date" className="input" name="dateTo" value={filters.dateTo} onChange={handleFilterChange} />
+                </div>
               </div>
             </div>
 
-            {/* Search Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 font-semibold rounded-lg text-white transition-all"
-              style={{ backgroundColor: 'var(--navy-900)' }}
-            >
-              {loading ? 'Searching...' : 'Search'}
+            <button type="submit" disabled={loading} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-60" style={{ backgroundColor: 'var(--navy-900)' }}>
+              <Search className="w-4 h-4" /> {loading ? 'Searching…' : 'Search'}
             </button>
           </form>
-        </div>
+        </Surface>
 
         {error && (
-          <div className="mb-6 p-4 rounded-lg text-sm" style={{ backgroundColor: '#F5E5D7', color: 'var(--status-terracotta)', border: '1px solid var(--status-terracotta)' }}>
+          <div role="alert" className="mb-4 p-4 rounded-lg text-sm" style={{ backgroundColor: 'rgba(210,105,30,0.08)', color: 'var(--status-terracotta)', border: '1px solid var(--status-terracotta)' }}>
             {error}
           </div>
         )}
 
-        {/* Results */}
         {searchPerformed && (
-          <div>
-            <h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--brown-900)' }}>
-              Results ({results.length})
-            </h2>
+          <>
+            <div className="flex items-center justify-between mb-3">
+              <SectionLabel>{results.length} result{results.length === 1 ? '' : 's'}{filters.searchTerm ? ` for “${filters.searchTerm}”` : ''}</SectionLabel>
+            </div>
 
             {results.length === 0 ? (
-              <div className="rounded-lg p-12 text-center" style={{ backgroundColor: 'var(--cream-100)' }}>
-                <Search className="w-12 h-12 mx-auto mb-3" style={{ color: 'var(--gold-500)' }} aria-hidden="true" />
-                <p className="font-semibold mb-1" style={{ color: 'var(--brown-900)' }}>Nothing matched</p>
-                <p style={{ color: 'var(--rust-600)' }}>Try using different keywords or broader filters</p>
-              </div>
+              <Surface className="p-12 text-center">
+                <Search className="w-10 h-10 mx-auto mb-3 text-gold-500" aria-hidden="true" />
+                <p className="font-semibold text-navy-900 mb-1">Nothing matched</p>
+                <p className="text-rust-600 text-sm">Try different keywords or broader filters.</p>
+              </Surface>
             ) : (
-              <div className="grid gap-4">
+              <div className="space-y-3">
                 {results.map((item, idx) => (
-                  <Link key={idx} to={item.link}>
-                    <div className="rounded-lg p-4 shadow-sm border hover:shadow-md transition-all" style={{ backgroundColor: 'var(--cream-100)', borderColor: 'var(--gold-300)', borderLeftColor: item.typeColor, borderLeftWidth: '4px' }}>
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-sm font-semibold px-3 py-1 rounded" style={{ backgroundColor: item.typeColor + '20', color: item.typeColor }}>
-                              {item.type}
-                            </span>
-                            {item.Item_Status && (
-                              <span className="text-xs font-semibold px-2 py-1 rounded" style={{ backgroundColor: 'var(--gold-300)', color: 'var(--navy-900)' }}>
-                                {item.Item_Status}
-                              </span>
-                            )}
-                          </div>
-                          <h3 className="text-lg font-bold" style={{ color: 'var(--navy-900)' }}>{item.Item_Name}</h3>
-                          <p className="text-sm mt-2" style={{ color: 'var(--rust-600)' }}>
-                            {item.Item_Description?.substring(0, 100)}...
-                          </p>
-                          <div className="flex gap-4 mt-3 text-xs" style={{ color: 'var(--brown-700)' }}>
-                            <span>📍 {item.Place_Name || 'Unknown Location'}</span>
-                            <span>🎨 {item.Item_Color}</span>
-                            {item.Item_Size && <span>📏 {item.Item_Size}</span>}
-                          </div>
+                  <Link key={`${item.type}-${idx}`} to={item.link}>
+                    <Surface className="p-4 flex items-center gap-4 transition-shadow hover:shadow-md">
+                      <span className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(212,162,78,0.14)' }}>
+                        {item.type === 'Found' ? <Package className="w-5 h-5 text-gold-500" /> : <FileText className="w-5 h-5 text-gold-500" />}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge tone={item.type === 'Found' ? 'success' : 'danger'}>{item.type}</Badge>
+                          {item.Item_Status && <StatusBadge status={item.Item_Status} />}
+                          <p className="font-semibold text-navy-900 truncate">{item.Item_Name}</p>
                         </div>
-                        <div className="text-right">
-                          <p className="text-xs" style={{ color: 'var(--rust-600)' }}>
-                            {item.type === 'Lost' ? 'Lost: ' : 'Found: '}
-                            {new Date(item.type === 'Lost' ? item.Date_Lost : item.Date_Found).toLocaleDateString()}
-                          </p>
+                        <div className="flex items-center gap-4 mt-1.5 text-xs text-rust-600 flex-wrap">
+                          <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {item.Place_Name || 'Unknown'}</span>
+                          <span className="flex items-center gap-1"><Palette className="w-3.5 h-3.5" /> {item.Item_Color}</span>
+                          {item.Item_Size && <span className="flex items-center gap-1"><Ruler className="w-3.5 h-3.5" /> {item.Item_Size}</span>}
+                          <span>{item.type === 'Lost' ? 'Lost' : 'Found'} {new Date(item.type === 'Lost' ? item.Date_Lost : item.Date_Found).toLocaleDateString()}</span>
                         </div>
                       </div>
-                    </div>
+                    </Surface>
                   </Link>
                 ))}
               </div>
             )}
-          </div>
+          </>
         )}
       </div>
     </div>

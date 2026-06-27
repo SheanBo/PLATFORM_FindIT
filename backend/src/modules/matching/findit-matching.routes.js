@@ -1,15 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
-const { getDb, getAsync, runAsync, allAsync } = require('../../database/init');
+const { getAsync, runAsync, allAsync } = require('../../database/init');
 const { authenticate, authorize } = require('../../middleware/auth.middleware');
 const { auditLog } = require('../../utils/audit');
+const { parsePagination } = require('../../utils/pagination');
+const { scoreMatch, MATCH_THRESHOLD } = require('./score');
 
 // GET /api/findit-matching  - list all matches
 router.get('/', authenticate, async (req, res) => {
   try {
-    const { status, min_score, page = 1, limit = 10 } = req.query;
-    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const { status, min_score } = req.query;
+    const { page, limit, offset } = parsePagination(req.query);
     const isStudent = req.user.Role_Type === 'Student';
 
     let where = isStudent ? 'WHERE lr.User_ID=?' : 'WHERE 1=1';
@@ -39,9 +41,9 @@ router.get('/', authenticate, async (req, res) => {
       JOIN ONLINE_USER ou ON lr.User_ID=ou.User_ID
       JOIN PERSON p ON ou.Person_ID=p.Person_ID
       ${where} ORDER BY im.Match_Score DESC, im.Date_Created DESC LIMIT ? OFFSET ?
-    `, [...params, parseInt(limit), offset]);
+    `, [...params, limit, offset]);
 
-    res.json({ data: rows, pagination: { total, page: parseInt(page), limit: parseInt(limit), pages: Math.ceil(total / parseInt(limit)) } });
+    res.json({ data: rows, pagination: { total, page, limit, pages: Math.ceil(total / limit) } });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -89,14 +91,9 @@ router.post('/run', authenticate, authorize('Staff','Admin'), async (req, res) =
 
     for (const item of items) {
       for (const report of reports) {
-        let score = 0; const breakdown = {};
-        if (item.Category_ID === report.Category_ID) { score += 30; breakdown.category = 30; } else breakdown.category = 0;
-        if (item.Item_Color && report.Item_Color && item.Item_Color.toLowerCase() === report.Item_Color.toLowerCase()) { score += 20; breakdown.color = 20; } else breakdown.color = 0;
-        if (item.Item_Brand && report.Item_Brand && item.Item_Brand.toLowerCase() === report.Item_Brand.toLowerCase()) { score += 20; breakdown.brand = 20; } else breakdown.brand = 0;
-        if (item.Item_Size && report.Item_Size && item.Item_Size.toLowerCase() === report.Item_Size.toLowerCase()) { score += 15; breakdown.size = 15; } else breakdown.size = 0;
-        if (item.Location_ID === report.Location_ID) { score += 15; breakdown.location = 15; } else breakdown.location = 0;
+        const { score, breakdown } = scoreMatch(item, report);
 
-        if (score >= 75) {
+        if (score >= MATCH_THRESHOLD) {
           const existing = await getAsync('SELECT Match_ID FROM ITEM_MATCH WHERE Item_ID=? AND Report_ID=?', [item.Item_ID, report.Report_ID]);
           if (!existing) {
             await runAsync('INSERT INTO ITEM_MATCH (Item_ID,Report_ID,Match_Score,Score_Breakdown,Match_Type) VALUES (?,?,?,?,"Auto")', [item.Item_ID, report.Report_ID, score, JSON.stringify(breakdown)]);
@@ -127,12 +124,7 @@ router.post('/manual', authenticate, authorize('Staff','Admin'), [
     const report = await getAsync('SELECT * FROM LOST_REPORT WHERE Report_ID=?', [report_id]);
     if (!item || !report) return res.status(404).json({ error: 'Item or report not found' });
 
-    let score = 0; const breakdown = {};
-    if (item.Category_ID === report.Category_ID) { score += 30; breakdown.category = 30; } else breakdown.category = 0;
-    if (item.Item_Color && report.Item_Color && item.Item_Color.toLowerCase() === report.Item_Color.toLowerCase()) { score += 20; breakdown.color = 20; } else breakdown.color = 0;
-    if (item.Item_Brand && report.Item_Brand && item.Item_Brand.toLowerCase() === report.Item_Brand.toLowerCase()) { score += 20; breakdown.brand = 20; } else breakdown.brand = 0;
-    if (item.Item_Size && report.Item_Size && item.Item_Size.toLowerCase() === report.Item_Size.toLowerCase()) { score += 15; breakdown.size = 15; } else breakdown.size = 0;
-    if (item.Location_ID === report.Location_ID) { score += 15; breakdown.location = 15; } else breakdown.location = 0;
+    const { score, breakdown } = scoreMatch(item, report);
 
     const r = await runAsync('INSERT OR IGNORE INTO ITEM_MATCH (Item_ID,Report_ID,Match_Score,Score_Breakdown,Match_Type) VALUES (?,?,?,?,"Manual")', [item_id, report_id, score, JSON.stringify(breakdown)]);
 

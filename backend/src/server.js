@@ -7,13 +7,24 @@ const path = require('path');
 const { initializeDatabase } = require('./database/init');
 const { performanceTracker } = require('./utils/performance');
 
-// Fail fast if the JWT secret is missing or left at the insecure default.
-// Skipped under tests, which set their own throwaway secret.
-if (process.env.NODE_ENV !== 'test') {
-  const secret = process.env.JWT_SECRET;
-  if (!secret || secret === 'findit_super_secret_key_change_in_production') {
+// JWT secret guard. Production fails fast if the secret is missing or left
+// at the insecure default. Development generates a throwaway secret so a
+// fresh clone runs without setup (logins reset on every restart). Tests set
+// their own secret.
+const INSECURE_DEFAULT = 'findit_super_secret_key_change_in_production';
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET === INSECURE_DEFAULT) {
     console.error('FATAL: JWT_SECRET is unset or using the insecure default. Set a strong JWT_SECRET in the environment.');
     process.exit(1);
+  }
+} else if (process.env.NODE_ENV !== 'test') {
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET === INSECURE_DEFAULT) {
+    process.env.JWT_SECRET = require('crypto').randomBytes(32).toString('hex');
+    console.warn(
+      'WARNING: JWT_SECRET is not configured - using a temporary secret for this dev session.\n' +
+      '         Logins will not survive a restart. Copy backend/.env.example to backend/.env\n' +
+      '         and set a strong JWT_SECRET to make sessions persistent.'
+    );
   }
 }
 

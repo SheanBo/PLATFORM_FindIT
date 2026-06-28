@@ -25,7 +25,7 @@ router.get('/', authenticate, async (req, res) => {
       JOIN LOST_REPORT lr ON im.Report_ID=lr.Report_ID ${where}
     `, params);
     const total = countResult.cnt;
-        //commrnt
+
     const rows = await allAsync(`
       SELECT im.*, fi.Item_Name AS Found_Name, fi.Item_Color AS Found_Color, fi.Item_Brand AS Found_Brand,
              fi.Photo_Path AS Found_Photo, ic.Category_Name,

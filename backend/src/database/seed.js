@@ -26,7 +26,8 @@ async function seed() {
           ['Madrigal Building', 'Academic facility'],
           ['Santos Building', 'Houses specific offices and classrooms'],
           ['Alingal Hall', 'Multi-purpose university building'],
-          ['University Gymnasium & Covered Courts', 'Houses the Athletics department and sports facilities'],
+          ['University Gymnasium', 'Houses the Athletics department and sports facilities'],
+          ['Covered Courts', 'Covered sports courts for athletics and school events'],
           ['Jesuit Residence', 'Residence of the Jesuit community on campus'],
         ];
 
@@ -118,7 +119,7 @@ async function seed() {
 
         const locMain = await getAsync('SELECT Location_ID FROM LOCATION WHERE Place_Name="Henry Sy Sr. Hall"', []);
         const locLib = await getAsync(`SELECT Location_ID FROM LOCATION WHERE Place_Name="Fr. James J. O'Brien, S.J. Library"`, []);
-        const locGym = await getAsync('SELECT Location_ID FROM LOCATION WHERE Place_Name="University Gymnasium & Covered Courts"', []);
+        const locGym = await getAsync('SELECT Location_ID FROM LOCATION WHERE Place_Name="University Gymnasium"', []);
         const locCanteen = await getAsync('SELECT Location_ID FROM LOCATION WHERE Place_Name="Alingal Hall"', []);
         const locLab = await getAsync('SELECT Location_ID FROM LOCATION WHERE Place_Name="Engineering Building"', []);
         const locParking = await getAsync('SELECT Location_ID FROM LOCATION WHERE Place_Name="Four Pillars"', []);

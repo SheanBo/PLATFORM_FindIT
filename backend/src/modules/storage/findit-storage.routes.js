@@ -4,7 +4,7 @@ const { body, validationResult } = require('express-validator');
 const { getAsync, runAsync, allAsync } = require('../../database/init');
 const { authenticate, authorize } = require('../../middleware/auth.middleware');
 const { auditLog } = require('../../utils/audit');
-const { recommendStorageType, pickSectionForCategory } = require('./recommend');
+const { recommendStorageType, pickSectionForCategory, OTHERS_BIN_NAME } = require('./recommend');
 
 // GET /api/findit-storage  - list all sections
 router.get('/', authenticate, authorize('Staff','Admin'), async (req, res) => {
@@ -42,13 +42,18 @@ router.get('/recommend', authenticate, authorize('Staff','Admin'), async (req, r
 
     const label = category.Category_Name.replace(/_/g, ' ');
     const place = storageType === 'Office_Safe' ? 'office safe' : 'lockers';
-    res.json({
-      storage_type: storageType,
-      section,
-      reason: section
-        ? `${label} items go in the ${place}; ${section.Section_Name} has the most free space`
-        : `${label} items go in the ${place}, but all ${place} sections are at capacity`
-    });
+    // An 'Other' item routed to its dedicated bin is chosen by designation,
+    // not by free space, so word that path differently.
+    const inOthersBin = category.Category_Name === 'Other' && section && section.Section_Name === OTHERS_BIN_NAME;
+    let reason;
+    if (!section) {
+      reason = `${label} items go in the ${place}, but all ${place} sections are at capacity`;
+    } else if (inOthersBin) {
+      reason = `${label} items go in the dedicated ${OTHERS_BIN_NAME}`;
+    } else {
+      reason = `${label} items go in the ${place}; ${section.Section_Name} has the most free space`;
+    }
+    res.json({ storage_type: storageType, section, reason });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

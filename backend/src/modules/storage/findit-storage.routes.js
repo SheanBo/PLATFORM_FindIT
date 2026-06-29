@@ -4,7 +4,7 @@ const { body, validationResult } = require('express-validator');
 const { getAsync, runAsync, allAsync } = require('../../database/init');
 const { authenticate, authorize } = require('../../middleware/auth.middleware');
 const { auditLog } = require('../../utils/audit');
-const { recommendStorageType, pickSection } = require('./recommend');
+const { recommendStorageType, pickSectionForCategory } = require('./recommend');
 
 // GET /api/findit-storage  - list all sections
 router.get('/', authenticate, authorize('Staff','Admin'), async (req, res) => {
@@ -38,7 +38,7 @@ router.get('/recommend', authenticate, authorize('Staff','Admin'), async (req, r
       LEFT JOIN FOUND_ITEM fi ON fi.Section_ID=ss.Section_ID AND fi.Item_Status NOT IN ('Claimed','Disposed')
       GROUP BY ss.Section_ID
     `, []);
-    const section = pickSection(sections, storageType);
+    const section = pickSectionForCategory(sections, category.Category_Name, storageType);
 
     const label = category.Category_Name.replace(/_/g, ' ');
     const place = storageType === 'Office_Safe' ? 'office safe' : 'lockers';

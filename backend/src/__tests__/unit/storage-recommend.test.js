@@ -1,4 +1,4 @@
-const { recommendStorageType, pickSection, SAFE_CATEGORIES } = require('../../modules/storage/recommend');
+const { recommendStorageType, pickSection, pickSectionForCategory, OTHERS_BIN_NAME, SAFE_CATEGORIES } = require('../../modules/storage/recommend');
 
 describe('recommendStorageType', () => {
   test.each([...SAFE_CATEGORIES])('%s goes to the office safe', (name) => {
@@ -47,5 +47,39 @@ describe('pickSection', () => {
       { Section_ID: 8, Storage_Type: 'Locker', Capacity: 20, Current_Load: 1 },
     ];
     expect(pickSection(rows, 'Locker').Section_ID).toBe(8);
+  });
+});
+
+describe('pickSectionForCategory', () => {
+  const sections = [
+    { Section_ID: 1, Storage_Type: 'Locker', Section_Name: 'Locker A', Capacity: 20, Actual_Load: 5 },
+    { Section_ID: 2, Storage_Type: 'Locker', Section_Name: OTHERS_BIN_NAME, Capacity: 20, Actual_Load: 18 },
+    { Section_ID: 3, Storage_Type: 'Office_Safe', Section_Name: 'Safe A', Capacity: 10, Actual_Load: 2 },
+  ];
+
+  test('Other category picks the Others Bin even when another locker has more free space', () => {
+    const section = pickSectionForCategory(sections, 'Other', 'Locker');
+    expect(section.Section_ID).toBe(2);
+  });
+
+  test('Other category falls back to the least-loaded locker when the Others Bin is full', () => {
+    const full = sections.map(s => s.Section_Name === OTHERS_BIN_NAME ? { ...s, Actual_Load: s.Capacity } : s);
+    const section = pickSectionForCategory(full, 'Other', 'Locker');
+    expect(section.Section_ID).toBe(1);
+  });
+
+  test('Other category falls back to the least-loaded locker when the Others Bin is missing', () => {
+    const withoutBin = sections.filter(s => s.Section_Name !== OTHERS_BIN_NAME);
+    const section = pickSectionForCategory(withoutBin, 'Other', 'Locker');
+    expect(section.Section_ID).toBe(1);
+  });
+
+  test('non-Other category ignores the Others Bin and behaves like pickSection', () => {
+    const section = pickSectionForCategory(sections, 'Wallet', 'Office_Safe');
+    expect(section.Section_ID).toBe(3);
+  });
+
+  test('returns null when no matching section exists at all', () => {
+    expect(pickSectionForCategory([], 'Other', 'Locker')).toBeNull();
   });
 });

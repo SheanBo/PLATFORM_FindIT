@@ -98,7 +98,7 @@ router.get('/locations', authenticate, async (req, res) => {
 // GET /api/findit-dashboard/categories
 router.get('/categories', authenticate, async (req, res) => {
   try {
-    const categories = await allAsync('SELECT * FROM ITEM_CATEGORY ORDER BY Category_Name', []);
+    const categories = await allAsync("SELECT * FROM ITEM_CATEGORY ORDER BY (Category_Name='Other'), Category_Name", []);
     res.json({ data: categories });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

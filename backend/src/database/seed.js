@@ -13,18 +13,21 @@ async function seed() {
       try {
         // Insert locations
         const locations = [
-          ['Main Building', 'Main academic building'],
-          ['Library', 'University library'],
-          ['Bonoan Gymnasium', 'Main gymnasium'],
-          ['Xavier Grounds', 'Open grounds near Xavier Hall'],
-          ['4 Pillars', 'Entrance area'],
-          ['Canteen', 'University canteen'],
-          ['Chapel', 'University chapel'],
-          ['Computer Laboratory', 'DCS computer labs'],
-          ['Parking Area', 'Campus parking lot'],
-          ['Clinic', 'University clinic'],
-          ['Sports Complex', 'Athletic facilities'],
-          ['Dormitory A', 'Student dormitory building A'],
+          ['Four Pillars', 'Iconic historical landmark at the entrance, built in 1940'],
+          ['Henry Sy Sr. Hall', 'Primary Administration Building'],
+          ["Fr. James J. O'Brien, S.J. Library", 'Central university library and information hub'],
+          ['Christ the King University Church', 'Main place of worship on campus'],
+          ['Fr. Hilario Belardo, S.J. Hall', 'Senior High School (SHS) building'],
+          ['Engineering Building', 'Houses the College of Science, Engineering, and Architecture'],
+          ['Arrupe Hall', 'Contains general classrooms and university offices'],
+          ['Xavier Hall', 'Houses various administrative and formation offices'],
+          ['Burns Hall', 'Houses institutional offices on the upper floors and the Center for Community Development (CCD) on the ground floor'],
+          ['Raul Bonoan, S.J. Building', 'Multi-purpose academic and office facility'],
+          ['Madrigal Building', 'Academic facility'],
+          ['Santos Building', 'Houses specific offices and classrooms'],
+          ['Alingal Hall', 'Multi-purpose university building'],
+          ['University Gymnasium & Covered Courts', 'Houses the Athletics department and sports facilities'],
+          ['Jesuit Residence', 'Residence of the Jesuit community on campus'],
         ];
 
         for (const l of locations) {
@@ -63,6 +66,7 @@ async function seed() {
           ['Locker', 'Locker A2', 20],
           ['Locker', 'Locker B1', 20],
           ['Locker', 'Locker B2', 20],
+          ['Locker', 'Others Bin', 20],
           ['Office_Safe', 'Safe 1', 10],
           ['Office_Safe', 'Safe 2', 10],
         ];
@@ -112,12 +116,12 @@ async function seed() {
         const catEyewear = await getAsync('SELECT Category_ID FROM ITEM_CATEGORY WHERE Category_Name="Eyewear"', []);
         const catJewelry = await getAsync('SELECT Category_ID FROM ITEM_CATEGORY WHERE Category_Name="Jewelry"', []);
 
-        const locMain = await getAsync('SELECT Location_ID FROM LOCATION WHERE Place_Name="Main Building"', []);
-        const locLib = await getAsync('SELECT Location_ID FROM LOCATION WHERE Place_Name="Library"', []);
-        const locGym = await getAsync('SELECT Location_ID FROM LOCATION WHERE Place_Name="Bonoan Gymnasium"', []);
-        const locCanteen = await getAsync('SELECT Location_ID FROM LOCATION WHERE Place_Name="Canteen"', []);
-        const locLab = await getAsync('SELECT Location_ID FROM LOCATION WHERE Place_Name="Computer Laboratory"', []);
-        const locParking = await getAsync('SELECT Location_ID FROM LOCATION WHERE Place_Name="Parking Area"', []);
+        const locMain = await getAsync('SELECT Location_ID FROM LOCATION WHERE Place_Name="Henry Sy Sr. Hall"', []);
+        const locLib = await getAsync(`SELECT Location_ID FROM LOCATION WHERE Place_Name="Fr. James J. O'Brien, S.J. Library"`, []);
+        const locGym = await getAsync('SELECT Location_ID FROM LOCATION WHERE Place_Name="University Gymnasium & Covered Courts"', []);
+        const locCanteen = await getAsync('SELECT Location_ID FROM LOCATION WHERE Place_Name="Alingal Hall"', []);
+        const locLab = await getAsync('SELECT Location_ID FROM LOCATION WHERE Place_Name="Engineering Building"', []);
+        const locParking = await getAsync('SELECT Location_ID FROM LOCATION WHERE Place_Name="Four Pillars"', []);
 
         const secLocker = await getAsync('SELECT Section_ID FROM STORAGE_SECTION WHERE Storage_Type="Locker" LIMIT 1', []);
         const secSafe = await getAsync('SELECT Section_ID FROM STORAGE_SECTION WHERE Storage_Type="Office_Safe" LIMIT 1', []);

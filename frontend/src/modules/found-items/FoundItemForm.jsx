@@ -12,6 +12,7 @@ export default function FoundItemForm({ onSuccess, onCancel }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [photo, setPhoto] = useState(null);
+  const [photoError, setPhotoError] = useState('');
   const [recommendation, setRecommendation] = useState(null);
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm();
   const storageType = watch('storage_type');
@@ -46,17 +47,20 @@ export default function FoundItemForm({ onSuccess, onCancel }) {
   const filteredSections = sections.filter(s => !storageType || s.Storage_Type === storageType);
 
   const handleFileChange = (e) => {
-    setPhoto(e.target.files?.[0] || null);
+    const file = e.target.files?.[0] || null;
+    setPhoto(file);
+    if (file) setPhotoError('');
   };
 
   const clearFile = () => setPhoto(null);
 
   const onSubmit = async (data) => {
+    if (!photo) { setPhotoError('Required — a photo helps the owner confirm it\'s theirs'); return; }
     setLoading(true); setError('');
     try {
       const fd = new FormData();
       Object.entries(data).forEach(([k, v]) => { if (v !== undefined && v !== '') fd.append(k, v); });
-      if (photo) fd.append('photo', photo);
+      fd.append('photo', photo);
       await api.post('/findit-found-items', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       onSuccess();
     } catch (err) { setError(err.response?.data?.error || 'Failed to register item'); }
@@ -169,7 +173,7 @@ export default function FoundItemForm({ onSuccess, onCancel }) {
 
           {/* Photo */}
           <div className="col-span-2">
-            <label className="label mb-2">Photo <span style={{ color: '#9CA3AF' }}>(Optional)</span></label>
+            <label htmlFor="photo" className="label mb-2">Photo</label>
             {photo && (
               <div className="mb-4 border-2 border-solid rounded-lg p-3 flex items-center justify-between" style={{ borderColor: 'var(--status-green)', backgroundColor: 'rgba(47, 158, 88, 0.05)' }}>
                 <div className="flex items-center gap-2">
@@ -181,12 +185,13 @@ export default function FoundItemForm({ onSuccess, onCancel }) {
                 </button>
               </div>
             )}
-            <div className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:bg-opacity-10 transition-all" style={{ borderColor: 'var(--gold-300)', backgroundColor: 'rgba(212, 162, 78, 0.05)' }}>
+            <div className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:bg-opacity-10 transition-all" style={{ borderColor: photoError ? 'var(--status-terracotta)' : 'var(--gold-300)', backgroundColor: 'rgba(212, 162, 78, 0.05)' }}>
               <Upload className="w-5 h-5 mx-auto mb-2" style={{ color: 'var(--gold-500)' }} />
               <p className="text-xs mb-2" style={{ color: 'var(--rust-600)' }}>Upload a photo</p>
-              <input className="hidden" type="file" accept="image/*" onChange={handleFileChange} id="photo" />
+              <input className="hidden" type="file" accept="image/*" onChange={handleFileChange} id="photo" aria-invalid={photoError ? 'true' : undefined} aria-describedby={photoError ? 'photo-error' : undefined} />
               <label htmlFor="photo" className="cursor-pointer text-xs font-semibold" style={{ color: 'var(--navy-900)' }}>Choose file</label>
             </div>
+            {photoError && <p id="photo-error" role="alert" className="text-xs mt-1" style={{ color: 'var(--status-terracotta)' }}>{photoError}</p>}
           </div>
         </div>
 

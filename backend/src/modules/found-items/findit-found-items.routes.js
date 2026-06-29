@@ -76,12 +76,13 @@ router.post('/', authenticate, authorize('Staff','Admin'), upload.single('photo'
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+  if (!req.file) return res.status(400).json({ error: 'A photo of the item is required' });
 
   try {
     const { category_id, location_id, item_name, item_description, item_color,
             item_size, item_brand, serial_number, date_found, detail_location,
             storage_type, section_id, found_by_contact } = req.body;
-    const photo_path = req.file ? `/uploads/${req.file.filename}` : null;
+    const photo_path = `/uploads/${req.file.filename}`;
 
     const result = await runAsync(`
       INSERT INTO FOUND_ITEM

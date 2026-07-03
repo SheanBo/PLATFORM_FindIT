@@ -123,7 +123,7 @@ export default function AdvancedSearchPage() {
                   <option value="Claimed">Claimed</option>
                 </select>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="col-span-2 sm:col-span-1 grid grid-cols-2 gap-2">
                 <div>
                   <SectionLabel className="mb-1.5">From</SectionLabel>
                   <input type="date" className="input" name="dateFrom" value={filters.dateFrom} onChange={handleFilterChange} />

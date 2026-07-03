@@ -47,7 +47,8 @@ router.get('/:id', authenticate, async (req, res) => {
              fi.Item_Description AS Found_Description, fi.Photo_Path AS Found_Photo,
              lr.Item_Name AS Lost_Name, ic.Category_Name,
              p.First_Name, p.Last_Name, ou.Username, ou.Email,
-             vp.First_Name AS Verifier_First, vp.Last_Name AS Verifier_Last
+             vp.First_Name AS Verifier_First, vp.Last_Name AS Verifier_Last,
+             im.Match_Score, im.Score_Breakdown
       FROM CLAIM c
       JOIN FOUND_ITEM fi ON c.Item_ID=fi.Item_ID
       JOIN LOST_REPORT lr ON c.Report_ID=lr.Report_ID
@@ -56,12 +57,14 @@ router.get('/:id', authenticate, async (req, res) => {
       JOIN PERSON p ON ou.Person_ID=p.Person_ID
       LEFT JOIN ONLINE_USER vou ON c.Verified_By_ID=vou.User_ID
       LEFT JOIN PERSON vp ON vou.Person_ID=vp.Person_ID
+      LEFT JOIN ITEM_MATCH im ON c.Match_ID=im.Match_ID
       WHERE c.Claim_ID=?
     `, [req.params.id]);
     if (!claim) return res.status(404).json({ error: 'Claim not found' });
     if (req.user.Role_Type === 'Student' && claim.User_ID !== req.user.User_ID)
       return res.status(403).json({ error: 'Access denied' });
-    res.json(claim);
+    const breakdown = claim.Score_Breakdown ? JSON.parse(claim.Score_Breakdown) : null;
+    res.json({ ...claim, breakdown });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

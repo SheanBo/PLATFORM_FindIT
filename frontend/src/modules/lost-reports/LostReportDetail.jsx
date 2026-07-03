@@ -72,12 +72,11 @@ export default function LostReportDetail({ id, onClose, onRefresh }) {
         </div>
       )}
 
-      <div className="flex gap-3 pt-2 border-t">
-        {(user.role !== 'Student' || report.User_ID === user.id) && report.Report_Status === 'Active' && (
+      {(user.role !== 'Student' || report.User_ID === user.id) && report.Report_Status === 'Active' && (
+        <div className="flex gap-3 pt-2 border-t">
           <button onClick={() => setCancelOpen(true)} className="btn-danger">Cancel Report</button>
-        )}
-        <button onClick={onClose} className="btn-secondary ml-auto">Close</button>
-      </div>
+        </div>
+      )}
 
       <ConfirmDialog isOpen={cancelOpen} onClose={() => setCancelOpen(false)} onConfirm={handleCancel}
         title="Cancel Report" message="Are you sure you want to cancel this report?" confirmLabel="Cancel Report" danger />

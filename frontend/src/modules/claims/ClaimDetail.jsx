@@ -68,10 +68,36 @@ export default function ClaimDetail({ id, onClose, onRefresh }) {
           </div>
           <div>
             <p style={{ color: 'var(--rust-600)' }} className="text-xs font-semibold mb-1">MATCH SCORE</p>
-            <p style={{ color: 'var(--navy-900)' }} className="font-semibold">{claim.Match_Score || 'N/A'} / 100</p>
+            <p style={{ color: 'var(--navy-900)' }} className="font-semibold">{claim.Match_Score ?? 'N/A'} / 100</p>
           </div>
         </div>
       </div>
+
+      {/* Match Score Breakdown */}
+      {claim.breakdown && (
+        <div className="bg-white rounded-lg p-6 border" style={{ borderColor: 'var(--gold-300)' }}>
+          <h4 className="font-semibold mb-4 text-sm" style={{ color: 'var(--brown-900)' }}>MATCH SCORE BREAKDOWN</h4>
+          <div className="space-y-4">
+            {[['Category', 'category', 20], ['Color', 'color', 15], ['Brand', 'brand', 30], ['Size', 'size', 20], ['Location', 'location', 15]].map(([label, key, max]) => (
+              <div key={key}>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm font-semibold" style={{ color: 'var(--brown-900)' }}>{label}</span>
+                  <span className="text-sm font-bold" style={{ color: 'var(--navy-900)' }}>{claim.breakdown[key] || 0}/{max}</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div
+                    className="h-2.5 rounded-full transition-all"
+                    style={{
+                      width: `${((claim.breakdown[key] || 0) / max) * 100}%`,
+                      backgroundColor: claim.breakdown[key] > 0 ? 'var(--status-green)' : 'var(--gold-300)'
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Photos Comparison */}
       <div className="grid md:grid-cols-2 gap-6">
@@ -143,11 +169,6 @@ export default function ClaimDetail({ id, onClose, onRefresh }) {
           <button onClick={acknowledge} className="w-full py-3 rounded-lg font-semibold text-white transition-all" style={{ backgroundColor: 'var(--status-green)' }}>Acknowledge Receipt</button>
         </div>
       )}
-
-      {/* Close Button */}
-      <div className="flex justify-end pt-4 border-t" style={{ borderColor: 'var(--gold-300)' }}>
-        <button onClick={onClose} className="px-6 py-3 rounded-lg font-semibold transition-all border" style={{ color: 'var(--brown-900)', borderColor: 'var(--gold-300)', backgroundColor: 'white' }}>Close</button>
-      </div>
     </div>
   );
 }

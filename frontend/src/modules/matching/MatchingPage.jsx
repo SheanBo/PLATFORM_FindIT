@@ -110,16 +110,16 @@ export default function MatchingPage() {
           title="Matches"
           subtitle="Suggested pairings between found items and lost reports"
           actions={
-            <>
-              <button onClick={exportCSV} disabled={matches.length === 0} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-navy-900 disabled:opacity-50" style={{ backgroundColor: 'var(--gold-300)' }}>
-                <Download className="w-4 h-4" /> Export
-              </button>
-              {canManage && (
+            canManage && (
+              <>
+                <button onClick={exportCSV} disabled={matches.length === 0} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-navy-900 disabled:opacity-50" style={{ backgroundColor: 'var(--gold-300)' }}>
+                  <Download className="w-4 h-4" /> Export
+                </button>
                 <button onClick={runAutoMatch} disabled={running} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-60" style={{ backgroundColor: 'var(--navy-900)' }}>
                   {running ? <span className="loading-spinner" /> : <Play className="w-4 h-4" />} {running ? 'Running…' : 'Run auto-match'}
                 </button>
-              )}
-            </>
+              </>
+            )
           }
         />
 
@@ -144,7 +144,7 @@ export default function MatchingPage() {
           <div className="space-y-3">
             {sorted.map((m) => (
               <Surface key={m.Match_ID} className="p-5 cursor-pointer transition-shadow hover:shadow-md" onClick={() => setSelectedId(m.Match_ID)}>
-                <div className="flex items-center gap-4 flex-wrap">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                   <Side icon={Package} label="Found item" title={m.Found_Name} sub={`Match #${m.Match_ID} · ${m.Match_Type}`} />
 
                   <div className="flex flex-col items-center px-2">

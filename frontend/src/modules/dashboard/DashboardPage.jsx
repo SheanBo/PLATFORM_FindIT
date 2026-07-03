@@ -93,7 +93,7 @@ export default function DashboardPage() {
           <Kpi icon={Package} label="Unclaimed" value={stats?.Unclaimed_Items} foot="items in storage" to="/found-items?status=Unclaimed" />
           <Kpi icon={GitCompareArrows} label="Pending matches" value={stats?.Pending_Matches} foot="awaiting review" to="/matching?status=Pending" />
           <Kpi icon={ClipboardCheck} label="Pending claims" value={stats?.Pending_Claims} foot="awaiting verification" to="/claims?status=Pending" />
-          <Kpi icon={AlertTriangle} label="Expired" value={stats?.Expired_Items} foot="over 30 days unclaimed" to="/storage" />
+          <Kpi icon={AlertTriangle} label="Expired" value={stats?.Expired_Items} foot="over 30 days unclaimed" to="/storage?expired=1" />
         </div>
 
         {/* Main split */}

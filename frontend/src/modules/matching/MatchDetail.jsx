@@ -53,7 +53,7 @@ export default function MatchDetail({ id, onClose, onRefresh }) {
           {match.Found_Photo && <img src={match.Found_Photo} alt="" className="w-full h-40 object-cover mb-4 rounded-lg" />}
           <div className="space-y-2 text-sm">
             <p className="font-bold" style={{ color: 'var(--navy-900)' }}>{match.Found_Item_Name}</p>
-            <p style={{ color: 'var(--rust-600)' }}>{match.Category_Name?.replace(/_/g,' ')} · {match.Found_Color} · Coach</p>
+            <p style={{ color: 'var(--rust-600)' }}>{match.Category_Name?.replace(/_/g,' ')} · {match.Found_Color}{match.Found_Brand ? ` · ${match.Found_Brand}` : ''}</p>
             <div className="mt-3 pt-3 border-t" style={{ borderColor: 'var(--gold-300)' }}>
               <p style={{ color: 'var(--rust-600)' }}>
                 <span className="font-semibold">Location:</span> {match.Found_Location}
@@ -88,7 +88,7 @@ export default function MatchDetail({ id, onClose, onRefresh }) {
       <div className="bg-white rounded-lg p-6 border" style={{ borderColor: 'var(--gold-300)' }}>
         <h4 className="font-semibold mb-4 text-sm" style={{ color: 'var(--brown-900)' }}>MATCH SCORE BREAKDOWN</h4>
         <div className="space-y-4">
-          {[['Category', 'category', 40], ['Color', 'color', 20], ['Brand', 'brand', 20], ['Size', 'size', 10], ['Location', 'location', 10]].map(([label, key, max]) => (
+          {[['Category', 'category', 20], ['Color', 'color', 15], ['Brand', 'brand', 30], ['Size', 'size', 20], ['Location', 'location', 15]].map(([label, key, max]) => (
             <div key={key}>
               <div className="flex justify-between items-center mb-1">
                 <span className="text-sm font-semibold" style={{ color: 'var(--brown-900)' }}>{label}</span>

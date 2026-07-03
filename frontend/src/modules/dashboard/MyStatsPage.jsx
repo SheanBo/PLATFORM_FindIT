@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../lib/AuthContext';
 import { Link } from 'react-router-dom';
 import api from '../../lib/api';
-import { FileText, GitCompareArrows, ClipboardCheck, Plus, ArrowUpRight, Sparkles, MapPin } from 'lucide-react';
-import { PageHead, Surface, SectionLabel, StatusBadge } from '../../components/ui/kit';
+import { FileText, GitCompareArrows, ClipboardCheck, ArrowUpRight, Sparkles, MapPin, Trophy, HandHeart } from 'lucide-react';
+import { PageHead, Surface, SectionLabel, StatusBadge, Meter } from '../../components/ui/kit';
 
 function Stat({ icon: Icon, value, label, to }) {
   return (
@@ -21,11 +21,33 @@ function Stat({ icon: Icon, value, label, to }) {
   );
 }
 
+// One ranked entry in a leaderboard. The top three get a gold rank badge for
+// the "leaderboard" flourish; the rest stay muted.
+function LeaderRow({ rank, label, count, value, max }) {
+  const isPodium = rank <= 3;
+  return (
+    <div className="flex items-center gap-3">
+      <span
+        className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+        style={isPodium
+          ? { backgroundColor: 'var(--gold-500)', color: 'var(--navy-900)' }
+          : { backgroundColor: 'rgba(212,162,78,0.14)', color: 'var(--rust-600)' }}
+      >
+        {rank}
+      </span>
+      <span className="text-sm text-navy-900 flex-1 min-w-0 truncate">{label}</span>
+      <div className="w-20 flex-shrink-0"><Meter value={value} max={max} /></div>
+      <span className="text-sm font-semibold text-navy-900 w-6 text-right tabular-nums">{count}</span>
+    </div>
+  );
+}
+
 export default function MyStatsPage() {
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [reports, setReports] = useState([]);
   const [matches, setMatches] = useState([]);
+  const [community, setCommunity] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,12 +56,14 @@ export default function MyStatsPage() {
       api.get('/findit-dashboard/my-stats'),
       api.get('/findit-lost-reports', { params: { limit: 5 } }),
       api.get('/findit-matching', { params: { limit: 3 } }),
+      api.get('/findit-dashboard/community-stats'),
     ])
-      .then(([s, r, m]) => {
+      .then(([s, r, m, c]) => {
         if (!mounted) return;
         setStats(s.data);
         setReports(r.data.data || []);
         setMatches(m.data.data || []);
+        setCommunity(c.data);
       })
       .catch(() => {})
       .finally(() => { if (mounted) setLoading(false); });
@@ -51,6 +75,13 @@ export default function MyStatsPage() {
   const totalClaims = stats?.my_claims?.reduce((s, c) => s + c.cnt, 0) || 0;
 
   const activeReports = reports.filter((r) => ['Active', 'Matched'].includes(r.Report_Status)).slice(0, 5);
+
+  const topCategories = community?.top_categories || [];
+  const topLocations = community?.top_locations || [];
+  const recoveredCount = community?.recovered_count || 0;
+  const maxCat = Math.max(1, ...topCategories.map((c) => c.cnt));
+  const maxLoc = Math.max(1, ...topLocations.map((l) => l.cnt));
+  const hasCommunity = topCategories.length > 0 || topLocations.length > 0 || recoveredCount > 0;
 
   if (loading) {
     return (
@@ -69,11 +100,6 @@ export default function MyStatsPage() {
         <PageHead
           title={`Welcome back, ${user?.first_name || ''}`.trim()}
           subtitle="Track your reports and any items we've matched to them"
-          actions={
-            <Link to="/lost-reports" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: 'var(--navy-900)' }}>
-              <Plus className="w-4 h-4" /> File a lost report
-            </Link>
-          }
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -138,6 +164,61 @@ export default function MyStatsPage() {
             )}
           </Surface>
         </div>
+
+        {/* Campus trends */}
+        {hasCommunity && (
+          <div className="mt-8">
+            <h2 className="text-navy-900 font-semibold mb-1">Campus trends</h2>
+            <p className="text-sm text-rust-600 mb-4">What goes missing most across campus — and how many items find their way home.</p>
+
+            {/* Recovered banner */}
+            <div className="rounded-xl p-5 mb-4 flex items-center gap-4" style={{ background: 'linear-gradient(90deg, rgba(212,162,78,0.16), rgba(212,162,78,0.04))', border: '1px solid var(--gold-300)' }}>
+              <span className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'var(--gold-500)' }}>
+                <HandHeart className="w-6 h-6" style={{ color: 'var(--navy-900)' }} aria-hidden="true" />
+              </span>
+              <div>
+                <p className="font-bold text-navy-900" style={{ fontSize: '1.75rem', lineHeight: 1 }}>{recoveredCount}</p>
+                <p className="text-sm text-rust-600 mt-1">{recoveredCount === 1 ? 'item reunited with its owner' : 'items reunited with their owners'}</p>
+              </div>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-4">
+              {/* Most-lost leaderboard */}
+              <Surface className="p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <Trophy className="w-4 h-4 text-gold-500" aria-hidden="true" />
+                  <h3 className="text-navy-900 font-semibold">Most-lost items</h3>
+                </div>
+                {topCategories.length === 0 ? (
+                  <p className="text-sm text-rust-600 py-6 text-center">No reports filed yet.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {topCategories.map((c, i) => (
+                      <LeaderRow key={c.Category_Name} rank={i + 1} label={c.Category_Name?.replace(/_/g, ' ')} count={c.cnt} value={c.cnt} max={maxCat} />
+                    ))}
+                  </div>
+                )}
+              </Surface>
+
+              {/* Lost hotspots */}
+              <Surface className="p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <MapPin className="w-4 h-4 text-gold-500" aria-hidden="true" />
+                  <h3 className="text-navy-900 font-semibold">Lost hotspots</h3>
+                </div>
+                {topLocations.length === 0 ? (
+                  <p className="text-sm text-rust-600 py-6 text-center">No reports filed yet.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {topLocations.map((l, i) => (
+                      <LeaderRow key={l.Place_Name} rank={i + 1} label={l.Place_Name} count={l.cnt} value={l.cnt} max={maxLoc} />
+                    ))}
+                  </div>
+                )}
+              </Surface>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

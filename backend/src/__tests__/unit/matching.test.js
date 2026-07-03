@@ -21,7 +21,7 @@ describe('Matching Algorithm (scoreMatch)', () => {
 
     const { score, breakdown } = scoreMatch(item, report);
     expect(score).toBe(100);
-    expect(breakdown).toEqual({ category: 30, color: 20, brand: 20, size: 15, location: 15 });
+    expect(breakdown).toEqual({ category: 20, color: 15, brand: 30, size: 20, location: 15 });
   });
 
   test('should not match with category difference', () => {
@@ -32,9 +32,11 @@ describe('Matching Algorithm (scoreMatch)', () => {
     expect(breakdown.category).toBe(0);
   });
 
-  test('should match category + color (50 points - below 75 threshold)', () => {
+  test('should match category + color only (35 points - coincidental overlap stays well below threshold)', () => {
     // Null out the other optional fields and differ the location so only
-    // category (30) + color (20) contribute.
+    // category (20) + color (15) contribute. These are the two most
+    // common/low-cardinality attributes, so overlapping on them alone
+    // must not read as a strong match.
     const item = createTestItem({
       Category_ID: 1,
       Item_Color: 'Black',
@@ -52,13 +54,11 @@ describe('Matching Algorithm (scoreMatch)', () => {
     });
 
     const { score } = scoreMatch(item, report);
-    expect(score).toBe(50); // Not enough for automatic match
+    expect(score).toBe(35);
     expect(score).toBeLessThan(MATCH_THRESHOLD);
   });
 
-  test('should match category + color + brand (70 points - just below threshold)', () => {
-    // 70 is the highest achievable score below the threshold; a score of
-    // exactly 75 is impossible with weights {30,20,20,15,15}.
+  test('should match category + color + brand (65 points - still below threshold without size or location)', () => {
     const item = createTestItem({
       Category_ID: 1,
       Item_Color: 'Black',
@@ -76,25 +76,26 @@ describe('Matching Algorithm (scoreMatch)', () => {
     });
 
     const { score } = scoreMatch(item, report);
-    expect(score).toBe(70);
+    expect(score).toBe(65);
     expect(score).toBeLessThan(MATCH_THRESHOLD);
   });
 
-  test('should match category + color + size + location (80 points - above 75 threshold)', () => {
-    // 80 is the lowest achievable score at or above the threshold.
+  test('should match category + color + brand + location (80 points - at the threshold)', () => {
+    // 80 is the lowest achievable score at or above the new threshold, and
+    // it requires brand (the most distinctive attribute) to be part of it.
     const item = createTestItem({
       Category_ID: 1,
       Item_Color: 'Black',
-      Item_Size: 'Medium',
-      Item_Brand: null,
+      Item_Brand: 'Coach',
+      Item_Size: null,
       Location_ID: 1
     });
 
     const report = createTestReport({
       Category_ID: 1,
       Item_Color: 'Black',
-      Item_Size: 'Medium',
-      Item_Brand: null,
+      Item_Brand: 'Coach',
+      Item_Size: null,
       Location_ID: 1
     });
 
@@ -103,8 +104,32 @@ describe('Matching Algorithm (scoreMatch)', () => {
     expect(score).toBeGreaterThanOrEqual(MATCH_THRESHOLD);
   });
 
-  test('threshold is 75', () => {
-    expect(MATCH_THRESHOLD).toBe(75);
+  test('should not reach threshold without brand, even with category + color + size + location', () => {
+    // Confirms brand is the load-bearing attribute: all the "common"
+    // fields matching isn't enough on its own.
+    const item = createTestItem({
+      Category_ID: 1,
+      Item_Color: 'Black',
+      Item_Size: 'Medium',
+      Item_Brand: null,
+      Location_ID: 1
+    });
+
+    const report = createTestReport({
+      Category_ID: 1,
+      Item_Color: 'Black',
+      Item_Size: 'Medium',
+      Item_Brand: null,
+      Location_ID: 1
+    });
+
+    const { score } = scoreMatch(item, report);
+    expect(score).toBe(70);
+    expect(score).toBeLessThan(MATCH_THRESHOLD);
+  });
+
+  test('threshold is 80', () => {
+    expect(MATCH_THRESHOLD).toBe(80);
   });
 
   test('should be case-insensitive for color, brand, and size matching', () => {
@@ -112,9 +137,9 @@ describe('Matching Algorithm (scoreMatch)', () => {
     const report = createTestReport({ Item_Color: 'black', Item_Brand: 'coach', Item_Size: 'medium' });
 
     const { breakdown } = scoreMatch(item, report);
-    expect(breakdown.color).toBe(20);
-    expect(breakdown.brand).toBe(20);
-    expect(breakdown.size).toBe(15);
+    expect(breakdown.color).toBe(15);
+    expect(breakdown.brand).toBe(30);
+    expect(breakdown.size).toBe(20);
   });
 
   test('should award no points when a field is null on either side', () => {

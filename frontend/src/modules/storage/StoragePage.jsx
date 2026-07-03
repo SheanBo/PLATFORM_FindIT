@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../../lib/api';
 import { Modal } from '../../components/ui/Modal';
 import { PageHead, Surface, SectionLabel, Badge, StatusBadge } from '../../components/ui/kit';
@@ -14,6 +15,7 @@ const isFull = (s) => freeOf(s) <= 0;
 const typeLabel = (t) => (t === 'Office_Safe' ? 'Office safe' : 'Locker');
 
 export default function StoragePage() {
+  const [searchParams] = useSearchParams();
   const [sections, setSections] = useState([]);
   const [expired, setExpired] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -21,7 +23,7 @@ export default function StoragePage() {
   const [loading, setLoading] = useState(true);
   const [selectedSection, setSelectedSection] = useState(null);
   const [sectionDetail, setSectionDetail] = useState(null);
-  const [showExpired, setShowExpired] = useState(false);
+  const [showExpired, setShowExpired] = useState(searchParams.get('expired') === '1');
 
   useEffect(() => {
     Promise.all([

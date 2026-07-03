@@ -87,6 +87,38 @@ router.get('/my-stats', authenticate, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// GET /api/findit-dashboard/community-stats
+// Campus-wide aggregates surfaced on the student overview: which categories
+// go missing most, where they go missing, and how many have been reunited
+// with their owners. All counts are non-personal, so any signed-in user may
+// read them.
+router.get('/community-stats', authenticate, async (req, res) => {
+  try {
+    const topCategories = await allAsync(`
+      SELECT ic.Category_Name, COUNT(lr.Report_ID) AS cnt
+      FROM ITEM_CATEGORY ic
+      JOIN LOST_REPORT lr ON lr.Category_ID = ic.Category_ID
+      WHERE lr.Report_Status != 'Cancelled'
+      GROUP BY ic.Category_ID
+      HAVING cnt > 0
+      ORDER BY cnt DESC, ic.Category_Name
+      LIMIT 5
+    `, []);
+    const topLocations = await allAsync(`
+      SELECT l.Place_Name, COUNT(lr.Report_ID) AS cnt
+      FROM LOCATION l
+      JOIN LOST_REPORT lr ON lr.Location_ID = l.Location_ID
+      WHERE lr.Report_Status != 'Cancelled'
+      GROUP BY l.Location_ID
+      HAVING cnt > 0
+      ORDER BY cnt DESC, l.Place_Name
+      LIMIT 5
+    `, []);
+    const recovered = await getAsync("SELECT COUNT(*) AS cnt FROM FOUND_ITEM WHERE Item_Status='Claimed'", []);
+    res.json({ top_categories: topCategories, top_locations: topLocations, recovered_count: recovered.cnt });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // GET /api/findit-dashboard/locations
 router.get('/locations', authenticate, async (req, res) => {
   try {

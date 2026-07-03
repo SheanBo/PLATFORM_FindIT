@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
-const { getDb, getAsync, runAsync } = require('../../database/init');
+const { getAsync, runAsync } = require('../../database/init');
 const { authenticate } = require('../../middleware/auth.middleware');
 const { auditLog } = require('../../utils/audit');
 

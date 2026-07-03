@@ -1,59 +1,121 @@
 require('dotenv').config();
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+const { Pool } = require('pg');
 
-// ':memory:' is a special sqlite target and must not be run through
-// path.resolve (which would turn it into an invalid on-disk path).
-const DB_PATH = !process.env.DB_PATH
-  ? path.join(__dirname, 'findit.db')
-  : process.env.DB_PATH === ':memory:'
-    ? ':memory:'
-    : path.resolve(process.env.DB_PATH);
+let _pool = null;
 
-let _db = null;
-
-function getDb() {
-  if (!_db) {
-    _db = new sqlite3.Database(DB_PATH);
-    _db.configure('busyTimeout', 5000);
+function getPool() {
+  if (!_pool) {
+    _pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      // Supabase requires SSL; the pooler cert is not in the local trust store.
+      ssl: process.env.PGSSL === 'disable' ? false : { rejectUnauthorized: false },
+      max: Number(process.env.PG_POOL_MAX || 5),
+      idleTimeoutMillis: 10000,
+    });
   }
-  return _db;
+  return _pool;
 }
 
-function runAsync(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    getDb().run(sql, params, function(err) {
-      if (err) reject(err);
-      else resolve({ lastID: this.lastID, changes: this.changes });
-    });
-  });
+// --- Dialect shim -----------------------------------------------------------
+
+// Convert '?' placeholders to '$1,$2,...' (skipping any '?' inside a single-
+// quoted string literal) and rewrite 'INSERT OR IGNORE' -> 'INSERT'. The
+// ON CONFLICT clause is appended in runAsync().
+function translate(sql) {
+  let text = sql;
+  let isIgnore = false;
+  if (/^\s*INSERT\s+OR\s+IGNORE/i.test(text)) {
+    isIgnore = true;
+    text = text.replace(/^(\s*)INSERT\s+OR\s+IGNORE/i, '$1INSERT');
+  }
+  let out = '';
+  let inStr = false;
+  let n = 0;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === "'") { inStr = !inStr; out += ch; }
+    else if (ch === '?' && !inStr) { out += '$' + (++n); }
+    else { out += ch; }
+  }
+  return { text: out, isIgnore };
 }
 
-function getAsync(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    getDb().get(sql, params, (err, row) => {
-      if (err) reject(err);
-      else resolve(row);
-    });
-  });
+// --- Result-key remapper ----------------------------------------------------
+
+// Column aliases introduced via `AS Xxx` in route/view SQL. Postgres returns
+// these lowercased; restore the canonical casing the app reads. (Generated from
+// `grep -rhoE "AS [A-Za-z_]+"` over the modules + schema.)
+const ALIASES = [
+  'Active_Reports','Actual_Load','Claimant_Name','Claimant_Username','Claimed_Items',
+  'Closed_Reports','Count','Days_Stored','Days_Unclaimed','Found_Brand','Found_Category',
+  'Found_Color','Found_Count','Found_Description','Found_Detail','Found_Item_Name',
+  'Found_Location','Found_Name','Found_Photo','Found_Size','Lost_Brand','Lost_Color',
+  'Lost_Description','Lost_Detail','Lost_Item_Name','Lost_Location','Lost_Name','Lost_Photo',
+  'Lost_Size','Matched_Items','Month','Pending_Claims','Pending_Matches','Place_Name',
+  'Recovery_Rate_Percent','Reporter_Name','Reported_By_Username','Storage_Location',
+  'Student_Username','Total','Unclaimed_Items','Used','Verifier_Name','Verifier_First',
+  'Verifier_Last','cnt',
+];
+
+let _canonical = null;
+// lowercase -> canonical map, built from schema column names + ALIASES.
+function canonicalMap() {
+  if (_canonical) return _canonical;
+  const map = {};
+  const add = (name) => { map[name.toLowerCase()] = name; };
+  const colRe = /^\s*([A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)*)\s+(?:INTEGER|SERIAL|TEXT|REAL|NUMERIC|DATE|TIMESTAMP)\b/gm;
+  let m;
+  while ((m = colRe.exec(SCHEMA_SQL))) add(m[1]);
+  ALIASES.forEach(add);
+  _canonical = map;
+  return map;
 }
 
-function allAsync(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    getDb().all(sql, params, (err, rows) => {
-      if (err) reject(err);
-      else resolve(rows || []);
-    });
-  });
+function remapRow(row) {
+  if (!row) return row;
+  const map = canonicalMap();
+  const out = {};
+  for (const key of Object.keys(row)) {
+    const canon = map[key.toLowerCase()];
+    if (!canon && process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
+      console.warn(`[db] unmapped result column "${key}" — add it to ALIASES in init.js`);
+    }
+    out[canon || key] = row[key];
+  }
+  return out;
 }
 
-function execAsync(sql) {
-  return new Promise((resolve, reject) => {
-    getDb().exec(sql, (err) => {
-      if (err) reject(err);
-      else resolve();
-    });
-  });
+// --- Promisified helpers (same interface the modules already use) -----------
+
+async function getAsync(sql, params = []) {
+  const { text } = translate(sql);
+  const res = await getPool().query(text, params);
+  return res.rows[0] ? remapRow(res.rows[0]) : undefined;
+}
+
+async function allAsync(sql, params = []) {
+  const { text } = translate(sql);
+  const res = await getPool().query(text, params);
+  return (res.rows || []).map(remapRow);
+}
+
+async function runAsync(sql, params = []) {
+  const { text, isIgnore } = translate(sql);
+  let finalText = text;
+  if (/^\s*INSERT\s/i.test(finalText)) {
+    if (isIgnore && !/ON\s+CONFLICT/i.test(finalText)) finalText += ' ON CONFLICT DO NOTHING';
+    if (!/RETURNING/i.test(finalText)) finalText += ' RETURNING *';
+  }
+  const res = await getPool().query(finalText, params);
+  const raw = res.rows && res.rows[0];
+  // PK is the first column in every table, so its value is the insert id.
+  const lastID = raw ? Object.values(raw)[0] : undefined;
+  return { lastID, changes: res.rowCount, rows: (res.rows || []).map(remapRow) };
+}
+
+async function execAsync(sql) {
+  // Multi-statement DDL with no parameters — run verbatim (no ? translation).
+  await getPool().query(sql);
 }
 
 // 'Other' was added to the category CHECK list after initial release. On a
@@ -310,7 +372,7 @@ async function initializeDatabase() {
   console.log('✅ Database initialized:', DB_PATH);
 }
 
-module.exports = { getDb, initializeDatabase, runAsync, getAsync, allAsync, execAsync };
+module.exports = { getPool, initializeDatabase, runAsync, getAsync, allAsync, execAsync, translate, remapRow };
 if (require.main === module) {
   initializeDatabase().then(() => process.exit(0)).catch(err => {
     console.error(err);

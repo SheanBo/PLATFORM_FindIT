@@ -100,7 +100,7 @@ router.get('/community-stats', authenticate, async (req, res) => {
       JOIN LOST_REPORT lr ON lr.Category_ID = ic.Category_ID
       WHERE lr.Report_Status != 'Cancelled'
       GROUP BY ic.Category_ID
-      HAVING cnt > 0
+      HAVING COUNT(lr.Report_ID) > 0
       ORDER BY cnt DESC, ic.Category_Name
       LIMIT 5
     `, []);
@@ -110,7 +110,7 @@ router.get('/community-stats', authenticate, async (req, res) => {
       JOIN LOST_REPORT lr ON lr.Location_ID = l.Location_ID
       WHERE lr.Report_Status != 'Cancelled'
       GROUP BY l.Location_ID
-      HAVING cnt > 0
+      HAVING COUNT(lr.Report_ID) > 0
       ORDER BY cnt DESC, l.Place_Name
       LIMIT 5
     `, []);

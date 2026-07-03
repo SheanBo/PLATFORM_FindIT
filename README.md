@@ -1,6 +1,6 @@
 # FindIT - Lost & Found Management System
 
-A modern Lost & Found management application for Ateneo de Naga University's Office of Student Affairs, built with React, Node.js, Express, and SQLite.
+A modern Lost & Found management application for Ateneo de Naga University's Office of Student Affairs, built with React, Node.js, Express, and PostgreSQL (Supabase).
 
 ## Features
 
@@ -16,13 +16,14 @@ A modern Lost & Found management application for Ateneo de Naga University's Off
 
 **Frontend:** React 18 · Vite · Tailwind CSS · React Router v6 · Lucide Icons
 
-**Backend:** Node.js · Express · SQLite · JWT Authentication · Multer (file uploads)
+**Backend:** Node.js · Express · PostgreSQL (Supabase) · JWT Authentication · Multer + Supabase Storage (file uploads)
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js v18+ and npm v9+
+- A PostgreSQL database — either a local Postgres server or a [Supabase](https://supabase.com) project
 
 ### Installation
 
@@ -31,8 +32,12 @@ A modern Lost & Found management application for Ateneo de Naga University's Off
 ```bash
 cd backend
 npm install
-node src/database/init.js
-node src/database/seed.js
+cp .env.example .env
+# edit .env: set DATABASE_URL (and TEST_DATABASE_URL if you'll run tests) to point at
+# your Postgres/Supabase database, and set JWT_SECRET to a long random string.
+# For a local, non-TLS Postgres server also set PGSSL=disable.
+npm run db:init   # applies the schema (tables/views/triggers) — run once per database
+npm run db:seed   # loads demo data
 npm run dev
 ```
 
@@ -140,14 +145,25 @@ Minimum match score: **60/100**
 
 ## Environment Setup
 
-Backend `.env` file:
+Backend `.env` file (see `backend/.env.example`):
 
 ```
 PORT=5000
 JWT_SECRET=your-secret-key-here
 JWT_EXPIRES_IN=7d
-DB_PATH=./src/database/findit.db
-UPLOAD_DIR=./uploads
+
+# Postgres (Supabase). Use the Supabase transaction pooler (port 6543) in prod.
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/findit
+# Used only by the test suite:
+TEST_DATABASE_URL=postgres://postgres:postgres@localhost:5432/findit_test
+# Set to "disable" for a local, non-TLS Postgres server; omit/leave default for Supabase.
+PGSSL=disable
+
+# Supabase Storage (photo uploads)
+SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+SUPABASE_SERVICE_KEY=your_service_role_key
+SUPABASE_BUCKET=item-photos
+
 NODE_ENV=development
 FRONTEND_URL=http://localhost:5173
 ```
@@ -157,7 +173,8 @@ FRONTEND_URL=http://localhost:5173
 - Modern React component library with 12 reusable components
 - Professional design system with consistent tokens
 - Async/await backend with proper error handling
-- SQLite database with views, triggers, and audit logging
+- PostgreSQL database (Supabase) with views, triggers, and audit logging; schema applied once via `npm run db:init`, not on every boot in production
 - JWT-based authentication
 - Role-based access control middleware
-- File upload support with Multer
+- File upload support with Multer, stored in Supabase Storage
+- Postgres-backed rate limiting for consistency across serverless instances

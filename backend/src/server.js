@@ -28,8 +28,11 @@ if (process.env.NODE_ENV === 'production') {
   }
 }
 
-// Initialize database
-initializeDatabase();
+// In production the schema is applied once via `npm run db:init`; only auto-init
+// for local dev/test convenience.
+if (process.env.NODE_ENV !== 'production') {
+  initializeDatabase().catch((e) => console.error('DB init failed:', e.message));
+}
 
 const app = express();
 

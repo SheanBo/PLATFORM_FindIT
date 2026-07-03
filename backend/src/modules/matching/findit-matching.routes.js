@@ -96,7 +96,7 @@ router.post('/run', authenticate, authorize('Staff','Admin'), async (req, res) =
         if (score >= MATCH_THRESHOLD) {
           const existing = await getAsync('SELECT Match_ID FROM ITEM_MATCH WHERE Item_ID=? AND Report_ID=?', [item.Item_ID, report.Report_ID]);
           if (!existing) {
-            await runAsync('INSERT INTO ITEM_MATCH (Item_ID,Report_ID,Match_Score,Score_Breakdown,Match_Type) VALUES (?,?,?,?,"Auto")', [item.Item_ID, report.Report_ID, score, JSON.stringify(breakdown)]);
+            await runAsync(`INSERT INTO ITEM_MATCH (Item_ID,Report_ID,Match_Score,Score_Breakdown,Match_Type) VALUES (?,?,?,?,'Auto')`, [item.Item_ID, report.Report_ID, score, JSON.stringify(breakdown)]);
             await runAsync("UPDATE FOUND_ITEM SET Item_Status='Matched' WHERE Item_ID=? AND Item_Status='Unclaimed'", [item.Item_ID]);
             await runAsync("UPDATE LOST_REPORT SET Report_Status='Matched' WHERE Report_ID=? AND Report_Status='Active'", [report.Report_ID]);
             matchCount++;
@@ -126,7 +126,7 @@ router.post('/manual', authenticate, authorize('Staff','Admin'), [
 
     const { score, breakdown } = scoreMatch(item, report);
 
-    const r = await runAsync('INSERT OR IGNORE INTO ITEM_MATCH (Item_ID,Report_ID,Match_Score,Score_Breakdown,Match_Type) VALUES (?,?,?,?,"Manual")', [item_id, report_id, score, JSON.stringify(breakdown)]);
+    const r = await runAsync(`INSERT OR IGNORE INTO ITEM_MATCH (Item_ID,Report_ID,Match_Score,Score_Breakdown,Match_Type) VALUES (?,?,?,?,'Manual')`, [item_id, report_id, score, JSON.stringify(breakdown)]);
 
     if (r.changes === 0) return res.status(409).json({ error: 'Match already exists' });
 

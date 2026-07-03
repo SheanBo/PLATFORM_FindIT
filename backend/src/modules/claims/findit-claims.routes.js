@@ -88,7 +88,7 @@ router.post('/', authenticate, [
     if (!report && req.user.Role_Type === 'Student')
       return res.status(403).json({ error: 'You can only claim using your own lost report' });
 
-    const existing = await getAsync('SELECT Claim_ID FROM CLAIM WHERE Item_ID=? AND User_ID=? AND Claim_Status NOT IN ("Rejected","Disputed")', [item_id, req.user.User_ID]);
+    const existing = await getAsync(`SELECT Claim_ID FROM CLAIM WHERE Item_ID=? AND User_ID=? AND Claim_Status NOT IN ('Rejected','Disputed')`, [item_id, req.user.User_ID]);
     if (existing) return res.status(409).json({ error: 'You already have an active claim for this item' });
 
     const r = await runAsync(`
@@ -141,7 +141,7 @@ router.put('/:id/acknowledge', authenticate, async (req, res) => {
   try {
     const claim = await getAsync('SELECT * FROM CLAIM WHERE Claim_ID=? AND User_ID=?', [req.params.id, req.user.User_ID]);
     if (!claim) return res.status(404).json({ error: 'Claim not found' });
-    await runAsync('UPDATE CLAIM SET Acknowledged="Y" WHERE Claim_ID=?', [req.params.id]);
+    await runAsync(`UPDATE CLAIM SET Acknowledged='Y' WHERE Claim_ID=?`, [req.params.id]);
     res.json({ message: 'Claim acknowledged' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

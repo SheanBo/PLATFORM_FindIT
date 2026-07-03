@@ -57,12 +57,12 @@ router.get('/analytics', authenticate, authorize('Admin'), async (req, res) => {
       GROUP BY ic.Category_ID ORDER BY Found_Count DESC
     `, []);
     const monthlyFound = await allAsync(`
-      SELECT strftime('%Y-%m', Date_Found) AS Month, COUNT(*) AS Count
-      FROM FOUND_ITEM GROUP BY Month ORDER BY Month DESC LIMIT 12
+      SELECT to_char(Date_Found, 'YYYY-MM') AS Month, COUNT(*) AS Count
+      FROM FOUND_ITEM GROUP BY to_char(Date_Found, 'YYYY-MM') ORDER BY Month DESC LIMIT 12
     `, []);
     const monthlyLost = await allAsync(`
-      SELECT strftime('%Y-%m', Date_Filed) AS Month, COUNT(*) AS Count
-      FROM LOST_REPORT GROUP BY Month ORDER BY Month DESC LIMIT 12
+      SELECT to_char(Date_Filed, 'YYYY-MM') AS Month, COUNT(*) AS Count
+      FROM LOST_REPORT GROUP BY to_char(Date_Filed, 'YYYY-MM') ORDER BY Month DESC LIMIT 12
     `, []);
     const auditLogs = await allAsync(`
       SELECT al.*, ou.Username

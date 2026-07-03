@@ -25,7 +25,7 @@ router.post('/register', [
 
     const hash = bcrypt.hashSync(password, 10);
     const p = await runAsync('INSERT INTO PERSON (First_Name,Last_Name,Department) VALUES (?,?,?)', [first_name, last_name, department || null]);
-    await runAsync('INSERT INTO ONLINE_USER (Person_ID,Username,Password_Hash,Email,Student_ID,Role_Type) VALUES (?,?,?,?,?,"Student")',
+    await runAsync(`INSERT INTO ONLINE_USER (Person_ID,Username,Password_Hash,Email,Student_ID,Role_Type) VALUES (?,?,?,?,?,'Student')`,
       [p.lastID, username, hash, email, student_id || null]);
     res.status(201).json({ message: 'Account created successfully' });
   } catch (e) { res.status(500).json({ error: e.message }); }

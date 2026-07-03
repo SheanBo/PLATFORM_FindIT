@@ -146,7 +146,7 @@ router.delete('/:id', authenticate, async (req, res) => {
     if (req.user.Role_Type === 'Student' && report.User_ID !== req.user.User_ID)
       return res.status(403).json({ error: 'Access denied' });
 
-    await runAsync('UPDATE LOST_REPORT SET Report_Status="Cancelled" WHERE Report_ID=?', [req.params.id]);
+    await runAsync(`UPDATE LOST_REPORT SET Report_Status='Cancelled' WHERE Report_ID=?`, [req.params.id]);
     auditLog({ userId: req.user.User_ID, action: 'CANCEL_LOST_REPORT', entityType: 'LOST_REPORT', entityId: req.params.id, ip: req.ip });
     res.json({ message: 'Report cancelled' });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -165,9 +165,9 @@ async function runAutoMatch(reportId) {
       const { score, breakdown } = scoreMatch(item, report);
 
       if (score >= MATCH_THRESHOLD) {
-        await runAsync('INSERT OR IGNORE INTO ITEM_MATCH (Item_ID,Report_ID,Match_Score,Score_Breakdown,Match_Type) VALUES (?,?,?,?,"Auto")', [item.Item_ID, reportId, score, JSON.stringify(breakdown)]);
-        await runAsync('UPDATE FOUND_ITEM SET Item_Status="Matched" WHERE Item_ID=? AND Item_Status="Unclaimed"', [item.Item_ID]);
-        await runAsync('UPDATE LOST_REPORT SET Report_Status="Matched" WHERE Report_ID=?', [reportId]);
+        await runAsync(`INSERT OR IGNORE INTO ITEM_MATCH (Item_ID,Report_ID,Match_Score,Score_Breakdown,Match_Type) VALUES (?,?,?,?,'Auto')`, [item.Item_ID, reportId, score, JSON.stringify(breakdown)]);
+        await runAsync(`UPDATE FOUND_ITEM SET Item_Status='Matched' WHERE Item_ID=? AND Item_Status='Unclaimed'`, [item.Item_ID]);
+        await runAsync(`UPDATE LOST_REPORT SET Report_Status='Matched' WHERE Report_ID=?`, [reportId]);
       }
     }
   } catch (e) { console.error('Auto-match error:', e.message); }

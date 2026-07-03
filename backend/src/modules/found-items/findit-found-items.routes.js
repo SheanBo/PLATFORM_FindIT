@@ -141,7 +141,7 @@ router.delete('/:id', authenticate, authorize('Admin'), async (req, res) => {
     const item = await getAsync('SELECT * FROM FOUND_ITEM WHERE Item_ID=?', [req.params.id]);
     if (!item) return res.status(404).json({ error: 'Item not found' });
 
-    await runAsync('UPDATE FOUND_ITEM SET Item_Status="Disposed" WHERE Item_ID=?', [req.params.id]);
+    await runAsync(`UPDATE FOUND_ITEM SET Item_Status='Disposed' WHERE Item_ID=?`, [req.params.id]);
     if (item.Section_ID) await runAsync('UPDATE STORAGE_SECTION SET Current_Load=MAX(0,Current_Load-1) WHERE Section_ID=?', [item.Section_ID]);
 
     auditLog({ userId: req.user.User_ID, action: 'DISPOSE_FOUND_ITEM', entityType: 'FOUND_ITEM', entityId: req.params.id, ip: req.ip });
@@ -172,9 +172,9 @@ async function runAutoMatchForItem(itemId) {
       if (item.Location_ID === report.Location_ID) { score += 10; breakdown.location = 10; } else breakdown.location = 0;
 
       if (score >= 60) {
-        await runAsync('INSERT OR IGNORE INTO ITEM_MATCH (Item_ID,Report_ID,Match_Score,Score_Breakdown,Match_Type) VALUES (?,?,?,?,"Auto")', [itemId, report.Report_ID, score, JSON.stringify(breakdown)]);
-        await runAsync('UPDATE FOUND_ITEM SET Item_Status="Matched" WHERE Item_ID=? AND Item_Status="Unclaimed"', [itemId]);
-        await runAsync('UPDATE LOST_REPORT SET Report_Status="Matched" WHERE Report_ID=? AND Report_Status="Active"', [report.Report_ID]);
+        await runAsync(`INSERT OR IGNORE INTO ITEM_MATCH (Item_ID,Report_ID,Match_Score,Score_Breakdown,Match_Type) VALUES (?,?,?,?,'Auto')`, [itemId, report.Report_ID, score, JSON.stringify(breakdown)]);
+        await runAsync(`UPDATE FOUND_ITEM SET Item_Status='Matched' WHERE Item_ID=? AND Item_Status='Unclaimed'`, [itemId]);
+        await runAsync(`UPDATE LOST_REPORT SET Report_Status='Matched' WHERE Report_ID=? AND Report_Status='Active'`, [report.Report_ID]);
       }
     }
   } catch (e) { console.error('Auto-match error:', e.message); }

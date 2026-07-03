@@ -66,7 +66,7 @@ router.get('/:id', authenticate, authorize('Staff','Admin'), async (req, res) =>
     const items = await allAsync(`
       SELECT fi.Item_ID, fi.Item_Name, fi.Item_Color, fi.Item_Brand, fi.Date_Found,
              fi.Item_Status, ic.Category_Name,
-             CAST((julianday('now') - julianday(fi.Date_Found)) AS INTEGER) AS Days_Stored
+             (CURRENT_DATE - fi.Date_Found) AS Days_Stored
       FROM FOUND_ITEM fi JOIN ITEM_CATEGORY ic ON fi.Category_ID=ic.Category_ID
       WHERE fi.Section_ID=? AND fi.Item_Status NOT IN ('Claimed','Disposed')
       ORDER BY fi.Date_Found ASC

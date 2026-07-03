@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { initializeDatabase } = require('./database/init');
 const { performanceTracker } = require('./utils/performance');
+const PostgresStore = require('./utils/rateLimitStore');
 
 // JWT secret guard. Production fails fast if the secret is missing or left
 // at the insecure default. Development generates a throwaway secret so a
@@ -61,7 +62,8 @@ const globalLimiter = rateLimit({
   max: 200,
   message: { error: 'Too many requests, please try again later' },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  store: new PostgresStore()
 });
 
 // Strict rate limiter for auth endpoints
@@ -69,7 +71,8 @@ const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5, // 5 requests per 15 minutes
   message: { error: 'Too many login attempts, please try again later' },
-  skipSuccessfulRequests: true
+  skipSuccessfulRequests: true,
+  store: new PostgresStore()
 });
 
 app.use(globalLimiter);

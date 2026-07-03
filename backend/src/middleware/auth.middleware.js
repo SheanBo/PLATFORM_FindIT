@@ -7,7 +7,7 @@ async function authenticate(req, res, next) {
   if (!token) return res.status(401).json({ error: 'Access token required' });
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await getAsync('SELECT * FROM ONLINE_USER WHERE User_ID=? AND Is_Active="Y"', [decoded.userId]);
+    const user = await getAsync('SELECT * FROM ONLINE_USER WHERE User_ID=? AND Is_Active=\'Y\'', [decoded.userId]);
     if (!user) return res.status(401).json({ error: 'User not found or inactive' });
     req.user = user;
     next();

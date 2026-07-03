@@ -63,7 +63,7 @@ const globalLimiter = rateLimit({
   message: { error: 'Too many requests, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
-  store: new PostgresStore()
+  store: new PostgresStore('global')
 });
 
 // Strict rate limiter for auth endpoints
@@ -72,7 +72,7 @@ const authLimiter = rateLimit({
   max: 5, // 5 requests per 15 minutes
   message: { error: 'Too many login attempts, please try again later' },
   skipSuccessfulRequests: true,
-  store: new PostgresStore()
+  store: new PostgresStore('auth')
 });
 
 app.use(globalLimiter);

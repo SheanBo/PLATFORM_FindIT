@@ -3,7 +3,6 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const path = require('path');
 const { initializeDatabase } = require('./database/init');
 const { performanceTracker } = require('./utils/performance');
 
@@ -43,7 +42,8 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"]
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", 'data:', process.env.SUPABASE_URL].filter(Boolean),
     }
   }
 }));
@@ -78,12 +78,6 @@ app.use(globalLimiter);
 app.use(performanceTracker()); // Track request performance
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Cache control headers for static assets
-app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
-  maxAge: '1d',
-  etag: false
-}));
 
 // In-memory cache for dashboard stats (1 minute TTL)
 const cache = new Map();

@@ -6,6 +6,7 @@ const { authenticate, authorize } = require('../../middleware/auth.middleware');
 const { auditLog } = require('../../utils/audit');
 const { parsePagination } = require('../../utils/pagination');
 const upload = require('../../utils/upload');
+const { uploadPhoto } = require('../../utils/storage');
 const { scoreMatch, MATCH_THRESHOLD } = require('../matching/score');
 
 // GET /api/findit-lost-reports
@@ -87,7 +88,7 @@ router.post('/', authenticate, upload.single('photo'), [
   try {
     const { category_id, location_id, item_name, item_description, item_color,
             item_size, item_brand, serial_number, date_lost, detail_location, contact_information } = req.body;
-    const photo_path = req.file ? `/uploads/${req.file.filename}` : null;
+    const photo_path = req.file ? await uploadPhoto(req.file.buffer, req.file.originalname, req.file.mimetype) : null;
 
     const result = await runAsync(`
       INSERT INTO LOST_REPORT
@@ -117,7 +118,7 @@ router.put('/:id', authenticate, upload.single('photo'), async (req, res) => {
 
     const { item_name, item_description, item_color, item_size, item_brand,
             serial_number, date_lost, detail_location, contact_information, status } = req.body;
-    const photo_path = req.file ? `/uploads/${req.file.filename}` : report.Photo_Path;
+    const photo_path = req.file ? await uploadPhoto(req.file.buffer, req.file.originalname, req.file.mimetype) : report.Photo_Path;
 
     await runAsync(`
       UPDATE LOST_REPORT SET

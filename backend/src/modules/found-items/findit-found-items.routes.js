@@ -6,6 +6,7 @@ const { authenticate, authorize } = require('../../middleware/auth.middleware');
 const { auditLog } = require('../../utils/audit');
 const { parsePagination } = require('../../utils/pagination');
 const upload = require('../../utils/upload');
+const { uploadPhoto } = require('../../utils/storage');
 
 // GET /api/findit-found-items
 router.get('/', authenticate, async (req, res) => {
@@ -82,7 +83,7 @@ router.post('/', authenticate, authorize('Staff','Admin'), upload.single('photo'
     const { category_id, location_id, item_name, item_description, item_color,
             item_size, item_brand, serial_number, date_found, detail_location,
             storage_type, section_id, found_by_contact } = req.body;
-    const photo_path = `/uploads/${req.file.filename}`;
+    const photo_path = await uploadPhoto(req.file.buffer, req.file.originalname, req.file.mimetype);
 
     const result = await runAsync(`
       INSERT INTO FOUND_ITEM
@@ -114,7 +115,7 @@ router.put('/:id', authenticate, authorize('Staff','Admin'), upload.single('phot
 
     const { item_name, item_description, item_color, item_size, item_brand,
             storage_type, section_id, item_status } = req.body;
-    const photo_path = req.file ? `/uploads/${req.file.filename}` : item.Photo_Path;
+    const photo_path = req.file ? await uploadPhoto(req.file.buffer, req.file.originalname, req.file.mimetype) : item.Photo_Path;
 
     if (item.Item_Status === 'Claimed' && item_status && item_status !== 'Claimed')
       return res.status(400).json({ error: 'Cannot revert a claimed item status' });

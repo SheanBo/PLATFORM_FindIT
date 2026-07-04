@@ -127,7 +127,7 @@ if (require.main === module) {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`\n🚀 FindIT Backend running on http://localhost:${PORT}`);
-    console.log(`📁 DB: ${process.env.DB_PATH || './src/database/findit.db'}`);
+    console.log(`📁 DB: ${process.env.DATABASE_URL ? process.env.DATABASE_URL.replace(/:[^:@]+@/, ':***@') : 'not configured'}`);
     console.log(`\nEndpoints:`);
     console.log(`  POST   /api/auth/login`);
     console.log(`  POST   /api/auth/register`);

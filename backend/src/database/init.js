@@ -50,11 +50,11 @@ const ALIASES = [
   'Closed_Reports','Count','Days_Stored','Days_Unclaimed','Found_Brand','Found_Category',
   'Found_Color','Found_Count','Found_Description','Found_Detail','Found_Item_Name',
   'Found_Location','Found_Name','Found_Photo','Found_Size','Lost_Brand','Lost_Color',
-  'Lost_Description','Lost_Detail','Lost_Item_Name','Lost_Location','Lost_Name','Lost_Photo',
-  'Lost_Size','Matched_Items','Month','Pending_Claims','Pending_Matches','Place_Name',
-  'Recovery_Rate_Percent','Reporter_Name','Reported_By_Username','Storage_Location',
-  'Student_Username','Total','Unclaimed_Items','Used','Verifier_Name','Verifier_First',
-  'Verifier_Last','cnt',
+  'Lost_Count','Lost_Description','Lost_Detail','Lost_Item_Name','Lost_Location','Lost_Name',
+  'Lost_Photo','Lost_Size','Matched_Items','Month','Pending_Claims','Pending_Matches',
+  'Place_Name','Recovery_Rate_Percent','Reporter_Name','Reported_By_Username','Section_Type',
+  'Staff_Name','Staff_Username','Storage_Location','Student_Username','Total',
+  'Unclaimed_Items','Usage_Percent','Used','Verifier_Name','Verifier_First','Verifier_Last','cnt',
 ];
 
 let _canonical = null;

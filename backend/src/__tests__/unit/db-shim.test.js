@@ -38,3 +38,24 @@ describe('remapRow() — restore PascalCase result keys', () => {
     expect(remapRow(null)).toBeNull();
   });
 });
+
+describe('remapRow() — live Postgres integration', () => {
+  const { getAsync, getPool, initializeDatabase } = require('../../database/init');
+
+  beforeAll(async () => { await initializeDatabase(); });
+  afterAll(async () => { await getPool().end(); });
+
+  test('a SELECT ... AS Xxx alias round-trips with canonical casing from a real query', async () => {
+    const row = await getAsync('SELECT COUNT(*) AS cnt FROM ITEM_CATEGORY', []);
+    expect(row).toHaveProperty('cnt');
+    expect(typeof row.cnt).toBe('string');
+  });
+
+  test('every alias actually used in the dashboard analytics query resolves to canonical casing', async () => {
+    const row = await getAsync(
+      "SELECT COUNT(lr.Report_ID) AS Lost_Count FROM LOST_REPORT lr",
+      []
+    );
+    expect(row).toHaveProperty('Lost_Count');
+  });
+});

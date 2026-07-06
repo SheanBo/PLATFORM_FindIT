@@ -1,6 +1,7 @@
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const { initializeDatabase, runAsync, getAsync, allAsync, getPool } = require('./init');
+const { scoreMatch } = require('../modules/matching/score');
 
 async function seed() {
   console.log('🌱 Starting database seed...\n');
@@ -130,8 +131,8 @@ async function seed() {
       { catId: catWallet.Category_ID, locId: locMain.Location_ID, name: 'Brown Leather Wallet', desc: 'Found near main entrance with cash', color: 'Brown', brand: 'No Brand', secId: secSafe.Section_ID, status: 'Unclaimed', date: '2024-01-15' },
       { catId: catPhone.Category_ID, locId: locLib.Location_ID, name: 'Black Samsung Phone', desc: 'Found on library table, cracked screen', color: 'Black', brand: 'Samsung', secId: secSafe.Section_ID, status: 'Unclaimed', date: '2024-01-20' },
       { catId: catKeys.Category_ID, locId: locGym.Location_ID, name: 'Silver House Keys', desc: 'Found in gym locker room', color: 'Silver', brand: null, secId: secLocker.Section_ID, status: 'Unclaimed', date: '2024-02-01' },
-      { catId: catBag.Category_ID, locId: locCanteen.Location_ID, name: 'Blue Backpack', desc: 'Found in canteen, contains school materials', color: 'Blue', brand: 'North Face', secId: secLocker.Section_ID, status: 'Unclaimed', date: '2024-02-05' },
-      { catId: catLaptop.Category_ID, locId: locLab.Location_ID, name: 'Dell Laptop', desc: 'HP Pavilion laptop found in computer lab', color: 'Silver', brand: 'HP', secId: null, status: 'Unclaimed', date: '2024-02-10' },
+      { catId: catBag.Category_ID, locId: locCanteen.Location_ID, name: 'Blue Backpack', desc: 'Found in canteen, contains school materials', color: 'Blue', brand: 'North Face', size: 'Large', secId: secLocker.Section_ID, status: 'Unclaimed', date: '2024-02-05' },
+      { catId: catLaptop.Category_ID, locId: locLab.Location_ID, name: 'Dell Laptop', desc: 'HP Pavilion laptop found in computer lab', color: 'Silver', brand: 'HP', size: '15-inch', secId: null, status: 'Unclaimed', date: '2024-02-10' },
       { catId: catEyewear.Category_ID, locId: locMain.Location_ID, name: 'Ray-Ban Sunglasses', desc: 'Designer sunglasses with case', color: 'Brown', brand: 'Ray-Ban', secId: secSafe.Section_ID, status: 'Unclaimed', date: '2024-02-15' },
       { catId: catJewelry.Category_ID, locId: locLib.Location_ID, name: 'Gold Necklace', desc: 'Found near reference section', color: 'Gold', brand: null, secId: secSafe.Section_ID, status: 'Unclaimed', date: '2024-02-20' },
       { catId: catPhone.Category_ID, locId: locParking.Location_ID, name: 'White iPhone 14', desc: 'iPhone with protective case', color: 'White', brand: 'Apple', secId: secSafe.Section_ID, status: 'Matched', date: '2024-02-25' },
@@ -141,9 +142,9 @@ async function seed() {
     for (const item of foundItems) {
       const result = await runAsync(`
         INSERT INTO FOUND_ITEM
-          (Category_ID,Location_ID,Item_Name,Item_Description,Item_Color,Item_Brand,Date_Found,Storage_Type,Section_ID,Contact_Staff_ID,Reported_By_User_ID,Found_By_Contact,Item_Status)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
-      `, [item.catId, item.locId, item.name, item.desc, item.color, item.brand, item.date, 'Office_Safe', item.secId, staff.User_ID, staff.User_ID, 'Admin Input', item.status]);
+          (Category_ID,Location_ID,Item_Name,Item_Description,Item_Color,Item_Brand,Item_Size,Date_Found,Storage_Type,Section_ID,Contact_Staff_ID,Reported_By_User_ID,Found_By_Contact,Item_Status)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+      `, [item.catId, item.locId, item.name, item.desc, item.color, item.brand, item.size || null, item.date, 'Office_Safe', item.secId, staff.User_ID, staff.User_ID, 'Admin Input', item.status]);
       foundItemIds.push(result.lastID);
     }
     console.log(`✅ Inserted ${foundItems.length} found items`);
@@ -151,40 +152,48 @@ async function seed() {
     // Insert lost reports
     const lostReports = [
       { userId: students[0].User_ID, catId: catWallet.Category_ID, locId: locMain.Location_ID, name: 'Brown Wallet', desc: 'Lost school ID and cash', color: 'Brown', date: '2024-01-15', contact: '09987654321', status: 'Closed' },
-      { userId: students[1].User_ID, catId: catPhone.Category_ID, locId: locLib.Location_ID, name: 'Black Samsung Phone', desc: 'Left on library table', color: 'Black', date: '2024-01-20', contact: '09876543210', status: 'Closed' },
+      { userId: students[1].User_ID, catId: catPhone.Category_ID, locId: locLib.Location_ID, name: 'Black Samsung Phone', desc: 'Left on library table', color: 'Black', brand: 'Samsung', date: '2024-01-20', contact: '09876543210', status: 'Closed' },
       { userId: students[2].User_ID, catId: catKeys.Category_ID, locId: locGym.Location_ID, name: 'House Keys', desc: 'Lost in gym area', color: 'Silver', date: '2024-02-01', contact: '09765432109', status: 'Active' },
-      { userId: students[3].User_ID, catId: catBag.Category_ID, locId: locCanteen.Location_ID, name: 'Blue Backpack', desc: 'Lost in canteen with books', color: 'Blue', date: '2024-02-05', contact: '09654321098', status: 'Active' },
+      { userId: students[3].User_ID, catId: catBag.Category_ID, locId: locCanteen.Location_ID, name: 'Blue Backpack', desc: 'Lost in canteen with books', color: 'Blue', brand: 'North Face', size: 'Large', date: '2024-02-05', contact: '09654321098', status: 'Active' },
       { userId: students[4].User_ID, catId: catLaptop.Category_ID, locId: locLab.Location_ID, name: 'Silver Laptop', desc: 'Left in computer lab', color: 'Silver', date: '2024-02-10', contact: '09543210987', status: 'Active' },
-      { userId: students[1].User_ID, catId: catPhone.Category_ID, locId: locParking.Location_ID, name: 'White iPhone 14', desc: 'Left in parking lot', color: 'White', date: '2024-02-25', contact: '09876543210', status: 'Closed' },
+      { userId: students[1].User_ID, catId: catPhone.Category_ID, locId: locParking.Location_ID, name: 'White iPhone 14', desc: 'Left in parking lot', color: 'White', brand: 'Apple', date: '2024-02-25', contact: '09876543210', status: 'Closed' },
     ];
 
     let lostReportIds = [];
     for (const report of lostReports) {
       const result = await runAsync(`
         INSERT INTO LOST_REPORT
-          (User_ID,Category_ID,Location_ID,Item_Name,Item_Description,Item_Color,Date_Lost,Contact_Information,Report_Status)
-        VALUES (?,?,?,?,?,?,?,?,?)
-      `, [report.userId, report.catId, report.locId, report.name, report.desc, report.color, report.date, report.contact, report.status]);
+          (User_ID,Category_ID,Location_ID,Item_Name,Item_Description,Item_Color,Item_Brand,Item_Size,Date_Lost,Contact_Information,Report_Status)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)
+      `, [report.userId, report.catId, report.locId, report.name, report.desc, report.color, report.brand || null, report.size || null, report.date, report.contact, report.status]);
       lostReportIds.push(result.lastID);
     }
     console.log(`✅ Inserted ${lostReports.length} lost reports`);
 
-    // Insert matches
-    const matches = [
-      { itemId: foundItemIds[0], reportId: lostReportIds[0], score: 95, status: 'Confirmed', type: 'Auto' },
-      { itemId: foundItemIds[1], reportId: lostReportIds[1], score: 92, status: 'Confirmed', type: 'Auto' },
-      { itemId: foundItemIds[2], reportId: lostReportIds[2], score: 88, status: 'Pending', type: 'Auto' },
-      { itemId: foundItemIds[3], reportId: lostReportIds[3], score: 90, status: 'Pending', type: 'Auto' },
-      { itemId: foundItemIds[7], reportId: lostReportIds[5], score: 98, status: 'Confirmed', type: 'Auto' },
+    // Insert matches. Score and per-attribute breakdown are computed with the
+    // same scoreMatch() the live matching engine uses, so the seeded demo data
+    // stays internally consistent (the Match Score Breakdown reflects the real
+    // shared/differing attributes of each paired found item and lost report).
+    const scoreFields = (fi, lr) => scoreMatch(
+      { Category_ID: fi.catId, Item_Color: fi.color, Item_Brand: fi.brand, Item_Size: fi.size, Location_ID: fi.locId },
+      { Category_ID: lr.catId, Item_Color: lr.color, Item_Brand: lr.brand, Item_Size: lr.size, Location_ID: lr.locId }
+    );
+    const matchPairs = [
+      { fi: 0, lr: 0, status: 'Confirmed' },
+      { fi: 1, lr: 1, status: 'Confirmed' },
+      { fi: 2, lr: 2, status: 'Pending' },
+      { fi: 3, lr: 3, status: 'Pending' },
+      { fi: 7, lr: 5, status: 'Confirmed' },
     ];
 
-    for (const match of matches) {
+    for (const m of matchPairs) {
+      const { score, breakdown } = scoreFields(foundItems[m.fi], lostReports[m.lr]);
       await runAsync(`
-        INSERT INTO ITEM_MATCH (Item_ID,Report_ID,Match_Score,Match_Status,Match_Type)
-        VALUES (?,?,?,?,?)
-      `, [match.itemId, match.reportId, match.score, match.status, match.type]);
+        INSERT INTO ITEM_MATCH (Item_ID,Report_ID,Match_Score,Score_Breakdown,Match_Status,Match_Type)
+        VALUES (?,?,?,?,?,'Auto')
+      `, [foundItemIds[m.fi], lostReportIds[m.lr], score, JSON.stringify(breakdown), m.status]);
     }
-    console.log(`✅ Inserted ${matches.length} item matches`);
+    console.log(`✅ Inserted ${matchPairs.length} item matches`);
 
     // Insert claims
     const claims = [
@@ -218,7 +227,7 @@ async function seed() {
     console.log('📊 Sample Data:');
     console.log(`  - ${foundItems.length} Found Items (${foundItems.filter(f => f.status === 'Claimed').length} claimed, ${foundItems.filter(f => f.status === 'Unclaimed').length} unclaimed, ${foundItems.filter(f => f.status === 'Matched').length} matched)`);
     console.log(`  - ${lostReports.length} Lost Reports (${lostReports.filter(r => r.status === 'Closed').length} closed, ${lostReports.filter(r => r.status === 'Active').length} active)`);
-    console.log(`  - ${matches.length} Matches`);
+    console.log(`  - ${matchPairs.length} Matches`);
     console.log(`  - ${claims.length} Claims\n`);
 
     await getPool().end();

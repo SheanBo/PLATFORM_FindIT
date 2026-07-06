@@ -94,13 +94,15 @@ export function Layout() {
             onClick={() => setSidebarOpen(false)}
             className={({ isActive }) =>
               `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all group ${
-                isActive ? 'bg-gold-500 text-navy-900' : 'text-white hover:bg-white/10'
+                isActive
+                  ? 'bg-gold-500 text-navy-900'
+                  : 'text-white hover:bg-[rgba(212,162,78,0.12)] hover:translate-x-1 hover:shadow-[inset_3px_0_0_0_var(--gold-500)]'
               }`
             }
           >
             <Icon className="w-5 h-5 flex-shrink-0" />
             <span className="flex-1 text-inherit">{label}</span>
-            <ChevronRight className="w-4 h-4 opacity-0 group-active:opacity-100 transition-opacity" />
+            <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-70 group-active:opacity-100 transition-opacity" />
           </NavLink>
         ))}
       </nav>

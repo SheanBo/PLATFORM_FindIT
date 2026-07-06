@@ -36,6 +36,11 @@ if (process.env.NODE_ENV !== 'production') {
 
 const app = express();
 
+// Behind Vercel's proxy every request carries X-Forwarded-For; without this,
+// req.ip resolves to the proxy address (one shared rate-limit bucket for every
+// user) and express-rate-limit rejects the forwarded header. First hop only.
+app.set('trust proxy', 1);
+
 // Security
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },

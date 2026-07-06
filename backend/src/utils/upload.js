@@ -12,5 +12,7 @@ const fileFilter = (req, file, cb) => {
   else cb(new Error('Only image files are allowed'));
 };
 
-const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
+// 4MB cap: Vercel serverless rejects request bodies over ~4.5MB, so a larger
+// multer limit would let uploads through locally that the platform 413s in prod.
+const upload = multer({ storage, fileFilter, limits: { fileSize: 4 * 1024 * 1024 } });
 module.exports = upload;

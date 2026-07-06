@@ -1,4 +1,5 @@
 // Test setup and configuration
+require('dotenv').config(); // load backend/.env so TEST_DATABASE_URL is honored regardless of shell state
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'test_secret_key_for_testing_only';
 process.env.DATABASE_URL =

@@ -53,6 +53,24 @@ npm run dev
 
 Frontend runs on `http://localhost:5173`
 
+### Run with Docker (no Node/Postgres install needed)
+
+With [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed,
+one command runs the whole stack — database included:
+
+```bash
+docker compose up --build
+```
+
+Then open `http://localhost:8080`. On first start the database schema is
+applied and demo data is seeded automatically; data persists across restarts
+in a Docker volume. Stop with `Ctrl+C` (or `docker compose down`; add `-v` to
+also wipe the database).
+
+Note: photo uploads need a Supabase project — set `SUPABASE_URL` and
+`SUPABASE_SERVICE_KEY` in your shell before `docker compose up` to enable
+them. Every other feature works without it.
+
 ### Demo Credentials
 
 All accounts use password: `Password123!`

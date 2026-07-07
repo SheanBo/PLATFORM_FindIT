@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: findit
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d findit"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/findit
+      PGSSL: disable
+      # Demo-only secret; override with a real one via the host environment.
+      JWT_SECRET: ${JWT_SECRET:-findit_docker_demo_0f8a4c1e2b7d9a3f5c6e}
+      JWT_EXPIRES_IN: 7d
+      NODE_ENV: development
+      FRONTEND_URL: http://localhost:8080
+      # Photo uploads need a real Supabase project; passed through when set on
+      # the host, otherwise the upload flow errors while everything else works.
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY:-}
+      SUPABASE_BUCKET: ${SUPABASE_BUCKET:-item-photos}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

@@ -127,6 +127,12 @@ export default function FoundItemForm({ onSuccess, onCancel }) {
             {errors.location_id && <p id="location_id-error" role="alert" className="text-xs mt-1" style={{ color: 'var(--status-terracotta)' }}>{errors.location_id.message}</p>}
           </div>
 
+          {/* Location Details */}
+          <div className="col-span-2">
+            <label htmlFor="detail_location" className="label mb-2">Specific Location Details</label>
+            <input id="detail_location" className="input" {...register('detail_location')} placeholder="Near the entrance, 2nd floor" style={{ borderColor: 'var(--gold-300)' }} />
+          </div>
+
           {/* Storage Assignment */}
           <div>
             <label htmlFor="storage_type" className="label mb-2">Storage Type</label>

@@ -47,6 +47,10 @@ export default function FoundItemDetail({ id, onClose, onRefresh }) {
           <p className="text-gray-500 font-medium">Description</p>
           <p className="text-gray-900">{item.Item_Description}</p>
         </div>
+        {item.Detail_Location && <div className="col-span-2">
+          <p className="text-gray-500 font-medium">Specific Location</p>
+          <p className="text-gray-900">{item.Detail_Location}</p>
+        </div>}
       </div>
 
       {item.matches?.length > 0 && (

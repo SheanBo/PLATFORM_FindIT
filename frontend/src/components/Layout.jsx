@@ -68,7 +68,13 @@ export function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   if (!user) return <Navigate to="/login" />;
 
-  const allowed = navItems.filter((n) => n.roles.includes(user.role));
+  const allowed = navItems
+    .filter((n) => n.roles.includes(user.role))
+    .map((n) =>
+      n.to === '/lost-reports' && user.role === 'Student'
+        ? { ...n, label: 'My Lost Reports' }
+        : n
+    );
 
   const SidebarContent = () => (
     <>

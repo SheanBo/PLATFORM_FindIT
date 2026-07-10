@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../../lib/api';
 import { useToast } from '../../lib/ToastContext';
+import { useAuth } from '../../lib/AuthContext';
 import { useDebounce } from '../../lib/useDebounce';
 import { Pagination } from '../../components/ui/Pagination';
 import { Modal } from '../../components/ui/Modal';
@@ -13,6 +14,7 @@ import LostReportDetail from './LostReportDetail';
 
 export default function LostReportsPage() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [reports, setReports] = useState([]);
   const [pagination, setPagination] = useState(null);
@@ -46,7 +48,7 @@ export default function LostReportsPage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-6xl mx-auto px-6 sm:px-8 py-8">
-        <PageHead title="Lost reports" subtitle="Report and track lost items" actions={fileBtn} />
+        <PageHead title={user?.role === 'Student' ? 'My lost reports' : 'Lost reports'} subtitle="Report and track lost items" actions={fileBtn} />
 
         {/* Toolbar */}
         <div className="flex flex-col sm:flex-row gap-3 mb-4">

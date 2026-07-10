@@ -1,5 +1,11 @@
 require('dotenv').config();
-const { Pool } = require('pg');
+const { Pool, types } = require('pg');
+
+// Return DATE columns as plain 'YYYY-MM-DD' strings instead of JS Date objects,
+// so dates render cleanly (e.g. 2026-07-10) instead of a full ISO timestamp.
+// 1082 is the OID for the DATE type. Date arithmetic is done in SQL, so no
+// backend logic depends on these being Date objects.
+types.setTypeParser(1082, (v) => v);
 
 let _pool = null;
 

@@ -34,6 +34,75 @@ function Side({ icon: Icon, label, title, sub }) {
   );
 }
 
+function ManualMatchForm({ onSuccess, onCancel }) {
+  const [items, setItems] = useState([]);
+  const [reports, setReports] = useState([]);
+  const [itemId, setItemId] = useState('');
+  const [reportId, setReportId] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    Promise.all([
+      api.get('/findit-found-items', { params: { limit: 100 } }),
+      api.get('/findit-lost-reports', { params: { limit: 100 } }),
+    ]).then(([i, r]) => {
+      setItems((i.data.data || []).filter((x) => ['Unclaimed', 'Matched'].includes(x.Item_Status)));
+      setReports((r.data.data || []).filter((x) => ['Active', 'Matched'].includes(x.Report_Status)));
+    });
+  }, []);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true); setError('');
+    try {
+      const { data } = await api.post('/findit-matching/manual', { item_id: Number(itemId), report_id: Number(reportId) });
+      onSuccess(data);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to create match');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit} className="space-y-4">
+      {error && (
+        <div role="alert" className="p-4 rounded-lg text-sm" style={{ backgroundColor: 'rgba(194, 116, 31, 0.08)', color: 'var(--status-terracotta)', border: '1px solid var(--status-terracotta)' }}>
+          {error}
+        </div>
+      )}
+      <p className="text-xs" style={{ color: 'var(--rust-600)' }}>
+        Pair a found item with a lost report the auto-matcher missed. The match score is computed automatically and the pairing is recorded as a manual match.
+      </p>
+      <div>
+        <label htmlFor="manual_item" className="label mb-2">Found Item</label>
+        <select id="manual_item" className="input" value={itemId} onChange={(e) => setItemId(e.target.value)} required>
+          <option value="">Select found item</option>
+          {items.map((i) => (
+            <option key={i.Item_ID} value={i.Item_ID}>#{i.Item_ID} — {i.Item_Name} ({i.Item_Color}{i.Item_Brand ? `, ${i.Item_Brand}` : ''}) · {i.Item_Status}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label htmlFor="manual_report" className="label mb-2">Lost Report</label>
+        <select id="manual_report" className="input" value={reportId} onChange={(e) => setReportId(e.target.value)} required>
+          <option value="">Select lost report</option>
+          {reports.map((r) => (
+            <option key={r.Report_ID} value={r.Report_ID}>#{r.Report_ID} — {r.Item_Name} ({r.Item_Color}{r.Item_Brand ? `, ${r.Item_Brand}` : ''}) · {r.Report_Status}</option>
+          ))}
+        </select>
+      </div>
+      <div className="flex gap-3 pt-2">
+        <button type="button" onClick={onCancel} className="px-6 py-3 rounded-lg font-semibold border flex-1" style={{ color: 'var(--brown-900)', borderColor: 'var(--gold-300)', backgroundColor: 'white' }}>Cancel</button>
+        <button type="submit" disabled={submitting || !itemId || !reportId} className="px-6 py-3 rounded-lg font-semibold text-white flex-1 disabled:opacity-60" style={{ backgroundColor: 'var(--navy-900)' }}>
+          {submitting ? 'Creating…' : 'Create Match'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
 export default function MatchingPage() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -46,6 +115,7 @@ export default function MatchingPage() {
   const [page, setPage] = useState(1);
   const [selectedId, setSelectedId] = useState(null);
   const [running, setRunning] = useState(false);
+  const [showManual, setShowManual] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, matchId: null, action: null });
   const canManage = ['Staff', 'Admin'].includes(user.role);
 
@@ -115,6 +185,9 @@ export default function MatchingPage() {
                 <button onClick={exportCSV} disabled={matches.length === 0} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-navy-900 disabled:opacity-50" style={{ backgroundColor: 'var(--gold-300)' }}>
                   <Download className="w-4 h-4" /> Export
                 </button>
+                <button onClick={() => setShowManual(true)} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-navy-900" style={{ backgroundColor: 'var(--gold-300)' }}>
+                  <ArrowLeftRight className="w-4 h-4" /> Manual match
+                </button>
                 <button onClick={runAutoMatch} disabled={running} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-60" style={{ backgroundColor: 'var(--navy-900)' }}>
                   {running ? <span className="loading-spinner" /> : <Play className="w-4 h-4" />} {running ? 'Running…' : 'Run auto-match'}
                 </button>
@@ -179,6 +252,13 @@ export default function MatchingPage() {
 
         {!loading && <Pagination pagination={pagination} onPageChange={setPage} />}
       </div>
+
+      <Modal isOpen={showManual} onClose={() => setShowManual(false)} title="Create Manual Match">
+        <ManualMatchForm
+          onSuccess={(data) => { setShowManual(false); toast(`Manual match created (score ${data?.score ?? '—'})`, 'success'); load(); }}
+          onCancel={() => setShowManual(false)}
+        />
+      </Modal>
 
       <Modal isOpen={!!selectedId} onClose={() => setSelectedId(null)} title="Match Details" size="lg">
         {selectedId && <MatchDetail id={selectedId} onClose={() => setSelectedId(null)} onRefresh={load} />}

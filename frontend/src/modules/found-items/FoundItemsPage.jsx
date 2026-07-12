@@ -47,7 +47,11 @@ export default function FoundItemsPage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-6xl mx-auto px-6 sm:px-8 py-8">
-        <PageHead title="Found items" subtitle="Items surrendered to the Office of Student Affairs" actions={registerBtn} />
+        <PageHead
+          title="Found items"
+          subtitle={`Items surrendered to the Office of Student Affairs${pagination ? ` · ${pagination.total} total` : ''}`}
+          actions={registerBtn}
+        />
 
         {/* Toolbar */}
         <div className="flex flex-col sm:flex-row gap-3 mb-4">

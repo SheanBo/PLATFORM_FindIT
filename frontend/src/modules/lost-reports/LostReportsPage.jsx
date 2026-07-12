@@ -48,7 +48,11 @@ export default function LostReportsPage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-6xl mx-auto px-6 sm:px-8 py-8">
-        <PageHead title={user?.role === 'Student' ? 'My lost reports' : 'Lost reports'} subtitle="Report and track lost items" actions={fileBtn} />
+        <PageHead
+          title={user?.role === 'Student' ? 'My lost reports' : 'Lost reports'}
+          subtitle={`Report and track lost items${pagination ? ` · ${pagination.total} total` : ''}`}
+          actions={fileBtn}
+        />
 
         {/* Toolbar */}
         <div className="flex flex-col sm:flex-row gap-3 mb-4">

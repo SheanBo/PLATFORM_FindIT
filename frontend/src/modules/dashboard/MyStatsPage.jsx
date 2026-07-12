@@ -70,9 +70,12 @@ export default function MyStatsPage() {
     return () => { mounted = false; };
   }, []);
 
-  const totalReports = stats?.my_reports?.reduce((s, r) => s + r.cnt, 0) || 0;
-  const totalMatches = stats?.my_matches?.cnt || 0;
-  const totalClaims = stats?.my_claims?.reduce((s, c) => s + c.cnt, 0) || 0;
+  // Postgres COUNT(*) comes back as a string, so cnt must be coerced to a
+  // Number before summing or `+` concatenates ("3" + "1" -> "31") instead
+  // of adding (3 + 1 -> 4).
+  const totalReports = stats?.my_reports?.reduce((s, r) => s + Number(r.cnt), 0) || 0;
+  const totalMatches = Number(stats?.my_matches?.cnt) || 0;
+  const totalClaims = stats?.my_claims?.reduce((s, c) => s + Number(c.cnt), 0) || 0;
 
   const activeReports = reports.filter((r) => ['Active', 'Matched'].includes(r.Report_Status)).slice(0, 5);
 

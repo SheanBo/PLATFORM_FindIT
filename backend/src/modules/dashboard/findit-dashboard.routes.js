@@ -47,13 +47,16 @@ router.get('/recent-activity', authenticate, authorize('Staff','Admin'), async (
 // GET /api/findit-dashboard/analytics
 router.get('/analytics', authenticate, authorize('Admin'), async (req, res) => {
   try {
+    // DISTINCT is required: joining both tables at once multiplies rows
+    // (items x reports per category), which inflated the counts. Cancelled
+    // reports are excluded to match the student-facing community-stats query.
     const categoryStats = await allAsync(`
       SELECT ic.Category_Name,
-             COUNT(fi.Item_ID) AS Found_Count,
-             COUNT(lr.Report_ID) AS Lost_Count
+             COUNT(DISTINCT fi.Item_ID) AS Found_Count,
+             COUNT(DISTINCT lr.Report_ID) AS Lost_Count
       FROM ITEM_CATEGORY ic
       LEFT JOIN FOUND_ITEM fi ON fi.Category_ID=ic.Category_ID
-      LEFT JOIN LOST_REPORT lr ON lr.Category_ID=ic.Category_ID
+      LEFT JOIN LOST_REPORT lr ON lr.Category_ID=ic.Category_ID AND lr.Report_Status != 'Cancelled'
       GROUP BY ic.Category_ID ORDER BY Found_Count DESC
     `, []);
     const monthlyFound = await allAsync(`

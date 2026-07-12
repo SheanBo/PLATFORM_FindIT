@@ -7,6 +7,7 @@ const { auditLog } = require('../../utils/audit');
 const { parsePagination } = require('../../utils/pagination');
 const upload = require('../../utils/upload');
 const { uploadPhoto } = require('../../utils/storage');
+const { scoreMatch, MATCH_THRESHOLD } = require('../matching/score');
 
 // GET /api/findit-found-items
 router.get('/', authenticate, async (req, res) => {
@@ -165,14 +166,11 @@ async function runAutoMatchForItem(itemId) {
     const reports = await allAsync("SELECT * FROM LOST_REPORT WHERE Report_Status='Active'", []);
 
     for (const report of reports) {
-      let score = 0; const breakdown = {};
-      if (item.Category_ID === report.Category_ID) { score += 40; breakdown.category = 40; } else breakdown.category = 0;
-      if (item.Item_Color && report.Item_Color && item.Item_Color.toLowerCase() === report.Item_Color.toLowerCase()) { score += 20; breakdown.color = 20; } else breakdown.color = 0;
-      if (item.Item_Brand && report.Item_Brand && item.Item_Brand.toLowerCase() === report.Item_Brand.toLowerCase()) { score += 20; breakdown.brand = 20; } else breakdown.brand = 0;
-      if (item.Item_Size && report.Item_Size && item.Item_Size.toLowerCase() === report.Item_Size.toLowerCase()) { score += 10; breakdown.size = 10; } else breakdown.size = 0;
-      if (item.Location_ID === report.Location_ID) { score += 10; breakdown.location = 10; } else breakdown.location = 0;
+      // Score with the shared algorithm so every auto-match path stays
+      // consistent (see modules/matching/score.js).
+      const { score, breakdown } = scoreMatch(item, report);
 
-      if (score >= 60) {
+      if (score >= MATCH_THRESHOLD) {
         await runAsync(`INSERT OR IGNORE INTO ITEM_MATCH (Item_ID,Report_ID,Match_Score,Score_Breakdown,Match_Type) VALUES (?,?,?,?,'Auto')`, [itemId, report.Report_ID, score, JSON.stringify(breakdown)]);
         await runAsync(`UPDATE FOUND_ITEM SET Item_Status='Matched' WHERE Item_ID=? AND Item_Status='Unclaimed'`, [itemId]);
         await runAsync(`UPDATE LOST_REPORT SET Report_Status='Matched' WHERE Report_ID=? AND Report_Status='Active'`, [report.Report_ID]);

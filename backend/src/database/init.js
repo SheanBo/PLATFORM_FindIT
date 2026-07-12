@@ -309,8 +309,7 @@ SELECT
   ROUND(
     (SELECT COUNT(*) FROM LOST_REPORT WHERE Report_Status='Closed') * 100.0 /
     NULLIF((SELECT COUNT(*) FROM LOST_REPORT),0), 1
-  ) AS Recovery_Rate_Percent,
-  (SELECT COUNT(*) FROM LOST_REPORT)                                AS Total_Reports;
+  ) AS Recovery_Rate_Percent;
 CREATE OR REPLACE FUNCTION trg_claim_approved() RETURNS trigger AS $func$
 BEGIN
   UPDATE FOUND_ITEM  SET Item_Status='Claimed',  Date_Modified=CURRENT_DATE WHERE Item_ID=NEW.Item_ID;

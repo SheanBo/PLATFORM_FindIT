@@ -89,7 +89,8 @@ export default function DashboardPage() {
         <PageHead title="Dashboard" subtitle="Operations overview — Office of Student Affairs" />
 
         {/* KPIs */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+          <Kpi icon={FileText} label="Reports filed" value={stats?.Total_Reports} foot="lost reports on file" to="/lost-reports" />
           <Kpi icon={Package} label="Unclaimed" value={stats?.Unclaimed_Items} foot="items in storage" to="/found-items?status=Unclaimed" />
           <Kpi icon={GitCompareArrows} label="Pending matches" value={stats?.Pending_Matches} foot="awaiting review" to="/matching?status=Pending" />
           <Kpi icon={ClipboardCheck} label="Pending claims" value={stats?.Pending_Claims} foot="awaiting verification" to="/claims?status=Pending" />

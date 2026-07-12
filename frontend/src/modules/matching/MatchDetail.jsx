@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import api from '../../lib/api';
 import { useAuth } from '../../lib/AuthContext';
+import ClaimForm from '../claims/ClaimForm';
 
 export default function MatchDetail({ id, onClose, onRefresh }) {
   const { user } = useAuth();
   const [match, setMatch] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showClaim, setShowClaim] = useState(false);
 
   useEffect(() => {
     api.get(`/findit-matching/${id}`).then(r => setMatch(r.data)).finally(() => setLoading(false));
@@ -108,7 +110,16 @@ export default function MatchDetail({ id, onClose, onRefresh }) {
         </div>
       </div>
 
+      {/* Claim form (students file their claim right from the match) */}
+      {showClaim && (
+        <div className="pt-4 border-t" style={{ borderColor: 'var(--gold-300)' }}>
+          <h4 className="font-semibold mb-4 text-sm" style={{ color: 'var(--brown-900)' }}>FILE A CLAIM</h4>
+          <ClaimForm itemId={match.Item_ID} onSuccess={() => { onClose(); onRefresh(); }} onCancel={() => setShowClaim(false)} />
+        </div>
+      )}
+
       {/* Actions */}
+      {!showClaim && (
       <div className="flex gap-3 pt-4 border-t" style={{ borderColor: 'var(--gold-300)' }}>
         {['Staff', 'Admin'].includes(user.role) && match.Match_Status === 'Pending' && (
           <>
@@ -116,8 +127,12 @@ export default function MatchDetail({ id, onClose, onRefresh }) {
             <button onClick={() => update('Rejected')} className="flex-1 py-3 rounded-lg font-semibold text-white transition-all" style={{ backgroundColor: 'var(--status-terracotta)' }}>Reject Match</button>
           </>
         )}
+        {user.role === 'Student' && ['Pending', 'Confirmed'].includes(match.Match_Status) && (
+          <button onClick={() => setShowClaim(true)} className="flex-1 py-3 rounded-lg font-semibold text-white transition-all" style={{ backgroundColor: 'var(--navy-900)' }}>File a Claim on This Item</button>
+        )}
         <button onClick={onClose} className="px-6 py-3 rounded-lg font-semibold transition-all border" style={{ color: 'var(--brown-900)', borderColor: 'var(--gold-300)', backgroundColor: 'white' }}>Close</button>
       </div>
+      )}
     </div>
   );
 }
